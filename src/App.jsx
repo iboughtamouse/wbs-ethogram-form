@@ -179,17 +179,25 @@ function App() {
   const getOutputData = () => {
     // Apply timezone conversion for live mode
     let outputMetadata = { ...metadata };
+    let outputObservations = observations;
     
     if (metadata.mode === 'live') {
       // Convert times to WBS timezone
       outputMetadata.startTime = convertToWBSTime(metadata.date, metadata.startTime);
       outputMetadata.endTime = convertToWBSTime(metadata.date, metadata.endTime);
       outputMetadata.observerTimezone = getUserTimezone();
+      
+      // Convert observation timestamps to WBS timezone
+      outputObservations = {};
+      Object.entries(observations).forEach(([localTime, observation]) => {
+        const wbsTime = convertToWBSTime(metadata.date, localTime);
+        outputObservations[wbsTime] = observation;
+      });
     }
     
     return {
       metadata: outputMetadata,
-      observations,
+      observations: outputObservations,
       submittedAt: new Date().toISOString()
     };
   };
