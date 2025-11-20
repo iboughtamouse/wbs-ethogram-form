@@ -204,7 +204,7 @@ const TimeSlotObservation = ({
       {requiresLocation && (
         <div className="form-group location-input">
           <label>
-            Location (Perch # or "Ground") <span className="required">*</span>
+            {observation.behavior === 'jumping' ? 'Starting Location' : 'Location'} (Perch # or "Ground") <span className="required">*</span>
           </label>
           <Select
             options={perchOptions}
