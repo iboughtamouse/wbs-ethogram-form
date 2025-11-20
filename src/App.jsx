@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { generateTimeSlots } from './utils/timeUtils';
 import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
+import { saveDraft, loadDraft, clearDraft, hasDraft } from './utils/localStorageUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
@@ -23,6 +24,30 @@ function App() {
   const [timeSlots, setTimeSlots] = useState([]);
   const [observations, setObservations] = useState({});
   const [showOutput, setShowOutput] = useState(false);
+  const [showDraftNotice, setShowDraftNotice] = useState(false);
+  const [draftTimestamp, setDraftTimestamp] = useState(null);
+
+  // Check for saved draft on mount
+  useEffect(() => {
+    if (hasDraft()) {
+      const draft = loadDraft();
+      if (draft) {
+        setShowDraftNotice(true);
+        setDraftTimestamp(draft.savedAt);
+      }
+    }
+  }, []);
+
+  // Autosave to localStorage when metadata or observations change
+  useEffect(() => {
+    // Don't autosave if form is empty
+    const hasData = metadata.observerName || metadata.startTime || metadata.endTime || 
+                    Object.values(observations).some(obs => obs.behavior || obs.location || obs.notes);
+    
+    if (hasData) {
+      saveDraft(metadata, observations);
+    }
+  }, [metadata, observations]);
 
   // Generate time slots when start/end time changes
   useEffect(() => {
@@ -101,6 +126,8 @@ function App() {
     e.preventDefault();
     if (validateForm(metadata, observations)) {
       setShowOutput(true);
+      // Clear draft from localStorage after successful submission
+      clearDraft();
     } else {
       setShowOutput(false);
       // Scroll to first error
@@ -125,6 +152,28 @@ function App() {
     setObservations({});
     clearAllErrors();
     setShowOutput(false);
+    // Clear draft from localStorage
+    clearDraft();
+  };
+
+  const handleRestoreDraft = () => {
+    const draft = loadDraft();
+    if (draft) {
+      setMetadata(draft.metadata);
+      // Time slots will regenerate via useEffect
+      // but we need to restore observations after slots are set
+      setTimeout(() => {
+        setObservations(draft.observations);
+      }, 0);
+      setShowDraftNotice(false);
+      setDraftTimestamp(null);
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    setShowDraftNotice(false);
+    setDraftTimestamp(null);
   };
 
   const getOutputData = () => {
@@ -149,6 +198,34 @@ function App() {
     <div className="app">
       <h1>WBS Ethogram Data Entry</h1>
       <p className="subtitle">Rehabilitation Raptor Ethogram - One Hour Section</p>
+
+      {showDraftNotice && (
+        <div className="draft-notice">
+          <div className="draft-notice-content">
+            <span className="draft-icon">💾</span>
+            <div className="draft-message">
+              <strong>Draft found!</strong> You have unsaved work from{' '}
+              {draftTimestamp && new Date(draftTimestamp).toLocaleString()}.
+            </div>
+          </div>
+          <div className="draft-actions">
+            <button 
+              type="button" 
+              onClick={handleRestoreDraft} 
+              className="btn-draft-restore"
+            >
+              Resume Draft
+            </button>
+            <button 
+              type="button" 
+              onClick={handleDiscardDraft} 
+              className="btn-draft-discard"
+            >
+              Start Fresh
+            </button>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <MetadataSection
