@@ -20,7 +20,7 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
   - Times displayed in friendly 12-hour format (e.g., "3:05 PM")
 
 - **Autosave Protection**: Your work is automatically saved
-  - Form data saved to your browser every 5 seconds
+  - Form data saved to your browser as you type
   - Draft recovery if you accidentally close the tab
   - Clear draft button when you're done
 
@@ -63,7 +63,7 @@ When certain behaviors are selected, additional structured fields appear:
 
 5. **Copy & Submit**: Copy the JSON output and share it with WBS via Discord
 
-Your work is automatically saved every 5 seconds, so don't worry if you need to take a break!
+Your work is automatically saved as you type, so don't worry if you need to take a break!
 
 ## 🔒 Privacy & Data
 
