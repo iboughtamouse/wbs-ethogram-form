@@ -34,8 +34,8 @@ export const generateTimeSlots = (startTime, endTime) => {
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = endHours * 60 + endMinutes;
   
-  // Generate slots every 5 minutes
-  for (let minutes = startTotalMinutes; minutes < endTotalMinutes; minutes += 5) {
+  // Generate slots every 5 minutes, including the end time
+  for (let minutes = startTotalMinutes; minutes <= endTotalMinutes; minutes += 5) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     const timeString = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
