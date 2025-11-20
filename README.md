@@ -4,6 +4,12 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 ## Features
 
+- **Dynamic Time Range Selection**: Flexible observation periods
+  - Select any start and end time within a 1-hour window
+  - Automatically generates 5-minute intervals for your chosen time range
+  - Supports observations from 5 minutes to 1 hour
+  - Times displayed in friendly 12-hour format (e.g., "3:05 PM")
+
 - **Real-Time Validation**: Validates fields as you fill them out
   - On-blur validation (errors appear when you tab away)
   - Inline error messages directly under each field
@@ -24,11 +30,12 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 ## What This Is (POC/MVP)
 
-This is a Proof of Concept for the first hour of observation (0:00 to 0:55 in 5-minute intervals). It demonstrates:
+This is a Proof of Concept for ethogram observations with flexible time ranges (5 minutes to 1 hour in 5-minute intervals). It demonstrates:
+- Dynamic time slot generation based on user-selected time range
 - Modular React component structure
-- Real-time field validation
+- Real-time field validation with 12-hour time display
 - Autocomplete perch selection
-- Data output in JSON format
+- Data output in JSON format with precise timestamps
 
 **Not Yet Implemented:**
 - Discord OAuth authentication
@@ -48,12 +55,14 @@ This is a Proof of Concept for the first hour of observation (0:00 to 0:55 in 5-
 ```
 src/
 ├── components/
-│   ├── MetadataSection.jsx       # Observer info section
+│   ├── MetadataSection.jsx       # Observer info section with time range picker
 │   ├── TimeSlotObservation.jsx   # Individual time slot component
 │   └── OutputPreview.jsx         # JSON output display
 ├── hooks/
 │   └── useFormValidation.js      # Centralized validation logic
-├── App.jsx                       # Main orchestrator
+├── utils/
+│   └── timeUtils.js              # Time formatting and calculation utilities
+├── App.jsx                       # Main orchestrator with dynamic slot generation
 ├── constants.js                  # Behaviors and perch definitions
 └── index.css                     # Global styles
 ```
@@ -116,16 +125,22 @@ The form outputs JSON in this format:
   "metadata": {
     "observerName": "string",
     "date": "YYYY-MM-DD",
-    "timeWindow": "string",
+    "startTime": "HH:MM",
+    "endTime": "HH:MM",
     "aviary": "Sayyida's Cove",
     "patient": "Sayyida"
   },
   "observations": {
-    "0:00": {
+    "15:05": {
       "behavior": "string",
       "location": "string (optional)",
       "notes": "string (optional)"
     },
+    "15:10": {
+      "behavior": "string",
+      "location": "string (optional)",
+      "notes": "string (optional)"
+    }
     ...
   },
   "submittedAt": "ISO timestamp"
@@ -134,7 +149,10 @@ The form outputs JSON in this format:
 
 ## Version History
 
-**Current: v5**
+**Current: v6**
+- ✅ Dynamic time range selection (5 minutes to 1 hour)
+- ✅ 12-hour time format display
+- ✅ Automatic time slot generation based on selected range
 - ✅ Modular component architecture
 - ✅ On-blur field validation
 - ✅ React Select autocomplete for perch locations
@@ -144,14 +162,14 @@ The form outputs JSON in this format:
 ## Next Steps / Roadmap
 
 **Validation from WBS:**
-- [ ] Get feedback on time window input format
 - [ ] Confirm perch categories and labels are correct
+- [ ] Get feedback on current time range implementation
 
 **Feature Additions:**
 - [ ] Add Discord OAuth authentication
 - [ ] Implement Excel file generation (using `xlsx` or `exceljs`)
 - [ ] Add email integration to send submissions to WBS
-- [ ] Extend to support full 24-hour observation periods
+- [ ] Extend to support full 24-hour observation periods (remove 1-hour maximum)
 - [ ] Add perch diagram image references
 - [ ] Implement data aggregation tool for combining multiple submissions
 - [ ] Add inter-rater reliability calculations
