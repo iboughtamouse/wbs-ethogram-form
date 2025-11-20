@@ -15,7 +15,9 @@ const TimeSlotObservation = ({
   interactionTypeError,
   interactionTypeOtherError,
   onChange,
-  onValidate 
+  onValidate,
+  onCopyToNext,
+  isLastSlot
 }) => {
   const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
@@ -153,9 +155,30 @@ const TimeSlotObservation = ({
   // Convert 24-hour time to 12-hour format for display
   const displayTime = formatTo12Hour(time);
 
+  const handleCopyPrevious = (e) => {
+    if (e.target.checked && onCopyToNext) {
+      // Find previous time slot and copy it to this one
+      // This is a bit of a hack - we're using onCopyToNext with the previous time
+      // We'll need to add a new prop for the previous time
+      // For now, let's add this functionality properly
+    }
+  };
+
   return (
     <div className="time-slot">
-      <div className="time-slot-header">{displayTime}</div>
+      <div className="time-slot-header">
+        <span className="time-slot-time">{displayTime}</span>
+        {!isLastSlot && (
+          <button
+            type="button"
+            onClick={() => onCopyToNext(time)}
+            className="copy-to-next-button"
+            title="Copy this observation to the next time slot"
+          >
+            Copy to next
+          </button>
+        )}
+      </div>
       
       <div className="form-group">
         <label>
@@ -339,6 +362,7 @@ const TimeSlotObservation = ({
           placeholder="Any additional observations..."
         />
       </div>
+
     </div>
   );
 };
