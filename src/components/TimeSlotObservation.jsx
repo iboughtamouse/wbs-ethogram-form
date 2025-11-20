@@ -1,5 +1,5 @@
 import React from 'react';
-import { BEHAVIORS } from '../constants';
+import { BEHAVIORS, VALID_PERCHES } from '../constants';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -60,12 +60,21 @@ const TimeSlotObservation = ({
           </label>
           <input
             type="text"
+            list={`perch-options-${time}`}
             value={observation.location}
             onChange={(e) => handleLocationChange(e.target.value)}
             onBlur={handleLocationBlur}
-            placeholder="e.g., 23, F1, Ground"
+            placeholder="Type or select..."
             className={locationError ? 'error' : ''}
           />
+          <datalist id={`perch-options-${time}`}>
+            <option value="Ground">Ground</option>
+            {VALID_PERCHES.map((perch) => (
+              <option key={perch} value={perch}>
+                {perch}
+              </option>
+            ))}
+          </datalist>
           {locationError && (
             <div className="field-error">{locationError}</div>
           )}
