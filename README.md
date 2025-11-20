@@ -57,11 +57,11 @@ When certain behaviors are selected, additional structured fields appear:
    - For object/animal interactions, select from the dropdown options
    - Add notes if needed
 
-4. **Review your data**: Click "Show JSON Output" to preview your submission
+4. **Validate & Preview**: Click the "Validate & Preview" button
+   - The form will check for any errors
+   - If valid, your data will appear in JSON format below the form
 
-5. **Copy your data**: Click "Copy JSON" to copy your observations
-
-6. **Submit**: Share your copied JSON data with WBS (current submission method is via Discord)
+5. **Copy & Submit**: Copy the JSON output and share it with WBS via Discord
 
 Your work is automatically saved every 5 seconds, so don't worry if you need to take a break!
 
