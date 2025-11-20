@@ -59,7 +59,18 @@ function App() {
       const newObservations = {};
       slots.forEach(time => {
         // Keep existing observation if it exists, otherwise create new
-        newObservations[time] = observations[time] || { behavior: '', location: '', notes: '' };
+        newObservations[time] = observations[time] || { 
+          behavior: '', 
+          location: '', 
+          notes: '',
+          // Interaction sub-fields
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: ''
+        };
       });
       setObservations(newObservations);
     } else {
@@ -94,21 +105,41 @@ function App() {
 
   const handleObservationChange = (time, field, value) => {
     setObservations(prev => {
-      const newObservations = {
-        ...prev,
-        [time]: {
-          ...prev[time],
-          [field]: value,
-          // Clear location if behavior doesn't require it
-          ...(field === 'behavior' && value 
-            ? {} 
-            : field === 'behavior' 
-              ? { location: '' } 
-              : {})
-        }
+      const updatedObservation = {
+        ...prev[time],
+        [field]: value
       };
-      
-      return newObservations;
+
+      // Clear location if behavior doesn't require it
+      if (field === 'behavior' && !value) {
+        updatedObservation.location = '';
+      }
+
+      // Clear all conditional sub-fields when behavior changes
+      if (field === 'behavior') {
+        updatedObservation.object = '';
+        updatedObservation.objectOther = '';
+        updatedObservation.animal = '';
+        updatedObservation.animalOther = '';
+        updatedObservation.interactionType = '';
+        updatedObservation.interactionTypeOther = '';
+      }
+
+      // Clear "other" text when dropdown changes away from "other"
+      if (field === 'object' && value !== 'other') {
+        updatedObservation.objectOther = '';
+      }
+      if (field === 'animal' && value !== 'other') {
+        updatedObservation.animalOther = '';
+      }
+      if (field === 'interactionType' && value !== 'other') {
+        updatedObservation.interactionTypeOther = '';
+      }
+
+      return {
+        ...prev,
+        [time]: updatedObservation
+      };
     });
     
     // Clear error when user starts typing
@@ -118,8 +149,8 @@ function App() {
     }
   };
 
-  const handleObservationValidate = (time, field) => {
-    validateSingleObservationField(time, field, observations);
+  const handleObservationValidate = (time, field, currentValue = null) => {
+    validateSingleObservationField(time, field, observations, currentValue);
   };
 
   const handleSubmit = (e) => {
@@ -260,6 +291,12 @@ function App() {
                   observation={observations[time]}
                   behaviorError={fieldErrors[`${time}_behavior`]}
                   locationError={fieldErrors[`${time}_location`]}
+                  objectError={fieldErrors[`${time}_object`]}
+                  objectOtherError={fieldErrors[`${time}_objectOther`]}
+                  animalError={fieldErrors[`${time}_animal`]}
+                  animalOtherError={fieldErrors[`${time}_animalOther`]}
+                  interactionTypeError={fieldErrors[`${time}_interactionType`]}
+                  interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
                   onChange={handleObservationChange}
                   onValidate={handleObservationValidate}
                 />
