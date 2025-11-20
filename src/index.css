@@ -125,64 +125,35 @@ select.error {
   margin-bottom: 5px;
 }
 
-/* Time Range Picker Styles */
-.react-timerange-picker {
-  display: block;
-  width: 100%;
-}
-
-.react-timerange-picker__wrapper {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px 12px;
+/* Time Range Inputs */
+.time-range-inputs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.time-range-inputs input[type="time"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
   transition: border-color 0.2s;
 }
 
-.react-timerange-picker__wrapper:focus-within {
+.time-range-inputs input[type="time"]:focus {
+  outline: none;
   border-color: #3498db;
 }
 
-.error-picker .react-timerange-picker__wrapper {
+.time-range-inputs input[type="time"].error {
   border-color: #e74c3c;
 }
 
-.react-timerange-picker__inputGroup {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.react-timerange-picker__inputGroup__input {
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  padding: 2px;
-  text-align: center;
-}
-
-.react-timerange-picker__inputGroup__input:focus {
-  outline: none;
-}
-
-.react-timerange-picker__inputGroup__leadingZero {
-  display: inline-block;
-}
-
-.react-timerange-picker__inputGroup__divider {
-  padding: 0 2px;
-}
-
-.react-timerange-picker__range-divider {
-  padding: 0 8px;
+.time-range-divider {
   color: #7f8c8d;
-}
-
-.react-timerange-picker__inputGroup__amPm {
-  font-size: 12px;
-  padding: 0 4px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .required {
