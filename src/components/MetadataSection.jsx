@@ -1,7 +1,7 @@
 import React from 'react';
-import TimeRangePicker from 'react-timerange-picker';
+import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils';
-import 'react-timerange-picker/dist/TimeRangePicker.css';
+import '@wojtekmaj/react-timerange-picker/dist/TimeRangePicker.css';
 import 'react-clock/dist/Clock.css';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
