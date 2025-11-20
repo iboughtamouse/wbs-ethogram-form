@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { generateTimeSlots } from './utils/timeUtils';
+import { generateTimeSlots, validateTimeRange } from './utils/timeUtils';
 import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
 import { saveDraft, loadDraft, clearDraft, hasDraft } from './utils/localStorageUtils';
 import { copyObservationToNext } from './utils/observationUtils';
@@ -53,27 +53,36 @@ function App() {
   // Generate time slots when start/end time changes
   useEffect(() => {
     if (metadata.startTime && metadata.endTime) {
-      const slots = generateTimeSlots(metadata.startTime, metadata.endTime);
-      setTimeSlots(slots);
+      // Validate time range before generating slots
+      const validation = validateTimeRange(metadata.startTime, metadata.endTime);
       
-      // Initialize observations for new slots
-      const newObservations = {};
-      slots.forEach(time => {
-        // Keep existing observation if it exists, otherwise create new
-        newObservations[time] = observations[time] || { 
-          behavior: '', 
-          location: '', 
-          notes: '',
-          // Interaction sub-fields
-          object: '',
-          objectOther: '',
-          animal: '',
-          animalOther: '',
-          interactionType: '',
-          interactionTypeOther: ''
-        };
-      });
-      setObservations(newObservations);
+      if (validation.valid) {
+        const slots = generateTimeSlots(metadata.startTime, metadata.endTime);
+        setTimeSlots(slots);
+        
+        // Initialize observations for new slots
+        const newObservations = {};
+        slots.forEach(time => {
+          // Keep existing observation if it exists, otherwise create new
+          newObservations[time] = observations[time] || { 
+            behavior: '', 
+            location: '', 
+            notes: '',
+            // Interaction sub-fields
+            object: '',
+            objectOther: '',
+            animal: '',
+            animalOther: '',
+            interactionType: '',
+            interactionTypeOther: ''
+          };
+        });
+        setObservations(newObservations);
+      } else {
+        // Invalid time range - clear slots and observations
+        setTimeSlots([]);
+        setObservations({});
+      }
     } else {
       setTimeSlots([]);
       setObservations({});
