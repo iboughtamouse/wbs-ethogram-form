@@ -41,14 +41,13 @@ export const useFormValidation = () => {
   const validateObservationField = (time, field, value, observations) => {
     let error = null;
     const observation = observations[time];
+    const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
 
     if (field === 'behavior') {
       if (!value) {
         error = 'Please select a behavior';
       }
     } else if (field === 'location') {
-      const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
-      
       if (behaviorDef?.requiresLocation) {
         if (!value.trim()) {
           error = 'Location is required for this behavior';
@@ -60,6 +59,42 @@ export const useFormValidation = () => {
           if (!isValidPerch && locationValue !== 'GROUND') {
             error = `Invalid perch number "${value}"`;
           }
+        }
+      }
+    } else if (field === 'object') {
+      if (behaviorDef?.requiresObject) {
+        if (!value) {
+          error = 'Object is required';
+        }
+      }
+    } else if (field === 'objectOther') {
+      if (behaviorDef?.requiresObject && observation.object === 'other') {
+        if (!value.trim()) {
+          error = 'Please specify the object';
+        }
+      }
+    } else if (field === 'animal') {
+      if (behaviorDef?.requiresAnimal) {
+        if (!value) {
+          error = 'Animal is required';
+        }
+      }
+    } else if (field === 'animalOther') {
+      if (behaviorDef?.requiresAnimal && observation.animal === 'other') {
+        if (!value.trim()) {
+          error = 'Please specify the animal';
+        }
+      }
+    } else if (field === 'interactionType') {
+      if (behaviorDef?.requiresInteraction) {
+        if (!value) {
+          error = 'Interaction type is required';
+        }
+      }
+    } else if (field === 'interactionTypeOther') {
+      if (behaviorDef?.requiresInteraction && observation.interactionType === 'other') {
+        if (!value.trim()) {
+          error = 'Please specify the interaction';
         }
       }
     }
@@ -93,6 +128,36 @@ export const useFormValidation = () => {
       const locationError = validateObservationField(time, 'location', obs.location, observations);
       if (locationError) {
         errors[`${time}_location`] = locationError;
+      }
+
+      const objectError = validateObservationField(time, 'object', obs.object, observations);
+      if (objectError) {
+        errors[`${time}_object`] = objectError;
+      }
+
+      const objectOtherError = validateObservationField(time, 'objectOther', obs.objectOther, observations);
+      if (objectOtherError) {
+        errors[`${time}_objectOther`] = objectOtherError;
+      }
+
+      const animalError = validateObservationField(time, 'animal', obs.animal, observations);
+      if (animalError) {
+        errors[`${time}_animal`] = animalError;
+      }
+
+      const animalOtherError = validateObservationField(time, 'animalOther', obs.animalOther, observations);
+      if (animalOtherError) {
+        errors[`${time}_animalOther`] = animalOtherError;
+      }
+
+      const interactionTypeError = validateObservationField(time, 'interactionType', obs.interactionType, observations);
+      if (interactionTypeError) {
+        errors[`${time}_interactionType`] = interactionTypeError;
+      }
+
+      const interactionTypeOtherError = validateObservationField(time, 'interactionTypeOther', obs.interactionTypeOther, observations);
+      if (interactionTypeOtherError) {
+        errors[`${time}_interactionTypeOther`] = interactionTypeOtherError;
       }
     });
 
@@ -129,9 +194,10 @@ export const useFormValidation = () => {
     });
   };
 
-  const validateSingleObservationField = (time, field, observations) => {
+  const validateSingleObservationField = (time, field, observations, currentValue = null) => {
     const observation = observations[time];
-    const value = field === 'behavior' ? observation.behavior : observation.location;
+    // Use provided currentValue if available, otherwise read from observation
+    const value = currentValue !== null ? currentValue : observation[field];
     const error = validateObservationField(time, field, value, observations);
     
     const errorKey = `${time}_${field}`;

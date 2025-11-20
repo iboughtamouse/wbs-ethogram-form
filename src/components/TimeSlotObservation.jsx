@@ -1,18 +1,27 @@
 import React from 'react';
 import Select from 'react-select';
-import { BEHAVIORS, VALID_PERCHES } from '../constants';
+import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
 
 const TimeSlotObservation = ({ 
   time, 
   observation, 
   behaviorError, 
-  locationError, 
+  locationError,
+  objectError,
+  objectOtherError,
+  animalError,
+  animalOtherError,
+  interactionTypeError,
+  interactionTypeOtherError,
   onChange,
   onValidate 
 }) => {
   const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
+  const requiresObject = behaviorDef?.requiresObject || false;
+  const requiresAnimal = behaviorDef?.requiresAnimal || false;
+  const requiresInteraction = behaviorDef?.requiresInteraction || false;
 
   // Format perch options for React Select
   const perchOptions = [
@@ -66,6 +75,56 @@ const TimeSlotObservation = ({
 
   const handleLocationBlur = () => {
     onValidate(time, 'location');
+  };
+
+  // Object interaction handlers
+  const handleObjectChange = (e) => {
+    onChange(time, 'object', e.target.value);
+  };
+
+  const handleObjectBlur = (e) => {
+    onValidate(time, 'object', e.target.value);
+  };
+
+  const handleObjectOtherChange = (e) => {
+    onChange(time, 'objectOther', e.target.value);
+  };
+
+  const handleObjectOtherBlur = (e) => {
+    onValidate(time, 'objectOther', e.target.value);
+  };
+
+  // Animal interaction handlers
+  const handleAnimalChange = (e) => {
+    onChange(time, 'animal', e.target.value);
+  };
+
+  const handleAnimalBlur = (e) => {
+    onValidate(time, 'animal', e.target.value);
+  };
+
+  const handleAnimalOtherChange = (e) => {
+    onChange(time, 'animalOther', e.target.value);
+  };
+
+  const handleAnimalOtherBlur = (e) => {
+    onValidate(time, 'animalOther', e.target.value);
+  };
+
+  const handleInteractionTypeChange = (e) => {
+    onChange(time, 'interactionType', e.target.value);
+  };
+
+  const handleInteractionTypeBlur = (e) => {
+    onValidate(time, 'interactionType', e.target.value);
+  };
+
+  const handleInteractionTypeOtherChange = (e) => {
+    onChange(time, 'interactionTypeOther', e.target.value);
+  };
+
+  const handleInteractionTypeOtherBlur = (e) => {
+    onValidate(time, 'interactionTypeOther', e.target.value);
   };
 
   // Find the currently selected option for React Select
@@ -137,6 +196,138 @@ const TimeSlotObservation = ({
             <div className="field-error">{locationError}</div>
           )}
         </div>
+      )}
+
+      {requiresObject && (
+        <>
+          <div className="form-group">
+            <label>
+              Object <span className="required">*</span>
+            </label>
+            <select
+              value={observation.object}
+              onChange={handleObjectChange}
+              onBlur={handleObjectBlur}
+              className={objectError ? 'error' : ''}
+            >
+              {INANIMATE_OBJECTS.map((obj) => (
+                <option key={obj.value} value={obj.value}>
+                  {obj.label}
+                </option>
+              ))}
+            </select>
+            {objectError && (
+              <div className="field-error">{objectError}</div>
+            )}
+          </div>
+
+          {observation.object === 'other' && (
+            <div className="form-group">
+              <label>
+                Specify object: <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                value={observation.objectOther}
+                onChange={handleObjectOtherChange}
+                onBlur={handleObjectOtherBlur}
+                placeholder="Enter object name..."
+                className={objectOtherError ? 'error' : ''}
+              />
+              {objectOtherError && (
+                <div className="field-error">{objectOtherError}</div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {requiresAnimal && (
+        <>
+          <div className="form-group">
+            <label>
+              Animal <span className="required">*</span>
+            </label>
+            <select
+              value={observation.animal}
+              onChange={handleAnimalChange}
+              onBlur={handleAnimalBlur}
+              className={animalError ? 'error' : ''}
+            >
+              {ANIMAL_TYPES.map((animal) => (
+                <option key={animal.value} value={animal.value}>
+                  {animal.label}
+                </option>
+              ))}
+            </select>
+            {animalError && (
+              <div className="field-error">{animalError}</div>
+            )}
+          </div>
+
+          {observation.animal === 'other' && (
+            <div className="form-group">
+              <label>
+                Specify animal: <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                value={observation.animalOther}
+                onChange={handleAnimalOtherChange}
+                onBlur={handleAnimalOtherBlur}
+                placeholder="Enter animal type..."
+                className={animalOtherError ? 'error' : ''}
+              />
+              {animalOtherError && (
+                <div className="field-error">{animalOtherError}</div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {requiresInteraction && (
+        <>
+          <div className="form-group">
+            <label>
+              Interaction Type <span className="required">*</span>
+            </label>
+            <select
+              value={observation.interactionType}
+              onChange={handleInteractionTypeChange}
+              onBlur={handleInteractionTypeBlur}
+              className={interactionTypeError ? 'error' : ''}
+            >
+              {INTERACTION_TYPES.map((interaction) => (
+                <option key={interaction.value} value={interaction.value}>
+                  {interaction.label}
+                </option>
+              ))}
+            </select>
+            {interactionTypeError && (
+              <div className="field-error">{interactionTypeError}</div>
+            )}
+          </div>
+
+          {observation.interactionType === 'other' && (
+            <div className="form-group">
+              <label>
+                Specify interaction: <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                value={observation.interactionTypeOther}
+                onChange={handleInteractionTypeOtherChange}
+                onBlur={handleInteractionTypeOtherBlur}
+                placeholder="Enter interaction type..."
+                className={interactionTypeOtherError ? 'error' : ''}
+              />
+              {interactionTypeOtherError && (
+                <div className="field-error">{interactionTypeOtherError}</div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       <div className="form-group">
