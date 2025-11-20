@@ -119,6 +119,72 @@ select.error {
   max-width: 200px;
 }
 
+.time-range-help-text {
+  font-size: 12px;
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+/* Time Range Picker Styles */
+.react-timerange-picker {
+  display: block;
+  width: 100%;
+}
+
+.react-timerange-picker__wrapper {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+
+.react-timerange-picker__wrapper:focus-within {
+  border-color: #3498db;
+}
+
+.error-picker .react-timerange-picker__wrapper {
+  border-color: #e74c3c;
+}
+
+.react-timerange-picker__inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.react-timerange-picker__inputGroup__input {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 2px;
+  text-align: center;
+}
+
+.react-timerange-picker__inputGroup__input:focus {
+  outline: none;
+}
+
+.react-timerange-picker__inputGroup__leadingZero {
+  display: inline-block;
+}
+
+.react-timerange-picker__inputGroup__divider {
+  padding: 0 2px;
+}
+
+.react-timerange-picker__range-divider {
+  padding: 0 8px;
+  color: #7f8c8d;
+}
+
+.react-timerange-picker__inputGroup__amPm {
+  font-size: 12px;
+  padding: 0 4px;
+}
+
 .required {
   color: #e74c3c;
 }
