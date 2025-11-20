@@ -1,6 +1,47 @@
 import React from 'react';
+import TimeRangePicker from 'react-timerange-picker';
+import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils';
+import 'react-timerange-picker/dist/TimeRangePicker.css';
+import 'react-clock/dist/Clock.css';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
+  const handleTimeRangeChange = (value) => {
+    if (!value) {
+      onChange('startTime', '', false);
+      onChange('endTime', '', false);
+      return;
+    }
+
+    const [startTime, endTime] = value;
+    
+    // Round times to nearest 5-minute interval
+    const roundedStart = startTime ? roundToNearestFiveMinutes(startTime) : '';
+    const roundedEnd = endTime ? roundToNearestFiveMinutes(endTime) : '';
+    
+    onChange('startTime', roundedStart, false);
+    onChange('endTime', roundedEnd, false);
+  };
+
+  const handleTimeRangeBlur = () => {
+    if (metadata.startTime && metadata.endTime) {
+      const validation = validateTimeRange(metadata.startTime, metadata.endTime);
+      if (!validation.valid) {
+        // Set error through onChange with validation flag
+        onChange('startTime', metadata.startTime, true);
+      }
+    }
+  };
+
+  // Combine start and end time for the picker
+  const timeRangeValue = metadata.startTime && metadata.endTime 
+    ? [metadata.startTime, metadata.endTime] 
+    : null;
+
+  // Check for time range validation error
+  const timeRangeError = metadata.startTime && metadata.endTime 
+    ? validateTimeRange(metadata.startTime, metadata.endTime).error 
+    : null;
+
   return (
     <div className="section">
       <h2 className="section-title">Observer Information</h2>
@@ -40,18 +81,24 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
 
         <div className="form-group">
           <label>
-            Time Window <span className="required">*</span>
+            Time Range <span className="required">*</span>
           </label>
-          <input
-            type="text"
-            value={metadata.timeWindow}
-            onChange={(e) => onChange('timeWindow', e.target.value)}
-            onBlur={(e) => onChange('timeWindow', e.target.value, true)}
-            placeholder="e.g., 0:00 - 0:55"
-            className={fieldErrors.timeWindow ? 'error' : ''}
+          <div className="time-range-help-text">
+            Select start and end time (5-60 minutes)
+          </div>
+          <TimeRangePicker
+            onChange={handleTimeRangeChange}
+            onBlur={handleTimeRangeBlur}
+            value={timeRangeValue}
+            disableClock={true}
+            format="h:mm a"
+            rangeDivider="to"
+            className={timeRangeError ? 'error-picker' : ''}
+            clearIcon={null}
+            clockIcon={null}
           />
-          {fieldErrors.timeWindow && (
-            <div className="field-error">{fieldErrors.timeWindow}</div>
+          {timeRangeError && (
+            <div className="field-error">{timeRangeError}</div>
           )}
         </div>
 

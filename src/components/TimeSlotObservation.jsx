@@ -1,6 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES } from '../constants';
+import { formatTo12Hour } from '../utils/timeUtils';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -90,9 +91,12 @@ const TimeSlotObservation = ({
     })
   };
 
+  // Convert 24-hour time to 12-hour format for display
+  const displayTime = formatTo12Hour(time);
+
   return (
     <div className="time-slot">
-      <div className="time-slot-header">{time}</div>
+      <div className="time-slot-header">{displayTime}</div>
       
       <div className="form-group">
         <label>

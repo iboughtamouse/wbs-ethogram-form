@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { TIME_SLOTS } from './constants';
+import { useState, useEffect } from 'react';
+import { generateTimeSlots } from './utils/timeUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
@@ -12,19 +12,34 @@ function App() {
   const [metadata, setMetadata] = useState({
     observerName: '',
     date: today,
-    timeWindow: '',
+    startTime: '',
+    endTime: '',
     aviary: "Sayyida's Cove",
     patient: 'Sayyida'
   });
 
-  const [observations, setObservations] = useState(
-    TIME_SLOTS.reduce((acc, time) => {
-      acc[time] = { behavior: '', location: '', notes: '' };
-      return acc;
-    }, {})
-  );
-
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [observations, setObservations] = useState({});
   const [showOutput, setShowOutput] = useState(false);
+
+  // Generate time slots when start/end time changes
+  useEffect(() => {
+    if (metadata.startTime && metadata.endTime) {
+      const slots = generateTimeSlots(metadata.startTime, metadata.endTime);
+      setTimeSlots(slots);
+      
+      // Initialize observations for new slots
+      const newObservations = {};
+      slots.forEach(time => {
+        // Keep existing observation if it exists, otherwise create new
+        newObservations[time] = observations[time] || { behavior: '', location: '', notes: '' };
+      });
+      setObservations(newObservations);
+    } else {
+      setTimeSlots([]);
+      setObservations({});
+    }
+  }, [metadata.startTime, metadata.endTime]);
 
   const {
     fieldErrors,
@@ -36,7 +51,8 @@ function App() {
   } = useFormValidation();
 
   const handleMetadataChange = (field, value, shouldValidate = false) => {
-    setMetadata(prev => ({ ...prev, [field]: value }));
+    const updatedMetadata = { ...metadata, [field]: value };
+    setMetadata(updatedMetadata);
     
     // Clear error when user starts typing
     if (!shouldValidate && fieldErrors[field]) {
@@ -45,7 +61,7 @@ function App() {
     
     // Validate on blur
     if (shouldValidate) {
-      validateSingleMetadataField(field, value);
+      validateSingleMetadataField(field, value, updatedMetadata);
     }
   };
 
@@ -97,16 +113,13 @@ function App() {
     setMetadata({
       observerName: '',
       date: today,
-      timeWindow: '',
+      startTime: '',
+      endTime: '',
       aviary: "Sayyida's Cove",
       patient: 'Sayyida'
     });
-    setObservations(
-      TIME_SLOTS.reduce((acc, time) => {
-        acc[time] = { behavior: '', location: '', notes: '' };
-        return acc;
-      }, {})
-    );
+    setTimeSlots([]);
+    setObservations({});
     clearAllErrors();
     setShowOutput(false);
   };
@@ -133,19 +146,25 @@ function App() {
 
         <div className="section">
           <h2 className="section-title">Observations (5-minute intervals)</h2>
-          <div className="time-slots">
-            {TIME_SLOTS.map((time) => (
-              <TimeSlotObservation
-                key={time}
-                time={time}
-                observation={observations[time]}
-                behaviorError={fieldErrors[`${time}_behavior`]}
-                locationError={fieldErrors[`${time}_location`]}
-                onChange={handleObservationChange}
-                onValidate={handleObservationValidate}
-              />
-            ))}
-          </div>
+          {timeSlots.length === 0 ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#7f8c8d' }}>
+              Please select a time range above to begin entering observations.
+            </div>
+          ) : (
+            <div className="time-slots">
+              {timeSlots.map((time) => (
+                <TimeSlotObservation
+                  key={time}
+                  time={time}
+                  observation={observations[time]}
+                  behaviorError={fieldErrors[`${time}_behavior`]}
+                  locationError={fieldErrors[`${time}_location`]}
+                  onChange={handleObservationChange}
+                  onValidate={handleObservationValidate}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="button-group">

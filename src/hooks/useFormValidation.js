@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { BEHAVIORS, VALID_PERCHES } from '../constants';
+import { validateTimeRange } from '../utils/timeUtils';
 
 export const useFormValidation = () => {
   const [fieldErrors, setFieldErrors] = useState({});
 
-  const validateMetadataField = (field, value) => {
+  const validateMetadataField = (field, value, metadata) => {
     let error = null;
 
     switch (field) {
@@ -18,9 +19,16 @@ export const useFormValidation = () => {
           error = 'Date is required';
         }
         break;
-      case 'timeWindow':
-        if (!value.trim()) {
-          error = 'Time window is required';
+      case 'startTime':
+      case 'endTime':
+        // Validate time range when either start or end time changes
+        if (metadata && metadata.startTime && metadata.endTime) {
+          const validation = validateTimeRange(metadata.startTime, metadata.endTime);
+          if (!validation.valid) {
+            error = validation.error;
+          }
+        } else if (!value) {
+          error = 'Time range is required';
         }
         break;
       default:
@@ -62,8 +70,9 @@ export const useFormValidation = () => {
   const validateMetadata = (metadata) => {
     const errors = {};
     
-    Object.keys(metadata).forEach(field => {
-      const error = validateMetadataField(field, metadata[field]);
+    // Validate each field
+    ['observerName', 'date', 'startTime', 'endTime'].forEach(field => {
+      const error = validateMetadataField(field, metadata[field], metadata);
       if (error) {
         errors[field] = error;
       }
@@ -100,8 +109,8 @@ export const useFormValidation = () => {
     return Object.keys(allErrors).length === 0;
   };
 
-  const validateSingleMetadataField = (field, value) => {
-    const error = validateMetadataField(field, value);
+  const validateSingleMetadataField = (field, value, metadata) => {
+    const error = validateMetadataField(field, value, metadata);
     
     setFieldErrors(prev => {
       const newErrors = { ...prev };
@@ -109,6 +118,12 @@ export const useFormValidation = () => {
         newErrors[field] = error;
       } else {
         delete newErrors[field];
+        // Also clear the paired time field error if validating start/end time
+        if (field === 'startTime') {
+          delete newErrors['endTime'];
+        } else if (field === 'endTime') {
+          delete newErrors['startTime'];
+        }
       }
       return newErrors;
     });
