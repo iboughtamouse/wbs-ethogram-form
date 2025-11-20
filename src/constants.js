@@ -6,7 +6,7 @@ export const BEHAVIORS = [
   { value: 'walking_ground', label: 'Locomotion - Walking on Ground', requiresLocation: false },
   { value: 'walking_perch', label: 'Locomotion - Walking on Perch', requiresLocation: true },
   { value: 'flying', label: 'Locomotion - Flying', requiresLocation: false },
-  { value: 'jumping', label: 'Locomotion - Jumping', requiresLocation: false },
+  { value: 'jumping', label: 'Locomotion - Jumping', requiresLocation: true },
   { value: 'repetitive_locomotion', label: 'Repetitive Locomotion (Same movement 3+ times)', requiresLocation: false },
   { value: 'drinking', label: 'Drinking', requiresLocation: false },
   { value: 'bathing', label: 'Bathing', requiresLocation: false },
