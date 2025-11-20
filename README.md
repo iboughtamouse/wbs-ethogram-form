@@ -1,183 +1,142 @@
 # WBS Ethogram Data Entry Form
 
-A web-based data entry form for World Bird Sanctuary's ethogram observations. This tool replaces manual Excel spreadsheets with a validated web form to reduce data entry errors and streamline the observation process.
+A web-based data entry form for World Bird Sanctuary's ethogram observations. This tool helps citizen scientists record Sayyida's behaviors during live Twitch streams or when reviewing recorded videos (VODs).
 
-## Features
-
-- **Dynamic Time Range Selection**: Flexible observation periods
-  - Select any start and end time within a 1-hour window
-  - Automatically generates 5-minute intervals for your chosen time range
-  - Supports observations from 5 minutes to 1 hour
-  - Times displayed in friendly 12-hour format (e.g., "3:05 PM")
-
-- **Real-Time Validation**: Validates fields as you fill them out
-  - On-blur validation (errors appear when you tab away)
-  - Inline error messages directly under each field
-  - Errors clear automatically as you type
-  - Auto-scrolls to first error on submit
-
-- **Smart Location Selection**: Autocomplete dropdown for perch locations
-  - Type to filter options (e.g., type "2" to see all perches with 2)
-  - Click dropdown arrow to browse all options
-  - Organized by category (Perches, Baby Boxes, Food Platforms, etc.)
-  - Prevents typos and invalid entries
-
-- **Conditional Fields**: Location input only appears when the selected behavior requires it
-
-- **Clean UX**: Works on any device (desktop, tablet, mobile)
-
-- **Modular Architecture**: Clean, maintainable codebase with separated concerns
-
-## What This Is (POC/MVP)
-
-This is a Proof of Concept for ethogram observations with flexible time ranges (5 minutes to 1 hour in 5-minute intervals). It demonstrates:
-- Dynamic time slot generation based on user-selected time range
-- Modular React component structure
-- Real-time field validation with 12-hour time display
-- Autocomplete perch selection
-- Data output in JSON format with precise timestamps
-
-**Not Yet Implemented:**
-- Discord OAuth authentication
-- Excel file generation
-- Email integration
-- Full 24-hour support
-
-## Tech Stack
-
-- **React** - UI framework
-- **Vite** - Build tool and dev server
-- **React Select** - Autocomplete dropdown component
-- **Custom CSS** - Styling
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── MetadataSection.jsx       # Observer info section with time range picker
-│   ├── TimeSlotObservation.jsx   # Individual time slot component
-│   └── OutputPreview.jsx         # JSON output display
-├── hooks/
-│   └── useFormValidation.js      # Centralized validation logic
-├── utils/
-│   └── timeUtils.js              # Time formatting and calculation utilities
-├── App.jsx                       # Main orchestrator with dynamic slot generation
-├── constants.js                  # Behaviors and perch definitions
-└── index.css                     # Global styles
-```
-
-## Local Development
-
-### Prerequisites
-
-- Node.js 16+ and npm
-
-### Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-This creates optimized files in the `dist/` directory.
-
-## Live Demo
+## 🌐 Live Demo
 
 **Current deployment:** [https://wbs-ethogram-form.vercel.app/](https://wbs-ethogram-form.vercel.app/)
 
-## Deployment
+## ✨ Features
 
-This app is deployed on Vercel and auto-deploys when changes are pushed to the main branch.
+### For Observers
 
-### Vercel (Current)
+- **Live Stream & VOD Support**: Choose your observation mode
+  - 🔴 **Live Stream**: Records in your local time, converts to WBS timezone automatically
+  - 📼 **Recorded Video (VOD)**: Enter timestamps directly from the video
 
-1. Push code to GitHub
-2. Import repository in Vercel dashboard
-3. Vercel auto-detects Vite and configures build settings
-4. Deploy!
+- **Flexible Time Ranges**: Observe for any duration from 5 minutes to 1 hour
+  - Select any start and end time
+  - Automatically generates 5-minute interval slots
+  - Times displayed in friendly 12-hour format (e.g., "3:05 PM")
 
-### Netlify
+- **Autosave Protection**: Your work is automatically saved
+  - Form data saved to your browser every 5 seconds
+  - Draft recovery if you accidentally close the tab
+  - Clear draft button when you're done
 
-1. Push code to GitHub
-2. Import repository in Netlify dashboard
-3. Set build command: `npm run build`
-4. Set publish directory: `dist`
-5. Deploy!
+- **Smart Validation**: Catches errors before you submit
+  - Inline error messages appear as you fill out the form
+  - Auto-scrolls to first error on submit
+  - Required fields clearly marked
 
-## Data Structure
+- **Structured Data Entry**: Standardized options reduce errors
+  - Autocomplete perch location dropdown (type to filter)
+  - Behavior-specific interaction dropdowns
+  - "Other" text fields when you need them
+  - Notes field for additional context
 
-The form outputs JSON in this format:
+### Interaction Sub-fields
+
+When certain behaviors are selected, additional structured fields appear:
+
+- **Interacting with Inanimate Object**: Select object type (newspaper, rope ball, plastic ball, rubber duck, wooden blocks, camera, plant, stump, perch, or other)
+- **Interacting with Other Animal**: Select animal type (adult/juvenile aviary occupant, insect, prey animal, same species, predator, or other) and interaction type (watching, preening/grooming, feeding, playing, non-aggressive biting/foot grabbing, or other)
+
+## 📝 How to Use This Form
+
+1. **Choose your observation mode**: Are you watching the live stream or reviewing a recorded video?
+
+2. **Enter your information**:
+   - Discord username (so WBS knows who submitted the data)
+   - Date of observation
+   - Start and end times for your observation session
+
+3. **Record behaviors**: For each 5-minute time slot:
+   - Select the behavior you observed
+   - Add location if required (perch number or "Ground")
+   - For object/animal interactions, select from the dropdown options
+   - Add notes if needed
+
+4. **Review your data**: Click "Show JSON Output" to preview your submission
+
+5. **Copy your data**: Click "Copy JSON" to copy your observations
+
+6. **Submit**: Share your copied JSON data with WBS (current submission method is via Discord)
+
+Your work is automatically saved every 5 seconds, so don't worry if you need to take a break!
+
+## 🔒 Privacy & Data
+
+- All data stays in your browser until you choose to copy and submit it
+- Autosave uses browser localStorage (no server storage)
+- No account or login required
+- No tracking or analytics
+
+## 📊 Data Output Example
+
+The form outputs structured JSON data:
 
 ```json
 {
   "metadata": {
-    "observerName": "string",
-    "date": "YYYY-MM-DD",
-    "startTime": "HH:MM",
-    "endTime": "HH:MM",
+    "observerName": "YourDiscordName",
+    "date": "2025-11-20",
+    "startTime": "15:00",
+    "endTime": "15:30",
     "aviary": "Sayyida's Cove",
-    "patient": "Sayyida"
+    "patient": "Sayyida",
+    "mode": "live"
   },
   "observations": {
-    "15:05": {
-      "behavior": "string",
-      "location": "string (optional)",
-      "notes": "string (optional)"
+    "15:00": {
+      "behavior": "perching",
+      "location": "12",
+      "notes": "",
+      "object": "",
+      "objectOther": "",
+      "animal": "",
+      "animalOther": "",
+      "interactionType": "",
+      "interactionTypeOther": ""
     },
-    "15:10": {
-      "behavior": "string",
-      "location": "string (optional)",
-      "notes": "string (optional)"
+    "15:05": {
+      "behavior": "interacting_object",
+      "location": "",
+      "notes": "Playing with newspaper",
+      "object": "newspaper",
+      "objectOther": "",
+      "animal": "",
+      "animalOther": "",
+      "interactionType": "",
+      "interactionTypeOther": ""
     }
-    ...
   },
-  "submittedAt": "ISO timestamp"
+  "submittedAt": "2025-11-20T15:32:00.000Z"
 }
 ```
 
-## Version History
+## 🛠️ For Developers
 
-**Current: v6**
-- ✅ Dynamic time range selection (5 minutes to 1 hour)
-- ✅ 12-hour time format display
-- ✅ Automatic time slot generation based on selected range
-- ✅ Modular component architecture
-- ✅ On-blur field validation
-- ✅ React Select autocomplete for perch locations
-- ✅ Inline error messages
-- ✅ Auto-scroll to errors
+Interested in contributing or setting up your own instance? Check out:
 
-## Next Steps / Roadmap
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical details, architecture, and setup
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to this project
 
-**Validation from WBS:**
-- [ ] Confirm perch categories and labels are correct
-- [ ] Get feedback on current time range implementation
+## 🗺️ Roadmap
 
-**Feature Additions:**
-- [ ] Add Discord OAuth authentication
-- [ ] Implement Excel file generation (using `xlsx` or `exceljs`)
-- [ ] Add email integration to send submissions to WBS
-- [ ] Extend to support full 24-hour observation periods (remove 1-hour maximum)
-- [ ] Add perch diagram image references
-- [ ] Implement data aggregation tool for combining multiple submissions
-- [ ] Add inter-rater reliability calculations
+**Upcoming Features:**
+- [ ] Excel file export
+- [ ] Discord OAuth authentication
+- [ ] Email submission integration
+- [ ] Extended observation periods (24+ hours)
+- [ ] Perch diagram visual reference
+- [ ] Data aggregation & analysis tools
+- [ ] Inter-rater reliability calculations
 
-## Contributing
-
-This is an open-source project for World Bird Sanctuary. Contributions welcome!
-
-## License
+## 📄 License
 
 MIT License - Feel free to use and modify for your organization's needs.
+
+## 🙏 Acknowledgments
+
+Built for the World Bird Sanctuary community and the amazing citizen scientists who observe Sayyida!
