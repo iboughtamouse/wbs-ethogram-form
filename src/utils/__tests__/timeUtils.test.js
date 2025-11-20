@@ -39,7 +39,7 @@ describe('timeUtils', () => {
   });
 
   describe('generateTimeSlots', () => {
-    it('should generate 5-minute intervals within range', () => {
+    it('should generate 5-minute intervals within range including end time', () => {
       const slots = generateTimeSlots('09:00', '09:30');
       expect(slots).toEqual([
         '09:00',
@@ -48,25 +48,25 @@ describe('timeUtils', () => {
         '09:15',
         '09:20',
         '09:25',
+        '09:30',
       ]);
     });
 
-    it('should generate slots for a full hour', () => {
+    it('should generate slots for a full hour including end time', () => {
       const slots = generateTimeSlots('14:00', '15:00');
-      expect(slots).toHaveLength(12);
+      expect(slots).toHaveLength(13);
       expect(slots[0]).toBe('14:00');
-      expect(slots[11]).toBe('14:55');
+      expect(slots[12]).toBe('15:00');
     });
 
-    it('should not include the end time (end-exclusive)', () => {
+    it('should include the end time as final slot', () => {
       const slots = generateTimeSlots('10:00', '10:15');
-      expect(slots).toEqual(['10:00', '10:05', '10:10']);
-      expect(slots).not.toContain('10:15');
+      expect(slots).toEqual(['10:00', '10:05', '10:10', '10:15']);
     });
 
-    it('should handle cross-hour boundaries', () => {
+    it('should handle cross-hour boundaries including end time', () => {
       const slots = generateTimeSlots('09:50', '10:10');
-      expect(slots).toEqual(['09:50', '09:55', '10:00', '10:05']);
+      expect(slots).toEqual(['09:50', '09:55', '10:00', '10:05', '10:10']);
     });
 
     it('should return empty array if start or end is missing', () => {
@@ -77,12 +77,20 @@ describe('timeUtils', () => {
 
     it('should handle minimum 5-minute range', () => {
       const slots = generateTimeSlots('12:00', '12:05');
-      expect(slots).toEqual(['12:00']);
+      expect(slots).toEqual(['12:00', '12:05']);
     });
 
     it('should pad hours and minutes with leading zeros', () => {
       const slots = generateTimeSlots('08:05', '08:15');
-      expect(slots).toEqual(['08:05', '08:10']);
+      expect(slots).toEqual(['08:05', '08:10', '08:15']);
+    });
+
+    it('should include end time for the reported issue (2:45-3:35)', () => {
+      const slots = generateTimeSlots('14:45', '15:35');
+      expect(slots).toHaveLength(11); // 10 intervals of 5 min + end time = 11 slots
+      expect(slots[0]).toBe('14:45');
+      expect(slots[10]).toBe('15:35');
+      expect(slots).toContain('15:35');
     });
   });
 
