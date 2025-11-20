@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { generateTimeSlots } from './utils/timeUtils';
+import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
@@ -15,7 +16,8 @@ function App() {
     startTime: '',
     endTime: '',
     aviary: "Sayyida's Cove",
-    patient: 'Sayyida'
+    patient: 'Sayyida',
+    mode: 'live' // 'live' or 'vod'
   });
 
   const [timeSlots, setTimeSlots] = useState([]);
@@ -116,7 +118,8 @@ function App() {
       startTime: '',
       endTime: '',
       aviary: "Sayyida's Cove",
-      patient: 'Sayyida'
+      patient: 'Sayyida',
+      mode: 'live'
     });
     setTimeSlots([]);
     setObservations({});
@@ -125,8 +128,18 @@ function App() {
   };
 
   const getOutputData = () => {
+    // Apply timezone conversion for live mode
+    let outputMetadata = { ...metadata };
+    
+    if (metadata.mode === 'live') {
+      // Convert times to WBS timezone
+      outputMetadata.startTime = convertToWBSTime(metadata.date, metadata.startTime);
+      outputMetadata.endTime = convertToWBSTime(metadata.date, metadata.endTime);
+      outputMetadata.observerTimezone = getUserTimezone();
+    }
+    
     return {
-      metadata,
+      metadata: outputMetadata,
       observations,
       submittedAt: new Date().toISOString()
     };
