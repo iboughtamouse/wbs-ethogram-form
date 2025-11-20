@@ -68,6 +68,7 @@ function App() {
             behavior: '', 
             location: '', 
             notes: '',
+            description: '',
             // Interaction sub-fields
             object: '',
             objectOther: '',
@@ -127,6 +128,7 @@ function App() {
 
       // Clear all conditional sub-fields when behavior changes
       if (field === 'behavior') {
+        updatedObservation.description = '';
         updatedObservation.object = '';
         updatedObservation.objectOther = '';
         updatedObservation.animal = '';
@@ -319,6 +321,7 @@ function App() {
                   animalOtherError={fieldErrors[`${time}_animalOther`]}
                   interactionTypeError={fieldErrors[`${time}_interactionType`]}
                   interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
+                  descriptionError={fieldErrors[`${time}_description`]}
                   onChange={handleObservationChange}
                   onValidate={handleObservationValidate}
                   onCopyToNext={handleCopyToNext}

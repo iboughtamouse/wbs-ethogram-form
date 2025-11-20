@@ -97,6 +97,12 @@ export const useFormValidation = () => {
           error = 'Please specify the interaction';
         }
       }
+    } else if (field === 'description') {
+      if (behaviorDef?.requiresDescription) {
+        if (!value.trim()) {
+          error = 'Description is required for this behavior';
+        }
+      }
     }
 
     return error;
@@ -158,6 +164,11 @@ export const useFormValidation = () => {
       const interactionTypeOtherError = validateObservationField(time, 'interactionTypeOther', obs.interactionTypeOther, observations);
       if (interactionTypeOtherError) {
         errors[`${time}_interactionTypeOther`] = interactionTypeOtherError;
+      }
+
+      const descriptionError = validateObservationField(time, 'description', obs.description, observations);
+      if (descriptionError) {
+        errors[`${time}_description`] = descriptionError;
       }
     });
 
