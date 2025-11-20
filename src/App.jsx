@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { generateTimeSlots } from './utils/timeUtils';
 import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
 import { saveDraft, loadDraft, clearDraft, hasDraft } from './utils/localStorageUtils';
+import { copyObservationToNext } from './utils/observationUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
@@ -153,6 +154,18 @@ function App() {
     validateSingleObservationField(time, field, observations, currentValue);
   };
 
+  const handleCopyToNext = (time) => {
+    const result = copyObservationToNext(observations, timeSlots, time);
+    
+    if (result.success) {
+      setObservations(result.updatedObservations);
+      // Autosave will trigger automatically via useEffect
+      return true;
+    }
+    
+    return false;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm(metadata, observations)) {
@@ -284,7 +297,7 @@ function App() {
             </div>
           ) : (
             <div className="time-slots">
-              {timeSlots.map((time) => (
+              {timeSlots.map((time, index) => (
                 <TimeSlotObservation
                   key={time}
                   time={time}
@@ -299,6 +312,8 @@ function App() {
                   interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
                   onChange={handleObservationChange}
                   onValidate={handleObservationValidate}
+                  onCopyToNext={handleCopyToNext}
+                  isLastSlot={index === timeSlots.length - 1}
                 />
               ))}
             </div>

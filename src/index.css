@@ -96,6 +96,22 @@ select.error {
 .time-slots {
   display: grid;
   gap: 20px;
+  /* Single column on mobile */
+  grid-template-columns: 1fr;
+}
+
+/* Two columns on larger screens */
+@media (min-width: 960px) {
+  .time-slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Optional: Three columns on very large screens */
+@media (min-width: 1400px) {
+  .time-slots {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .time-slot {
@@ -106,9 +122,43 @@ select.error {
 }
 
 .time-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.time-slot-time {
   font-weight: 600;
   color: #3498db;
-  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.copy-to-next-button {
+  background: none;
+  border: none;
+  color: #27ae60;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copy-to-next-button:hover {
+  color: #229954;
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+.copy-to-next-button:active {
+  transform: scale(0.95);
+}
+
+.copy-to-next-button:focus {
+  outline: 2px solid #27ae60;
+  outline-offset: 2px;
 }
 
 .location-input {
