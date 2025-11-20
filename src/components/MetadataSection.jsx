@@ -27,7 +27,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   // Mode-specific help text
   const timeRangeHelpText = metadata.mode === 'live' 
     ? 'Enter times in YOUR local time. We\'ll convert to WBS time automatically.'
-    : 'Enter times exactly as shown in the video timestamp (top left corner). These are already in WBS time.';
+    : 'Enter times exactly as shown on stream (top left corner). These are already in WBS time.';
 
   return (
     <section className="section">
