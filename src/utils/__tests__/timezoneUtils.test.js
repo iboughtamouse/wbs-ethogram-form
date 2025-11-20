@@ -102,7 +102,7 @@ describe('timezoneUtils', () => {
     });
   });
 
-  describe('Error handling', () => {
+  describe('Early returns for empty inputs', () => {
     it('should handle empty date string', () => {
       const result = convertToWBSTime('', '15:00');
       expect(result).toBe('15:00'); // Returns original time
@@ -112,17 +112,30 @@ describe('timezoneUtils', () => {
       const result = convertToWBSTime('2025-11-20', '');
       expect(result).toBe(''); // Returns original (empty) time
     });
+  });
+
+  describe('Error handling for invalid formats', () => {
+    // Suppress console.error for error handling tests to avoid noise
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      console.error.mockRestore();
+    });
 
     it('should handle invalid date format gracefully', () => {
       // Should return original time on error
       const result = convertToWBSTime('invalid-date', '15:00');
       expect(result).toBe('15:00');
+      expect(console.error).toHaveBeenCalled();
     });
 
     it('should handle invalid time format gracefully', () => {
       // Should return original time on error
       const result = convertToWBSTime('2025-11-20', 'invalid-time');
       expect(result).toBe('invalid-time');
+      expect(console.error).toHaveBeenCalled();
     });
   });
 });
