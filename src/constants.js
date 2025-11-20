@@ -19,9 +19,9 @@ export const BEHAVIORS = [
   { value: 'resting_unknown', label: 'Resting on Perch/Ground - Status Unknown', requiresLocation: true },
   { value: 'interacting_object', label: 'Interacting with Inanimate Object', requiresLocation: false, requiresObject: true },
   { value: 'interacting_animal', label: 'Interacting with Other Animal', requiresLocation: false, requiresAnimal: true, requiresInteraction: true },
-  { value: 'aggression', label: 'Aggression or Defensive Posturing', requiresLocation: false },
+  { value: 'aggression', label: 'Aggression or Defensive Posturing', requiresLocation: false, requiresDescription: true },
   { value: 'not_visible', label: 'Not Visible', requiresLocation: false },
-  { value: 'other', label: 'Other', requiresLocation: false }
+  { value: 'other', label: 'Other', requiresLocation: false, requiresDescription: true }
 ];
 
 // Valid perch numbers from the diagrams

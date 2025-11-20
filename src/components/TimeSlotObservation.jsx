@@ -14,6 +14,7 @@ const TimeSlotObservation = ({
   animalOtherError,
   interactionTypeError,
   interactionTypeOtherError,
+  descriptionError,
   onChange,
   onValidate,
   onCopyToNext,
@@ -24,6 +25,7 @@ const TimeSlotObservation = ({
   const requiresObject = behaviorDef?.requiresObject || false;
   const requiresAnimal = behaviorDef?.requiresAnimal || false;
   const requiresInteraction = behaviorDef?.requiresInteraction || false;
+  const requiresDescription = behaviorDef?.requiresDescription || false;
 
   // Format perch options for React Select
   const perchOptions = [
@@ -127,6 +129,15 @@ const TimeSlotObservation = ({
 
   const handleInteractionTypeOtherBlur = (e) => {
     onValidate(time, 'interactionTypeOther', e.target.value);
+  };
+
+  // Description handlers
+  const handleDescriptionChange = (e) => {
+    onChange(time, 'description', e.target.value);
+  };
+
+  const handleDescriptionBlur = (e) => {
+    onValidate(time, 'description', e.target.value);
   };
 
   // Find the currently selected option for React Select
@@ -351,6 +362,25 @@ const TimeSlotObservation = ({
             </div>
           )}
         </>
+      )}
+
+      {requiresDescription && (
+        <div className="form-group">
+          <label>
+            Description <span className="required">*</span>
+          </label>
+          <input
+            type="text"
+            value={observation.description}
+            onChange={handleDescriptionChange}
+            onBlur={handleDescriptionBlur}
+            placeholder="Describe the behavior..."
+            className={descriptionError ? 'error' : ''}
+          />
+          {descriptionError && (
+            <div className="field-error">{descriptionError}</div>
+          )}
+        </div>
       )}
 
       <div className="form-group">
