@@ -4,22 +4,31 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 ## Features
 
-- **Validated Input**: Prevents common data entry errors
-  - Ensures all required fields are filled
-  - Validates perch numbers against known locations
-  - Conditional fields (location only shows when behavior requires it)
+- **Real-Time Validation**: Validates fields as you fill them out
+  - On-blur validation (errors appear when you tab away)
+  - Inline error messages directly under each field
+  - Errors clear automatically as you type
+  - Auto-scrolls to first error on submit
 
-- **User-Friendly**: Works on any device (desktop, tablet, mobile)
+- **Smart Location Selection**: Autocomplete dropdown for perch locations
+  - Type to filter options (e.g., type "2" to see all perches with 2)
+  - Click dropdown arrow to browse all options
+  - Organized by category (Perches, Baby Boxes, Food Platforms, etc.)
+  - Prevents typos and invalid entries
 
-- **Data Export**: Generates structured JSON output (Excel export coming in future version)
+- **Conditional Fields**: Location input only appears when the selected behavior requires it
+
+- **Clean UX**: Works on any device (desktop, tablet, mobile)
+
+- **Modular Architecture**: Clean, maintainable codebase with separated concerns
 
 ## What This Is (POC/MVP)
 
-This is a Proof of Concept for the first hour of observation (0:00 to 0:55). It demonstrates:
-- Basic form structure
-- Behavior validation
-- Location validation
-- Data output format
+This is a Proof of Concept for the first hour of observation (0:00 to 0:55 in 5-minute intervals). It demonstrates:
+- Modular React component structure
+- Real-time field validation
+- Autocomplete perch selection
+- Data output in JSON format
 
 **Not Yet Implemented:**
 - Discord OAuth authentication
@@ -31,7 +40,23 @@ This is a Proof of Concept for the first hour of observation (0:00 to 0:55). It 
 
 - **React** - UI framework
 - **Vite** - Build tool and dev server
-- **Vanilla CSS** - Styling (no framework dependencies)
+- **React Select** - Autocomplete dropdown component
+- **Custom CSS** - Styling
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── MetadataSection.jsx       # Observer info section
+│   ├── TimeSlotObservation.jsx   # Individual time slot component
+│   └── OutputPreview.jsx         # JSON output display
+├── hooks/
+│   └── useFormValidation.js      # Centralized validation logic
+├── App.jsx                       # Main orchestrator
+├── constants.js                  # Behaviors and perch definitions
+└── index.css                     # Global styles
+```
 
 ## Local Development
 
@@ -59,11 +84,15 @@ npm run build
 
 This creates optimized files in the `dist/` directory.
 
+## Live Demo
+
+**Current deployment:** [https://wbs-ethogram-form.vercel.app/](https://wbs-ethogram-form.vercel.app/)
+
 ## Deployment
 
-This app is designed to be deployed on Vercel or Netlify (free tier):
+This app is deployed on Vercel and auto-deploys when changes are pushed to the main branch.
 
-### Vercel
+### Vercel (Current)
 
 1. Push code to GitHub
 2. Import repository in Vercel dashboard
@@ -103,13 +132,27 @@ The form outputs JSON in this format:
 }
 ```
 
+## Version History
+
+**Current: v5**
+- ✅ Modular component architecture
+- ✅ On-blur field validation
+- ✅ React Select autocomplete for perch locations
+- ✅ Inline error messages
+- ✅ Auto-scroll to errors
+
 ## Next Steps / Roadmap
 
+**Validation from WBS:**
+- [ ] Get feedback on time window input format
+- [ ] Confirm perch categories and labels are correct
+
+**Feature Additions:**
 - [ ] Add Discord OAuth authentication
 - [ ] Implement Excel file generation (using `xlsx` or `exceljs`)
 - [ ] Add email integration to send submissions to WBS
 - [ ] Extend to support full 24-hour observation periods
-- [ ] Add image references for perch diagrams
+- [ ] Add perch diagram image references
 - [ ] Implement data aggregation tool for combining multiple submissions
 - [ ] Add inter-rater reliability calculations
 
