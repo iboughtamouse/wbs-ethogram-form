@@ -1,45 +1,27 @@
 import React from 'react';
-import TimeRangePicker from '@wojtekmaj/react-timerange-picker';
 import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils';
-import '@wojtekmaj/react-timerange-picker/dist/TimeRangePicker.css';
-import 'react-clock/dist/Clock.css';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
-  const handleTimeRangeChange = (value) => {
-    if (!value) {
-      onChange('startTime', '', false);
-      onChange('endTime', '', false);
-      return;
-    }
-
-    const [startTime, endTime] = value;
-    
-    // Round times to nearest 5-minute interval
-    const roundedStart = startTime ? roundToNearestFiveMinutes(startTime) : '';
-    const roundedEnd = endTime ? roundToNearestFiveMinutes(endTime) : '';
-    
-    onChange('startTime', roundedStart, false);
-    onChange('endTime', roundedEnd, false);
+  const handleTimeChange = (field, value) => {
+    // Round to nearest 5-minute interval
+    const roundedTime = value ? roundToNearestFiveMinutes(value) : '';
+    onChange(field, roundedTime, false);
   };
 
-  const handleTimeRangeBlur = () => {
+  const handleTimeBlur = (field) => {
+    // Validate time range if both times are present
     if (metadata.startTime && metadata.endTime) {
       const validation = validateTimeRange(metadata.startTime, metadata.endTime);
       if (!validation.valid) {
         // Set error through onChange with validation flag
-        onChange('startTime', metadata.startTime, true);
+        onChange(field, metadata[field], true);
       }
     }
   };
 
-  // Combine start and end time for the picker
-  const timeRangeValue = metadata.startTime && metadata.endTime 
-    ? [metadata.startTime, metadata.endTime] 
-    : null;
-
   // Check for time range validation error
-  const timeRangeError = metadata.startTime && metadata.endTime 
-    ? validateTimeRange(metadata.startTime, metadata.endTime).error 
+  const timeRangeError = metadata.startTime && metadata.endTime
+    ? validateTimeRange(metadata.startTime, metadata.endTime).error
     : null;
 
   return (
@@ -86,17 +68,25 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
           <div className="time-range-help-text">
             Select start and end time (5-60 minutes)
           </div>
-          <TimeRangePicker
-            onChange={handleTimeRangeChange}
-            onBlur={handleTimeRangeBlur}
-            value={timeRangeValue}
-            disableClock={true}
-            format="h:mm a"
-            rangeDivider="to"
-            className={timeRangeError ? 'error-picker' : ''}
-            clearIcon={null}
-            clockIcon={null}
-          />
+          <div className="time-range-inputs">
+            <input
+              type="time"
+              value={metadata.startTime}
+              onChange={(e) => handleTimeChange('startTime', e.target.value)}
+              onBlur={() => handleTimeBlur('startTime')}
+              className={timeRangeError || fieldErrors.startTime ? 'error' : ''}
+              step="300"
+            />
+            <span className="time-range-divider">to</span>
+            <input
+              type="time"
+              value={metadata.endTime}
+              onChange={(e) => handleTimeChange('endTime', e.target.value)}
+              onBlur={() => handleTimeBlur('endTime')}
+              className={timeRangeError || fieldErrors.endTime ? 'error' : ''}
+              step="300"
+            />
+          </div>
           {timeRangeError && (
             <div className="field-error">{timeRangeError}</div>
           )}
