@@ -30,7 +30,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
     : 'Enter the timestamp shown in the top-left corner of the video.';
 
   return (
-    <div className="section">
+    <section className="section">
       <h2 className="section-title">Observer Information</h2>
       
       {/* Observation Mode Selector */}
@@ -157,7 +157,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

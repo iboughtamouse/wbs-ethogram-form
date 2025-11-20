@@ -204,8 +204,10 @@ function App() {
 
   return (
     <div className="app">
-      <h1>WBS Ethogram Data Entry</h1>
-      <p className="subtitle">Rehabilitation Raptor Ethogram - One Hour Section</p>
+      <header>
+        <h1>WBS Ethogram Data Entry</h1>
+        <p className="subtitle">Rehabilitation Raptor Ethogram - One Hour Section</p>
+      </header>
 
       {showDraftNotice && (
         <div className="draft-notice">
@@ -235,15 +237,16 @@ function App() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <MetadataSection
-          metadata={metadata}
-          fieldErrors={fieldErrors}
-          onChange={handleMetadataChange}
-        />
+      <main>
+        <form onSubmit={handleSubmit}>
+          <MetadataSection
+            metadata={metadata}
+            fieldErrors={fieldErrors}
+            onChange={handleMetadataChange}
+          />
 
-        <div className="section">
-          <h2 className="section-title">Observations (5-minute intervals)</h2>
+          <section className="section">
+            <h2 className="section-title">Observations (5-minute intervals)</h2>
           {timeSlots.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: '#7f8c8d' }}>
               Please select a time range above to begin entering observations.
@@ -263,21 +266,22 @@ function App() {
               ))}
             </div>
           )}
-        </div>
+          </section>
 
-        <div className="button-group">
-          <button type="submit" className="btn-primary">
-            Validate & Preview
-          </button>
-          <button type="button" onClick={handleReset} className="btn-secondary">
-            Reset Form
-          </button>
-        </div>
-      </form>
+          <div className="button-group">
+            <button type="submit" className="btn-primary">
+              Validate & Preview
+            </button>
+            <button type="button" onClick={handleReset} className="btn-secondary">
+              Reset Form
+            </button>
+          </div>
+        </form>
 
-      {showOutput && Object.keys(fieldErrors).length === 0 && (
-        <OutputPreview data={getOutputData()} />
-      )}
+        {showOutput && Object.keys(fieldErrors).length === 0 && (
+          <OutputPreview data={getOutputData()} />
+        )}
+      </main>
     </div>
   );
 }
