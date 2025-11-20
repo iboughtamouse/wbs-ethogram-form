@@ -26,8 +26,8 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
 
   // Mode-specific help text
   const timeRangeHelpText = metadata.mode === 'live' 
-    ? 'Select the time range for your observation session.'
-    : 'Enter the timestamp shown in the top-left corner of the video.';
+    ? 'Enter times in YOUR local time. We\'ll convert to WBS time automatically.'
+    : 'Enter times exactly as shown in the video player timestamp. These are already in WBS time.';
 
   return (
     <section className="section">
@@ -49,7 +49,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               <span className="mode-icon">🔴</span>
               <div className="mode-text">
                 <strong>Live Stream</strong>
-                <p>Currently watching on Twitch</p>
+                <p>Watching now - use your local time</p>
               </div>
             </div>
           </label>
@@ -65,7 +65,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               <span className="mode-icon">📼</span>
               <div className="mode-text">
                 <strong>Recorded Video (VOD)</strong>
-                <p>Reviewing past stream</p>
+                <p>Past stream - use video timestamps</p>
               </div>
             </div>
           </label>
