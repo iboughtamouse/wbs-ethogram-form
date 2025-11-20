@@ -24,9 +24,54 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
     ? validateTimeRange(metadata.startTime, metadata.endTime).error
     : null;
 
+  // Mode-specific help text
+  const timeRangeHelpText = metadata.mode === 'live' 
+    ? 'Select the time range for your observation session.'
+    : 'Enter the timestamp shown in the top-left corner of the video.';
+
   return (
     <div className="section">
       <h2 className="section-title">Observer Information</h2>
+      
+      {/* Observation Mode Selector */}
+      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+        <label>What are you observing? <span className="required">*</span></label>
+        <div className="mode-selector">
+          <label className={`mode-option ${metadata.mode === 'live' ? 'selected' : ''}`}>
+            <input
+              type="radio"
+              name="mode"
+              value="live"
+              checked={metadata.mode === 'live'}
+              onChange={(e) => onChange('mode', e.target.value)}
+            />
+            <div className="mode-content">
+              <span className="mode-icon">🔴</span>
+              <div className="mode-text">
+                <strong>Live Stream</strong>
+                <p>Currently watching on Twitch</p>
+              </div>
+            </div>
+          </label>
+          <label className={`mode-option ${metadata.mode === 'vod' ? 'selected' : ''}`}>
+            <input
+              type="radio"
+              name="mode"
+              value="vod"
+              checked={metadata.mode === 'vod'}
+              onChange={(e) => onChange('mode', e.target.value)}
+            />
+            <div className="mode-content">
+              <span className="mode-icon">📼</span>
+              <div className="mode-text">
+                <strong>Recorded Video (VOD)</strong>
+                <p>Reviewing past stream</p>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <div className="metadata-grid">
         <div className="form-group">
           <label>
@@ -63,10 +108,10 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
 
         <div className="form-group">
           <label>
-            Time Range <span className="required">*</span>
+            {metadata.mode === 'live' ? 'Observation Time Range' : 'VOD Time Range'} <span className="required">*</span>
           </label>
           <div className="time-range-help-text">
-            Select start and end time (5-60 minutes)
+            {timeRangeHelpText}
           </div>
           <div className="time-range-inputs">
             <input
