@@ -3,19 +3,17 @@ import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   const handleTimeChange = (field, value) => {
-    // Round to nearest 5-minute interval
+    // Round to nearest 5-minute interval and validate immediately
     const roundedTime = value ? roundToNearestFiveMinutes(value) : '';
-    onChange(field, roundedTime, false);
+    onChange(field, roundedTime, true);
   };
 
-  const handleTimeBlur = (field) => {
-    // Validate time range if both times are present
-    if (metadata.startTime && metadata.endTime) {
-      const validation = validateTimeRange(metadata.startTime, metadata.endTime);
-      if (!validation.valid) {
-        // Set error through onChange with validation flag
-        onChange(field, metadata[field], true);
-      }
+  // Prevent Enter key from submitting form, but trigger validation
+  const handleKeyDown = (field) => (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Trigger validation with current value
+      onChange(field, e.target.value, true);
     }
   };
 
@@ -80,8 +78,8 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
           <input
             type="text"
             value={metadata.observerName}
-            onChange={(e) => onChange('observerName', e.target.value)}
-            onBlur={(e) => onChange('observerName', e.target.value, true)}
+            onChange={(e) => onChange('observerName', e.target.value, true)}
+            onKeyDown={handleKeyDown('observerName')}
             placeholder="Enter your Discord username"
             className={fieldErrors.observerName ? 'error' : ''}
           />
@@ -97,8 +95,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
           <input
             type="date"
             value={metadata.date}
-            onChange={(e) => onChange('date', e.target.value)}
-            onBlur={(e) => onChange('date', e.target.value, true)}
+            onChange={(e) => onChange('date', e.target.value, true)}
             className={fieldErrors.date ? 'error' : ''}
           />
           {fieldErrors.date && (
@@ -118,7 +115,6 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               type="time"
               value={metadata.startTime}
               onChange={(e) => handleTimeChange('startTime', e.target.value)}
-              onBlur={() => handleTimeBlur('startTime')}
               className={timeRangeError || fieldErrors.startTime ? 'error' : ''}
               step="300"
             />
@@ -127,7 +123,6 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               type="time"
               value={metadata.endTime}
               onChange={(e) => handleTimeChange('endTime', e.target.value)}
-              onBlur={() => handleTimeBlur('endTime')}
               className={timeRangeError || fieldErrors.endTime ? 'error' : ''}
               step="300"
             />
