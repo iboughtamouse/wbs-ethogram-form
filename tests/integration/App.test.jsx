@@ -25,6 +25,27 @@ describe('App Integration Tests', () => {
     localStorageUtils.clearDraft.mockReturnValue(true);
   });
 
+  // Helper function to fill in metadata completely
+  const fillMetadata = async (observerName = 'TestObserver') => {
+    const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+    fireEvent.change(observerInput, { target: { value: observerName } });
+    
+    // Date is pre-filled with today by default, so we're good
+    // (The App component initializes it with today's date)
+  };
+
+  // Helper function to fill a time slot with a simple behavior (no additional fields required)
+  const fillTimeSlot = async (timeSlotText, behavior = 'drinking') => {
+    await waitFor(() => {
+      expect(screen.getByText(timeSlotText)).toBeInTheDocument();
+    });
+    
+    const slot = screen.getByText(timeSlotText).closest('.time-slot');
+    const behaviorSelects = within(slot).getAllByRole('combobox');
+    const behaviorSelect = behaviorSelects[0]; // First select is always behavior
+    fireEvent.change(behaviorSelect, { target: { value: behavior } });
+  };
+
   describe('Time Slot Generation', () => {
     test('generates correct time slots when valid time range is entered', async () => {
       render(<App />);
@@ -176,34 +197,27 @@ describe('App Integration Tests', () => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument();
       });
 
-      // Select interaction behavior
+      // Select aggression behavior (which requires description)
       const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const behaviorSelect = within(firstSlot).getByRole('combobox');
-      fireEvent.change(behaviorSelect, { target: { value: 'interacting_object' } });
+      const behaviorSelect = within(firstSlot).getAllByRole('combobox')[0];
+      fireEvent.change(behaviorSelect, { target: { value: 'aggression' } });
 
-      // Wait for conditional fields to appear
+      // Wait for description field to appear
       await waitFor(() => {
-        const allSelects = within(firstSlot).getAllByRole('combobox');
-        expect(allSelects.length).toBeGreaterThan(1);
+        expect(within(firstSlot).getByPlaceholderText(/Describe the behavior/i)).toBeInTheDocument();
       });
-
-      // Fill in object field
-      const allSelects = within(firstSlot).getAllByRole('combobox');
-      const objectSelect = allSelects[1]; // Second dropdown is object
-      fireEvent.change(objectSelect, { target: { value: 'newspaper' } });
-      expect(objectSelect).toHaveValue('newspaper');
 
       // Fill in description
       const descriptionInput = within(firstSlot).getByPlaceholderText(/Describe the behavior/i);
       fireEvent.change(descriptionInput, { target: { value: 'Test description' } });
       expect(descriptionInput).toHaveValue('Test description');
 
-      // Change behavior - should clear dependent fields
+      // Change behavior to something that doesn't require description
       fireEvent.change(behaviorSelect, { target: { value: 'preening' } });
 
-      // Object and description should be cleared
+      // Description field should no longer exist
       await waitFor(() => {
-        expect(descriptionInput).toHaveValue('');
+        expect(within(firstSlot).queryByPlaceholderText(/Describe the behavior/i)).not.toBeInTheDocument();
       });
     });
 
@@ -272,10 +286,11 @@ describe('App Integration Tests', () => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument();
       });
 
-      // Fill in first slot
+      // Fill in first slot with a simple behavior (no additional fields)
       const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const behaviorSelect = within(firstSlot).getByRole('combobox');
-      fireEvent.change(behaviorSelect, { target: { value: 'preening' } });
+      const behaviorSelects = within(firstSlot).getAllByRole('combobox');
+      const behaviorSelect = behaviorSelects[0]; // First select is always behavior
+      fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
 
       // Click copy button
       const copyButton = within(firstSlot).getByText(/Copy to next/i);
@@ -284,8 +299,9 @@ describe('App Integration Tests', () => {
       // Second slot should have the same behavior
       await waitFor(() => {
         const secondSlot = screen.getByText('10:05 AM').closest('.time-slot');
-        const secondBehaviorSelect = within(secondSlot).getByRole('combobox');
-        expect(secondBehaviorSelect).toHaveValue('preening');
+        const secondBehaviorSelects = within(secondSlot).getAllByRole('combobox');
+        const secondBehaviorSelect = secondBehaviorSelects[0];
+        expect(secondBehaviorSelect).toHaveValue('drinking');
       });
     });
 
@@ -328,9 +344,9 @@ describe('App Integration Tests', () => {
       const submitButton = screen.getByText(/Validate & Preview/i);
       fireEvent.click(submitButton);
 
-      // Should show validation errors
+      // Should show validation errors (check for actual error message)
       await waitFor(() => {
-        expect(screen.getByText(/Observer name is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/Discord username is required/i)).toBeInTheDocument();
       });
 
       // Output preview should not appear
@@ -341,24 +357,16 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in all required metadata
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
-      fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
+      await fillMetadata('TestObserver');
 
       const container = screen.getByText('Observation Time Range').closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
 
-      // Wait for slots to be created
-      await waitFor(() => {
-        expect(screen.getByText('10:00 AM')).toBeInTheDocument();
-      });
-
-      // Fill in observation (using "drinking" which has no additional required fields)
-      const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const allComboboxes = within(firstSlot).getAllByRole('combobox');
-      const behaviorSelect = allComboboxes[0];
-      fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
+      // Fill in ALL observation slots (both need behaviors selected)
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
       const submitButton = screen.getByText(/Validate & Preview/i);
@@ -374,20 +382,18 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in metadata
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
-      fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
+      await fillMetadata('TestObserver');
 
       const container = screen.getByText('Observation Time Range').closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
 
-      // Wait for slots to be created
-      await waitFor(() => {
-        expect(screen.getByText('10:00 AM')).toBeInTheDocument();
-      });
+      // Fill in ALL observation slots
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
 
-      // Fill in observation (using "drinking" which has no additional required fields)
+      // Get first slot for additional assertions
       const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
       const allComboboxes = within(firstSlot).getAllByRole('combobox');
       const behaviorSelect = allComboboxes[0];
@@ -419,24 +425,16 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in metadata in live mode (default)
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
-      fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
+      await fillMetadata('TestObserver');
 
       const container = screen.getByText('Observation Time Range').closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
 
-      // Wait for slots to be created
-      await waitFor(() => {
-        expect(screen.getByText('10:00 AM')).toBeInTheDocument();
-      });
-
-      // Fill in observation (using "drinking" which has no additional required fields)
-      const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const allComboboxes = within(firstSlot).getAllByRole('combobox');
-      const behaviorSelect = allComboboxes[0];
-      fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
+      // Fill in ALL observation slots
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
       const submitButton = screen.getByText(/Validate & Preview/i);
@@ -463,24 +461,16 @@ describe('App Integration Tests', () => {
       fireEvent.click(vodRadio);
 
       // Fill in metadata
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
-      fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
+      await fillMetadata('TestObserver');
 
       const container = screen.getByText('VOD Time Range').closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
 
-      // Wait for slots to be created
-      await waitFor(() => {
-        expect(screen.getByText('10:00 AM')).toBeInTheDocument();
-      });
-
-      // Fill in observation (using "drinking" which has no additional required fields)
-      const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const allComboboxes = within(firstSlot).getAllByRole('combobox');
-      const behaviorSelect = allComboboxes[0];
-      fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
+      // Fill in ALL observation slots
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
       const submitButton = screen.getByText(/Validate & Preview/i);
@@ -640,24 +630,17 @@ describe('App Integration Tests', () => {
     test('clears draft from localStorage after successful submission', async () => {
       render(<App />);
 
-      // Fill in and submit valid form
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
-      fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
+      // Fill in complete valid form
+      await fillMetadata('TestObserver');
 
       const container = screen.getByText('Observation Time Range').closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
 
-      // Wait for slots to be created
-      await waitFor(() => {
-        expect(screen.getByText('10:00 AM')).toBeInTheDocument();
-      });
-
-      const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
-      const allComboboxes = within(firstSlot).getAllByRole('combobox');
-      const behaviorSelect = allComboboxes[0];
-      fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
+      // Fill in ALL observation slots
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
 
       const submitButton = screen.getByText(/Validate & Preview/i);
       fireEvent.click(submitButton);

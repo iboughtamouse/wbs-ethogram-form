@@ -308,26 +308,31 @@ function App() {
             </div>
           ) : (
             <div className="time-slots">
-              {timeSlots.map((time, index) => (
-                <TimeSlotObservation
-                  key={time}
-                  time={time}
-                  observation={observations[time]}
-                  behaviorError={fieldErrors[`${time}_behavior`]}
-                  locationError={fieldErrors[`${time}_location`]}
-                  objectError={fieldErrors[`${time}_object`]}
-                  objectOtherError={fieldErrors[`${time}_objectOther`]}
-                  animalError={fieldErrors[`${time}_animal`]}
-                  animalOtherError={fieldErrors[`${time}_animalOther`]}
-                  interactionTypeError={fieldErrors[`${time}_interactionType`]}
-                  interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
-                  descriptionError={fieldErrors[`${time}_description`]}
-                  onChange={handleObservationChange}
-                  onValidate={handleObservationValidate}
-                  onCopyToNext={handleCopyToNext}
-                  isLastSlot={index === timeSlots.length - 1}
-                />
-              ))}
+              {timeSlots.map((time, index) => {
+                // Only render if observation exists (guards against timing issues during state updates)
+                if (!observations[time]) return null;
+                
+                return (
+                  <TimeSlotObservation
+                    key={time}
+                    time={time}
+                    observation={observations[time]}
+                    behaviorError={fieldErrors[`${time}_behavior`]}
+                    locationError={fieldErrors[`${time}_location`]}
+                    objectError={fieldErrors[`${time}_object`]}
+                    objectOtherError={fieldErrors[`${time}_objectOther`]}
+                    animalError={fieldErrors[`${time}_animal`]}
+                    animalOtherError={fieldErrors[`${time}_animalOther`]}
+                    interactionTypeError={fieldErrors[`${time}_interactionType`]}
+                    interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
+                    descriptionError={fieldErrors[`${time}_description`]}
+                    onChange={handleObservationChange}
+                    onValidate={handleObservationValidate}
+                    onCopyToNext={handleCopyToNext}
+                    isLastSlot={index === timeSlots.length - 1}
+                  />
+                );
+              })}
             </div>
           )}
           </section>
