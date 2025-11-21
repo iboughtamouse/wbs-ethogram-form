@@ -361,33 +361,54 @@ export const requiresDescription = (behaviorValue) => ...
 
 ---
 
-### Phase 6: Add Form Submission Infrastructure (NEW FEATURE)
+### Phase 6: Add Form Submission Infrastructure (NEW FEATURE) ✅ COMPLETED
 
-**Goal**: Build the submission pipeline (Excel generation + email)
+**Goal**: Build the submission pipeline (Excel generation + download)
 
-**Note**: This is where refactoring meets new features. By this point, codebase is well-structured.
+**Note**: MVP implementation focuses on Excel generation with download functionality. Email integration deferred to future enhancement.
 
-**New modules**:
+**Actual structure created**:
 
 ```
 src/services/export/
-  ├── excelGenerator.js          (convert form data → Excel file)
-  ├── emailService.js            (send Excel via email)
+  ├── excelGenerator.js          (212 lines - Excel workbook generation)
   └── __tests__/
-
-src/hooks/
-  ├── useFormSubmission.js       (handle submit flow: validate → export → email)
+      └── excelGenerator.test.js (307 lines, 13 tests)
 ```
 
-**Dependencies to add**:
+**Modified components**:
 
-- `xlsx` or `exceljs` for Excel generation
-- Email service integration (TBD - maybe Formspree, EmailJS, or backend API)
+- `src/components/OutputPreview.jsx` - Added Excel download button with loading state
 
-**Branch**: `feature/form-submission`
-**Estimated effort**: 6-8 hours (depends on email service choice)
-**Tests**: Comprehensive tests for export and submission
-**Commits**: Multiple commits for export, email, integration
+**Features implemented**:
+
+- ✅ Matrix layout matching original ethogram spreadsheet
+- ✅ Behaviors as rows, time slots as columns
+- ✅ Header section with metadata (date, observer, patient, aviary, time window)
+- ✅ Relative time slot headers (0:00, 0:05, 0:10, etc.)
+- ✅ Mark observations with "x" and include sub-fields (location, notes, object, animal, interaction, description)
+- ✅ Comments section at bottom
+- ✅ Automatic filename generation (ethogram-{patient}-{date}.xlsx)
+- ✅ Download functionality with loading state and error handling
+
+**Results**:
+
+- Tests: 280 passing (+13 new)
+- All existing tests still pass ✅
+- Client-side Excel generation (no backend required) ✅
+- User-friendly download experience ✅
+
+**Branch**: `claude/phase-6-form-submission-01Wn2Ui7fVZJr1KdP2GHLRF6`
+**Actual effort**: ~3 hours (TDD approach, download-only MVP)
+**Dependencies added**: `exceljs@^4.4.0`
+**Commits**: 3 commits (dependency + service + integration)
+**Status**: ✅ Completed - ready for testing and review
+
+**Future enhancements**:
+
+- Email integration (Formspree, EmailJS, or custom backend)
+- Additional export formats (CSV, PDF)
+- Bulk submission for multiple observation sessions
 
 ---
 

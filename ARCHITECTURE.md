@@ -1,12 +1,12 @@
 # Architecture Documentation
 
-> **Last Updated**: November 21, 2025 (Post-Phase 3 refactoring)
-> **Codebase Size**: ~2,500 lines (source) + 3,800 lines (tests)
-> **Test Count**: 267 passing tests across 14 test suites
+> **Last Updated**: November 21, 2025 (Post-Phase 6 implementation)
+> **Codebase Size**: ~2,700 lines (source) + 4,100 lines (tests)
+> **Test Count**: 280 passing tests across 15 test suites
 > **Components**: 11 React components (4 main + 7 form fields)
-> **Services**: 3 pure function modules (formStateManager, formSubmission, draftManager)
+> **Services**: 4 pure function modules (formStateManager, formSubmission, draftManager, excelGenerator)
 > **Hooks**: 3 custom hooks (useFormValidation, useFormState, useAutoSave)
-> **Recent Changes**: Extracted business logic from App.jsx into services and hooks (Phase 3)
+> **Recent Changes**: Added Excel export functionality with download (Phase 6)
 
 ---
 
@@ -82,7 +82,8 @@ App.jsx (232 lines) - Root coordinator component
 │   ├── SW Half tab + image
 │   └── Close button
 │
-└── OutputPreview.jsx (15 lines)
+└── OutputPreview.jsx (45 lines)
+    ├── Excel download button with loading state
     └── JSON display with copy button
 ```
 
@@ -116,6 +117,7 @@ Business logic extracted from App.jsx into testable pure functions:
 | **formStateManager** | 97L  | Observation state management                  | `generateObservationsForSlots()`, `updateObservationField()` |
 | **formSubmission**   | 50L  | Output data preparation & timezone conversion | `prepareOutputData()`                                        |
 | **draftManager**     | 31L  | Autosave decision logic                       | `shouldAutosave()`                                           |
+| **excelGenerator**   | 212L | Excel workbook generation & download          | `generateExcelWorkbook()`, `downloadExcelFile()`             |
 
 **Key Benefits:**
 
