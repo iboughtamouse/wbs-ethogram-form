@@ -7,6 +7,7 @@ import PerchDiagramModal from './PerchDiagramModal';
 import { debounce } from '../utils/debounce';
 import NotesField from './form/NotesField';
 import DescriptionField from './form/DescriptionField';
+import BehaviorSelect from './form/BehaviorSelect';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -198,25 +199,11 @@ const TimeSlotObservation = ({
         )}
       </div>
       
-      <div className="form-group">
-        <label>
-          Behavior <span className="required">*</span>
-        </label>
-        <select
-          value={observation.behavior}
-          onChange={(e) => handleBehaviorChange(e.target.value)}
-          className={behaviorError ? 'error' : ''}
-        >
-          {BEHAVIORS.map((behavior) => (
-            <option key={behavior.value} value={behavior.value}>
-              {behavior.label}
-            </option>
-          ))}
-        </select>
-        {behaviorError && (
-          <div className="field-error">{behaviorError}</div>
-        )}
-      </div>
+      <BehaviorSelect
+        value={observation.behavior}
+        onChange={handleBehaviorChange}
+        error={behaviorError}
+      />
 
       {requiresLocation && (
         <div className="form-group location-input">
