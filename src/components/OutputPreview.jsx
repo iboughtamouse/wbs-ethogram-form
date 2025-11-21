@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const OutputPreview = ({ data }) => {
   return (
@@ -10,6 +11,10 @@ const OutputPreview = ({ data }) => {
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
+};
+
+OutputPreview.propTypes = {
+  data: PropTypes.object.isRequired
 };
 
 export default OutputPreview;

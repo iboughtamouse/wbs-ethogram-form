@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
@@ -154,6 +155,20 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
       </div>
     </section>
   );
+};
+
+MetadataSection.propTypes = {
+  metadata: PropTypes.shape({
+    observerName: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    startTime: PropTypes.string.isRequired,
+    endTime: PropTypes.string.isRequired,
+    aviary: PropTypes.string.isRequired,
+    patient: PropTypes.string.isRequired,
+    mode: PropTypes.oneOf(['live', 'vod']).isRequired
+  }).isRequired,
+  fieldErrors: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
 };
 
 export default MetadataSection;

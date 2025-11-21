@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
@@ -412,6 +413,35 @@ const TimeSlotObservation = ({
 
     </div>
   );
+};
+
+TimeSlotObservation.propTypes = {
+  time: PropTypes.string.isRequired,
+  observation: PropTypes.shape({
+    behavior: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired,
+    notes: PropTypes.string.isRequired,
+    object: PropTypes.string.isRequired,
+    objectOther: PropTypes.string.isRequired,
+    animal: PropTypes.string.isRequired,
+    animalOther: PropTypes.string.isRequired,
+    interactionType: PropTypes.string.isRequired,
+    interactionTypeOther: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired
+  }).isRequired,
+  behaviorError: PropTypes.string,
+  locationError: PropTypes.string,
+  objectError: PropTypes.string,
+  objectOtherError: PropTypes.string,
+  animalError: PropTypes.string,
+  animalOtherError: PropTypes.string,
+  interactionTypeError: PropTypes.string,
+  interactionTypeOtherError: PropTypes.string,
+  descriptionError: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  onValidate: PropTypes.func.isRequired,
+  onCopyToNext: PropTypes.func.isRequired,
+  isLastSlot: PropTypes.bool.isRequired
 };
 
 export default TimeSlotObservation;
