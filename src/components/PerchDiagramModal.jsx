@@ -45,12 +45,14 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
 
         <div className="perch-modal-tabs">
           <button
+            type="button"
             className={`perch-tab ${activeTab === 'ne' ? 'active' : ''}`}
             onClick={() => setActiveTab('ne')}
           >
             NE Half (Perches 1-18)
           </button>
           <button
+            type="button"
             className={`perch-tab ${activeTab === 'sw' ? 'active' : ''}`}
             onClick={() => setActiveTab('sw')}
           >
