@@ -2,6 +2,10 @@
 
 Technical documentation for developers working on the WBS Ethogram Form.
 
+> **📖 For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)**
+>
+> This document covers practical development workflows. For in-depth architectural decisions, component hierarchy, and design patterns, refer to the architecture documentation.
+
 ## 🏗️ Architecture Overview
 
 This is a client-side single-page application (SPA) built with React and Vite. There is no backend - all data processing happens in the browser, and output is provided as JSON for manual submission.
@@ -19,7 +23,7 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 - **React 18.2.0** - UI framework with hooks
 - **Vite 5.0.8** - Build tool and dev server
 - **React Select 5.8.0** - Autocomplete dropdown for locations
-- **Jest + React Testing Library** - Testing (68+ tests)
+- **Jest + React Testing Library** - Testing (101+ tests, 4 test suites)
 - **Native Browser APIs**:
   - `Intl.DateTimeFormat` - Timezone conversion
   - `localStorage` - Autosave functionality
@@ -31,8 +35,18 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 ethogram-form/
 ├── src/
 │   ├── components/
+│   │   ├── form/                     # Form field components (8 files)
+│   │   │   ├── BehaviorSelect.jsx
+│   │   │   ├── LocationInput.jsx
+│   │   │   ├── ObjectSelect.jsx
+│   │   │   ├── AnimalSelect.jsx
+│   │   │   ├── InteractionTypeSelect.jsx
+│   │   │   ├── DescriptionField.jsx
+│   │   │   ├── NotesField.jsx
+│   │   │   └── index.js             # Barrel export
 │   │   ├── MetadataSection.jsx       # Observer info, mode selector, time picker
-│   │   ├── TimeSlotObservation.jsx   # Individual 5-min time slot component
+│   │   ├── TimeSlotObservation.jsx   # Time slot container (imports form components)
+│   │   ├── PerchDiagramModal.jsx     # Perch map viewer modal
 │   │   └── OutputPreview.jsx         # JSON output display with copy button
 │   ├── hooks/
 │   │   └── useFormValidation.js      # Centralized validation logic
@@ -46,7 +60,9 @@ ethogram-form/
 │   ├── index.css                     # Global styles
 │   └── main.jsx                      # React entry point
 ├── docs/
-│   └── interaction-subfields-design.md  # Design decisions for sub-fields
+│   ├── interaction-subfields-design.md  # Design decisions for sub-fields
+│   ├── refactoring-strategy.md          # Refactoring plan and phases
+│   └── testing-checklist.md             # Comprehensive QA checklist
 ├── .github/
 │   └── copilot-instructions.md       # AI coding assistant guidance
 ├── tests/                            # Jest test suites
@@ -55,6 +71,7 @@ ethogram-form/
 ├── jest.config.js                    # Jest configuration
 ├── package.json                      # Dependencies and scripts
 ├── README.md                         # User-facing documentation
+├── ARCHITECTURE.md                   # Detailed architecture documentation
 ├── CONTRIBUTING.md                   # Contribution guidelines
 └── DEVELOPMENT.md                    # This file
 ```
@@ -101,7 +118,15 @@ const [fieldErrors, setFieldErrors] = useState({});
 |-----------|---------------|
 | `App.jsx` | State orchestration, time slot generation, form submission |
 | `MetadataSection.jsx` | Observer info inputs, mode selector, time range picker |
-| `TimeSlotObservation.jsx` | Single time slot behavior/location/notes/interactions |
+| `TimeSlotObservation.jsx` | Time slot container, coordinates form fields and conditional visibility |
+| `BehaviorSelect.jsx` | Behavior dropdown field |
+| `LocationInput.jsx` | Location select with perch diagram map button + modal state |
+| `ObjectSelect.jsx` | Object dropdown with conditional "other" text field |
+| `AnimalSelect.jsx` | Animal dropdown with conditional "other" text field |
+| `InteractionTypeSelect.jsx` | Interaction type dropdown with conditional "other" text field |
+| `DescriptionField.jsx` | Description text input field |
+| `NotesField.jsx` | Notes textarea field |
+| `PerchDiagramModal.jsx` | Perch map viewer with NE/SW tabs |
 | `OutputPreview.jsx` | JSON display, copy-to-clipboard, timezone conversion |
 | `useFormValidation.js` | Validation logic for all fields |
 | `timeUtils.js` | Time manipulation, rounding, slot generation |
@@ -421,6 +446,55 @@ useEffect(() => {
 - **No server**: No attack surface beyond client-side XSS
 - **Input validation**: Prevents bad data, not malicious input
 - **localStorage**: User can view/modify their own data
+
+## 📅 Recent Changes
+
+### November 2025: Comprehensive Refactoring
+
+**Phase 0 - Documentation:**
+- Created `ARCHITECTURE.md` (649 lines) with detailed component hierarchy and data flow diagrams
+- Updated `copilot-instructions.md` with current patterns
+- Fixed README accuracy for perch diagram feature
+- Created comprehensive `testing-checklist.md`
+- Added `refactoring-strategy.md` documenting phased approach
+
+**Phase 1 - PropTypes & Type Safety:**
+- Added PropTypes to all 4 main components for runtime type validation
+- Fixed timezone test to handle UTC format in CI/Docker environments
+- Improved PropTypes specificity (objectOf, shape) per code review feedback
+- All 101 tests passing
+
+**Phase 2 - Component Extraction:**
+- Extracted 7 form field components from TimeSlotObservation into `src/components/form/`
+- Reduced TimeSlotObservation from 417 to 257 lines (~38% reduction)
+- Components: BehaviorSelect, LocationInput, ObjectSelect, AnimalSelect, InteractionTypeSelect, DescriptionField, NotesField
+- Added barrel export (`form/index.js`) for clean imports
+- LocationInput now owns modal state (moved from TimeSlotObservation)
+- All components include PropTypes for type safety
+- Consistent patterns across similar field types
+
+**Interaction Subfields Feature (Earlier):**
+- Added structured interaction subfields:
+  - Object dropdown for "Interacting with Inanimate Object" behavior
+  - Animal + Interaction Type dropdowns for "Interacting with Other Animal" behavior
+  - "Other" text inputs for all dropdown options
+  - Description field for behaviors requiring detail
+- Added PerchDiagramModal component with NE/SW tab navigation
+- Debounced validation for text inputs (200ms delay to prevent flickering)
+- Enter key now validates field without submitting form (mobile UX improvement)
+
+**Architecture:**
+- Flat observation structure with conditional fields (see `docs/interaction-subfields-design.md`)
+- BEHAVIORS includes feature flags: `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`
+- Constants expanded: `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `INTERACTION_TYPES`
+- Validation timing: onChange for dropdowns, debounced for text inputs
+- Conditional field clearing when behavior changes (prevents orphaned data)
+- Component composition pattern with form field components
+
+**Testing:**
+- Test count: 101+ tests across 5 test suites
+- All tests passing
+- Integration tests cover extracted components
 
 ## 📚 Additional Resources
 

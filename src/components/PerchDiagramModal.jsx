@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 const PerchDiagramModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('ne');
@@ -78,6 +79,11 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+};
+
+PerchDiagramModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired
 };
 
 export default PerchDiagramModal;

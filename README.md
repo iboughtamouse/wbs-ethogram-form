@@ -31,6 +31,7 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 - **Structured Data Entry**: Standardized options reduce errors
   - Autocomplete perch location dropdown (type to filter)
+  - Interactive perch diagram map (click Map button to view)
   - Behavior-specific interaction dropdowns
   - "Other" text fields when you need them
   - Notes field for additional context
@@ -129,7 +130,6 @@ Interested in contributing or setting up your own instance? Check out:
 - [ ] Discord OAuth authentication
 - [ ] Email submission integration
 - [ ] Extended observation periods (24+ hours)
-- [ ] Perch diagram visual reference
 - [ ] Data aggregation & analysis tools
 - [ ] Inter-rater reliability calculations
 

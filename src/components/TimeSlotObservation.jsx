@@ -1,14 +1,22 @@
-import React, { useState, useRef } from 'react';
-import Select from 'react-select';
-import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
+import React, { useRef } from 'react';
+import PropTypes from 'prop-types';
+import { BEHAVIORS } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
-import PerchDiagramModal from './PerchDiagramModal';
 import { debounce } from '../utils/debounce';
+import {
+  NotesField,
+  DescriptionField,
+  BehaviorSelect,
+  LocationInput,
+  ObjectSelect,
+  AnimalSelect,
+  InteractionTypeSelect
+} from './form';
 
-const TimeSlotObservation = ({ 
-  time, 
-  observation, 
-  behaviorError, 
+const TimeSlotObservation = ({
+  time,
+  observation,
+  behaviorError,
   locationError,
   objectError,
   objectOtherError,
@@ -22,7 +30,6 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot
 }) => {
-  const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
   
   // Create debounced validator for text fields (200ms delay)
   const debouncedValidateRef = useRef(
@@ -195,223 +202,106 @@ const TimeSlotObservation = ({
         )}
       </div>
       
-      <div className="form-group">
-        <label>
-          Behavior <span className="required">*</span>
-        </label>
-        <select
-          value={observation.behavior}
-          onChange={(e) => handleBehaviorChange(e.target.value)}
-          className={behaviorError ? 'error' : ''}
-        >
-          {BEHAVIORS.map((behavior) => (
-            <option key={behavior.value} value={behavior.value}>
-              {behavior.label}
-            </option>
-          ))}
-        </select>
-        {behaviorError && (
-          <div className="field-error">{behaviorError}</div>
-        )}
-      </div>
+      <BehaviorSelect
+        value={observation.behavior}
+        onChange={handleBehaviorChange}
+        error={behaviorError}
+      />
 
       {requiresLocation && (
-        <div className="form-group location-input">
-          <label>
-            {observation.behavior === 'jumping' ? 'Starting Location' : 'Location'} (Perch # or "Ground") <span className="required">*</span>
-          </label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
-              <Select
-                options={perchOptions}
-                value={selectedLocationOption}
-                onChange={handleLocationChange}
-                placeholder="Type or select..."
-                isClearable
-                styles={selectStyles}
-              />
-            </div>
-            <button
-              type="button"
-              className="view-perch-map-btn"
-              onClick={() => setIsPerchModalOpen(true)}
-              title="Open perch diagram to select location"
-            >
-              <span className="map-icon">🗺️</span>
-              Map
-            </button>
-          </div>
-          {locationError && (
-            <div className="field-error">{locationError}</div>
-          )}
-          <PerchDiagramModal
-            isOpen={isPerchModalOpen}
-            onClose={() => setIsPerchModalOpen(false)}
-          />
-        </div>
+        <LocationInput
+          value={observation.location}
+          onChange={handleLocationChange}
+          error={locationError}
+          behaviorValue={observation.behavior}
+          perchOptions={perchOptions}
+          selectedLocationOption={selectedLocationOption}
+          selectStyles={selectStyles}
+        />
       )}
 
       {requiresObject && (
-        <>
-          <div className="form-group">
-            <label>
-              Object <span className="required">*</span>
-            </label>
-            <select
-              value={observation.object}
-              onChange={handleObjectChange}
-              className={objectError ? 'error' : ''}
-            >
-              {INANIMATE_OBJECTS.map((obj) => (
-                <option key={obj.value} value={obj.value}>
-                  {obj.label}
-                </option>
-              ))}
-            </select>
-            {objectError && (
-              <div className="field-error">{objectError}</div>
-            )}
-          </div>
-
-          {observation.object === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify object: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.objectOther}
-                onChange={handleObjectOtherChange}
-                onKeyDown={handleKeyDown('objectOther')}
-                placeholder="Enter object name..."
-                className={objectOtherError ? 'error' : ''}
-              />
-              {objectOtherError && (
-                <div className="field-error">{objectOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <ObjectSelect
+          value={observation.object}
+          otherValue={observation.objectOther}
+          onChange={handleObjectChange}
+          onOtherChange={handleObjectOtherChange}
+          onKeyDown={handleKeyDown('objectOther')}
+          error={objectError}
+          otherError={objectOtherError}
+        />
       )}
 
       {requiresAnimal && (
-        <>
-          <div className="form-group">
-            <label>
-              Animal <span className="required">*</span>
-            </label>
-            <select
-              value={observation.animal}
-              onChange={handleAnimalChange}
-              className={animalError ? 'error' : ''}
-            >
-              {ANIMAL_TYPES.map((animal) => (
-                <option key={animal.value} value={animal.value}>
-                  {animal.label}
-                </option>
-              ))}
-            </select>
-            {animalError && (
-              <div className="field-error">{animalError}</div>
-            )}
-          </div>
-
-          {observation.animal === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify animal: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.animalOther}
-                onChange={handleAnimalOtherChange}
-                onKeyDown={handleKeyDown('animalOther')}
-                placeholder="Enter animal type..."
-                className={animalOtherError ? 'error' : ''}
-              />
-              {animalOtherError && (
-                <div className="field-error">{animalOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <AnimalSelect
+          value={observation.animal}
+          otherValue={observation.animalOther}
+          onChange={handleAnimalChange}
+          onOtherChange={handleAnimalOtherChange}
+          onKeyDown={handleKeyDown('animalOther')}
+          error={animalError}
+          otherError={animalOtherError}
+        />
       )}
 
       {requiresInteraction && (
-        <>
-          <div className="form-group">
-            <label>
-              Interaction Type <span className="required">*</span>
-            </label>
-            <select
-              value={observation.interactionType}
-              onChange={handleInteractionTypeChange}
-              className={interactionTypeError ? 'error' : ''}
-            >
-              {INTERACTION_TYPES.map((interaction) => (
-                <option key={interaction.value} value={interaction.value}>
-                  {interaction.label}
-                </option>
-              ))}
-            </select>
-            {interactionTypeError && (
-              <div className="field-error">{interactionTypeError}</div>
-            )}
-          </div>
-
-          {observation.interactionType === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify interaction: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.interactionTypeOther}
-                onChange={handleInteractionTypeOtherChange}
-                onKeyDown={handleKeyDown('interactionTypeOther')}
-                placeholder="Enter interaction type..."
-                className={interactionTypeOtherError ? 'error' : ''}
-              />
-              {interactionTypeOtherError && (
-                <div className="field-error">{interactionTypeOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <InteractionTypeSelect
+          value={observation.interactionType}
+          otherValue={observation.interactionTypeOther}
+          onChange={handleInteractionTypeChange}
+          onOtherChange={handleInteractionTypeOtherChange}
+          onKeyDown={handleKeyDown('interactionTypeOther')}
+          error={interactionTypeError}
+          otherError={interactionTypeOtherError}
+        />
       )}
 
       {requiresDescription && (
-        <div className="form-group">
-          <label>
-            Description <span className="required">*</span>
-          </label>
-          <input
-            type="text"
-            value={observation.description}
-            onChange={handleDescriptionChange}
-            onKeyDown={handleKeyDown('description')}
-            placeholder="Describe the behavior..."
-            className={descriptionError ? 'error' : ''}
-          />
-          {descriptionError && (
-            <div className="field-error">{descriptionError}</div>
-          )}
-        </div>
+        <DescriptionField
+          value={observation.description}
+          onChange={handleDescriptionChange}
+          onKeyDown={handleKeyDown('description')}
+          error={descriptionError}
+        />
       )}
 
-      <div className="form-group">
-        <label>Notes (optional)</label>
-        <input
-          type="text"
-          value={observation.notes}
-          onChange={(e) => onChange(time, 'notes', e.target.value)}
-          onKeyDown={handleKeyDown('notes')}
-          placeholder="Any additional observations..."
-        />
-      </div>
+      <NotesField
+        value={observation.notes}
+        onChange={(e) => onChange(time, 'notes', e.target.value)}
+        onKeyDown={handleKeyDown('notes')}
+      />
 
     </div>
   );
+};
+
+TimeSlotObservation.propTypes = {
+  time: PropTypes.string.isRequired,
+  observation: PropTypes.shape({
+    behavior: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired,
+    notes: PropTypes.string.isRequired,
+    object: PropTypes.string.isRequired,
+    objectOther: PropTypes.string.isRequired,
+    animal: PropTypes.string.isRequired,
+    animalOther: PropTypes.string.isRequired,
+    interactionType: PropTypes.string.isRequired,
+    interactionTypeOther: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired
+  }).isRequired,
+  behaviorError: PropTypes.string,
+  locationError: PropTypes.string,
+  objectError: PropTypes.string,
+  objectOtherError: PropTypes.string,
+  animalError: PropTypes.string,
+  animalOtherError: PropTypes.string,
+  interactionTypeError: PropTypes.string,
+  interactionTypeOtherError: PropTypes.string,
+  descriptionError: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  onValidate: PropTypes.func.isRequired,
+  onCopyToNext: PropTypes.func.isRequired,
+  isLastSlot: PropTypes.bool.isRequired
 };
 
 export default TimeSlotObservation;
