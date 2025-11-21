@@ -10,25 +10,47 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - Validation is centralized in `src/hooks/useFormValidation.js`. It exposes: `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `clearFieldError`, and `clearAllErrors`.
 - UI components:
   - `src/components/MetadataSection.jsx` — controlled inputs for metadata (observerName, date, startTime, endTime).
-  - `src/components/TimeSlotObservation.jsx` — per-slot behavior/location/notes; uses `react-select` for location.
+  - `src/components/TimeSlotObservation.jsx` — per-slot behavior/location/notes/interactions; uses `react-select` for location dropdown and includes conditional fields for object/animal interactions.
+  - `src/components/PerchDiagramModal.jsx` — modal with tabbed perch diagram images (NE/SW halves) for visual reference.
   - `src/components/OutputPreview.jsx` — JSON preview of submission.
 
 ### Data shapes and naming conventions (important)
-- `metadata` object keys: `observerName`, `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`.
-- `observations` is an object keyed by time strings: `{ "15:05": { behavior: '', location: '', notes: '' }, ... }`.
+- `metadata` object keys: `observerName`, `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`, `mode` ('live' or 'vod').
+- `observations` is an object keyed by time strings with flat structure:
+  ```
+  {
+    "15:05": {
+      behavior: '',
+      location: '',
+      notes: '',
+      object: '',           // For "interacting_object" behavior
+      objectOther: '',      // When object === "other"
+      animal: '',           // For "interacting_animal" behavior
+      animalOther: '',      // When animal === "other"
+      interactionType: '',  // For "interacting_animal" behavior
+      interactionTypeOther: '', // When interactionType === "other"
+      description: ''       // For behaviors requiring description
+    }
+  }
+  ```
 - Validation error keys:
   - Metadata: `observerName`, `date`, `startTime`, `endTime`.
-  - Observations: `${time}_behavior` and `${time}_location` (e.g. `"15:05_behavior"`).
+  - Observations: `${time}_behavior`, `${time}_location`, `${time}_object`, `${time}_objectOther`, `${time}_animal`, `${time}_animalOther`, `${time}_interactionType`, `${time}_interactionTypeOther`, `${time}_description` (e.g. `"15:05_behavior"`).
 
 ### Project-specific behaviours to respect
 - Time granularity: every 5 minutes. `generateTimeSlots(start, end)` generates slots from start inclusive to end exclusive. Rounding is done via `roundToNearestFiveMinutes` and inputs use `step="300"`.
 - Maximum duration: 60 minutes (enforced in `validateTimeRange`). Do not change time validation semantics without updating UI hints and tests.
 - Location validation accepts numbers (1-31), special codes (`BB1`, `F1`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants.js`.
-- `BEHAVIORS` items include a `requiresLocation` boolean — UI and validation rely on this flag to show/require the location field.
+- `BEHAVIORS` items include conditional requirement flags — UI and validation rely on these:
+  - `requiresLocation`: Shows/requires location field
+  - `requiresObject`: Shows/requires object dropdown (for inanimate object interactions)
+  - `requiresAnimal`: Shows/requires animal dropdown (for animal interactions)
+  - `requiresInteraction`: Shows/requires interaction type dropdown (for animal interactions)
+  - `requiresDescription`: Shows/requires description text field (for behaviors needing detail)
 
 ### How to make common changes (concrete examples)
 - Add a new behavior:
-  1. Update `src/constants.js` — add an entry to `BEHAVIORS` with `value`, `label`, and `requiresLocation`.
+  1. Update `src/constants.js` — add an entry to `BEHAVIORS` with `value`, `label`, and any conditional flags (`requiresLocation`, `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`).
   2. No other files require changes for the option to appear, but if the new behavior needs special location codes, add them to `VALID_PERCHES`.
   3. Validation will pick it up automatically because `useFormValidation` consults `BEHAVIORS`.
 
@@ -44,7 +66,9 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - The repository is set up for Vercel auto-deploys. CI/CD is not in-repo; check the Vercel dashboard for build env settings.
 
 ### Patterns and gotchas for edits
-- Controlled components + onBlur validation: most inputs call `onChange(..., shouldValidate)` or call `validateSingle*` on blur. Preserve this pattern when refactoring.
+- **Validation timing**: Most dropdowns validate onChange for immediate feedback. Text fields (objectOther, animalOther, interactionTypeOther, description) use debounced validation (200ms) to avoid flickering while typing. Preserve these patterns when refactoring.
+- **Enter key handling**: Text inputs validate on Enter but do NOT submit the form (prevents accidental mobile submissions).
+- **Conditional field clearing**: When behavior changes, all conditional fields (object, animal, interactionType, description, etc.) are cleared to prevent orphaned data.
 - Time strings are used as keys in state and in error keys — renaming the format will cascade across state, validation, and UI. Avoid changing this unless updating all usages.
 - `generateTimeSlots` uses end-exclusive iteration. Tests or UI that assume end-inclusive will break.
 - `useFormValidation` uppercases and trims location values when validating — downstream code that reads `observations` may need to handle case differences.
@@ -56,9 +80,12 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - `src/constants.js` — behaviors and valid location codes
 - `src/components/TimeSlotObservation.jsx` — react-select usage and perchOptions grouping
 
-### Missing / not present
-- There are no unit tests in the repo. If you add tests, prefer Jest + React Testing Library and test:
-  - `generateTimeSlots` and `validateTimeRange` edge cases
-  - `useFormValidation` behavior for location/behavior combos
+### Testing
+- The repo has 101+ passing tests using Jest + React Testing Library
+- Test coverage includes:
+  - Time utilities (`timeUtils.js`, `timezoneUtils.js`)
+  - Form validation hook (`useFormValidation.js`)
+  - localStorage utilities (`localStorageUtils.js`)
+- When adding new features, add corresponding tests in `__tests__` directories
 
 If anything here is unclear or you'd like me to expand examples (for instance add a small test or a template PR message), tell me which section to expand.
