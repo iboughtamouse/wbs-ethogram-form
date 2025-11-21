@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🔁 Running test suite before push..."
 npm test || { echo "❌ Tests failed. Push blocked."; exit 1; }
 
