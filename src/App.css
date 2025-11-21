@@ -171,3 +171,246 @@ input:disabled {
   transform: translateY(-1px);
 }
 
+/* Perch Diagram Modal Styles */
+.perch-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.perch-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 95vw;
+  max-height: 95vh;
+  width: 1000px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.perch-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.perch-modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+
+.perch-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.perch-modal-close:hover {
+  background-color: #f0f0f0;
+  color: #2c3e50;
+}
+
+.perch-modal-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.perch-tab {
+  padding: 0.875rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #7f8c8d;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.perch-tab:hover {
+  color: #2c3e50;
+  background-color: #f8f9fa;
+}
+
+.perch-tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+.perch-modal-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.perch-diagram-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.perch-diagram-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* SVG overlay for perch hotspots */
+.perch-diagram-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.perch-hotspot-group {
+  pointer-events: auto;
+  transition: all 0.15s ease-in-out;
+}
+
+.perch-hotspot-circle {
+  fill: rgba(155, 89, 182, 0.9);
+  stroke: white;
+  stroke-width: 2;
+  transition: all 0.15s ease-in-out;
+}
+
+.perch-hotspot-group:hover .perch-hotspot-circle {
+  fill: #3498db;
+  r: 28;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.perch-hotspot-group.selected .perch-hotspot-circle {
+  fill: #27ae60;
+  stroke: #2ecc71;
+  stroke-width: 3;
+  r: 27;
+}
+
+.perch-hotspot-text {
+  fill: white;
+  font-size: 18px;
+  font-weight: 700;
+  user-select: none;
+}
+
+.perch-modal-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.perch-modal-hint {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* View Perch Map Button */
+.view-perch-map-btn {
+  background-color: #9b59b6;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.875rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.view-perch-map-btn:hover {
+  background-color: #8e44ad;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(155, 89, 182, 0.4);
+}
+
+.view-perch-map-btn .map-icon {
+  font-size: 1rem;
+}
+
+/* Responsive adjustments for perch modal */
+@media (max-width: 768px) {
+  .perch-modal {
+    max-height: 90vh;
+    width: 100%;
+  }
+  
+  .perch-modal-tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .perch-tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+  
+  .perch-tab.active {
+    border-left-color: #3498db;
+    border-bottom-color: transparent;
+  }
+  
+  .perch-hotspot-text {
+    font-size: 14px;
+  }
+  
+  .perch-hotspot-circle {
+    r: 22;
+  }
+  
+  .perch-hotspot-group:hover .perch-hotspot-circle {
+    r: 25;
+  }
+  
+  .perch-hotspot-group.selected .perch-hotspot-circle {
+    r: 24;
+  }
+}
+
