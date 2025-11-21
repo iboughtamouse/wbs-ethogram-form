@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
 import PerchDiagramModal from './PerchDiagramModal';
+import { debounce } from '../utils/debounce';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -22,6 +23,13 @@ const TimeSlotObservation = ({
   isLastSlot
 }) => {
   const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
+  
+  // Create debounced validator for text fields (200ms delay)
+  const debouncedValidateRef = useRef(
+    debounce((time, field, value) => {
+      onValidate(time, field, value);
+    }, 200)
+  );
   
   const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
@@ -68,86 +76,68 @@ const TimeSlotObservation = ({
     }
   ];
 
+  // Select/dropdown handlers - validate immediately on change
   const handleBehaviorChange = (value) => {
     onChange(time, 'behavior', value);
-    // Validate immediately with the new value to avoid mobile timing issues
     onValidate(time, 'behavior', value);
-  };
-
-  const handleBehaviorBlur = () => {
-    // Re-validate on blur as safety net
-    onValidate(time, 'behavior');
   };
 
   const handleLocationChange = (selectedOption) => {
     const newValue = selectedOption ? selectedOption.value : '';
     onChange(time, 'location', newValue);
-    // Validate immediately with the new value to avoid mobile timing issues
     onValidate(time, 'location', newValue);
   };
 
-  const handleLocationBlur = () => {
-    // Re-validate on blur as safety net
-    onValidate(time, 'location');
-  };
-
-  // Object interaction handlers
   const handleObjectChange = (e) => {
     const newValue = e.target.value;
     onChange(time, 'object', newValue);
-    // Validate immediately with the new value to avoid mobile timing issues
     onValidate(time, 'object', newValue);
   };
 
-  const handleObjectBlur = (e) => {
-    // Re-validate on blur as safety net
-    onValidate(time, 'object', e.target.value);
-  };
-
-  const handleObjectOtherChange = (e) => {
-    onChange(time, 'objectOther', e.target.value);
-  };
-
-  const handleObjectOtherBlur = (e) => {
-    onValidate(time, 'objectOther', e.target.value);
-  };
-
-  // Animal interaction handlers
   const handleAnimalChange = (e) => {
-    onChange(time, 'animal', e.target.value);
-  };
-
-  const handleAnimalBlur = (e) => {
-    onValidate(time, 'animal', e.target.value);
-  };
-
-  const handleAnimalOtherChange = (e) => {
-    onChange(time, 'animalOther', e.target.value);
-  };
-
-  const handleAnimalOtherBlur = (e) => {
-    onValidate(time, 'animalOther', e.target.value);
+    const newValue = e.target.value;
+    onChange(time, 'animal', newValue);
+    onValidate(time, 'animal', newValue);
   };
 
   const handleInteractionTypeChange = (e) => {
-    onChange(time, 'interactionType', e.target.value);
+    const newValue = e.target.value;
+    onChange(time, 'interactionType', newValue);
+    onValidate(time, 'interactionType', newValue);
   };
 
-  const handleInteractionTypeBlur = (e) => {
-    onValidate(time, 'interactionType', e.target.value);
+  // Text field handlers - validate with debounce on change
+  const handleObjectOtherChange = (e) => {
+    const newValue = e.target.value;
+    onChange(time, 'objectOther', newValue);
+    debouncedValidateRef.current(time, 'objectOther', newValue);
+  };
+
+  const handleAnimalOtherChange = (e) => {
+    const newValue = e.target.value;
+    onChange(time, 'animalOther', newValue);
+    debouncedValidateRef.current(time, 'animalOther', newValue);
   };
 
   const handleInteractionTypeOtherChange = (e) => {
-    onChange(time, 'interactionTypeOther', e.target.value);
+    const newValue = e.target.value;
+    onChange(time, 'interactionTypeOther', newValue);
+    debouncedValidateRef.current(time, 'interactionTypeOther', newValue);
   };
 
-  const handleInteractionTypeOtherBlur = (e) => {
-    onValidate(time, 'interactionTypeOther', e.target.value);
-  };
-
-  // Description handlers
   const handleDescriptionChange = (e) => {
-    onChange(time, 'description', e.target.value);
+    const newValue = e.target.value;
+    onChange(time, 'description', newValue);
+    debouncedValidateRef.current(time, 'description', newValue);
+  };
+
+  // Prevent Enter key from submitting form, but trigger validation
+  const handleKeyDown = (field) => (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Trigger validation with current value
+      onValidate(time, field, e.target.value);
+    }
   };
 
   const handleDescriptionBlur = (e) => {
@@ -212,7 +202,6 @@ const TimeSlotObservation = ({
         <select
           value={observation.behavior}
           onChange={(e) => handleBehaviorChange(e.target.value)}
-          onBlur={handleBehaviorBlur}
           className={behaviorError ? 'error' : ''}
         >
           {BEHAVIORS.map((behavior) => (
@@ -237,7 +226,6 @@ const TimeSlotObservation = ({
                 options={perchOptions}
                 value={selectedLocationOption}
                 onChange={handleLocationChange}
-                onBlur={handleLocationBlur}
                 placeholder="Type or select..."
                 isClearable
                 styles={selectStyles}
@@ -272,7 +260,6 @@ const TimeSlotObservation = ({
             <select
               value={observation.object}
               onChange={handleObjectChange}
-              onBlur={handleObjectBlur}
               className={objectError ? 'error' : ''}
             >
               {INANIMATE_OBJECTS.map((obj) => (
@@ -295,7 +282,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.objectOther}
                 onChange={handleObjectOtherChange}
-                onBlur={handleObjectOtherBlur}
+                onKeyDown={handleKeyDown('objectOther')}
                 placeholder="Enter object name..."
                 className={objectOtherError ? 'error' : ''}
               />
@@ -316,7 +303,6 @@ const TimeSlotObservation = ({
             <select
               value={observation.animal}
               onChange={handleAnimalChange}
-              onBlur={handleAnimalBlur}
               className={animalError ? 'error' : ''}
             >
               {ANIMAL_TYPES.map((animal) => (
@@ -339,7 +325,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.animalOther}
                 onChange={handleAnimalOtherChange}
-                onBlur={handleAnimalOtherBlur}
+                onKeyDown={handleKeyDown('animalOther')}
                 placeholder="Enter animal type..."
                 className={animalOtherError ? 'error' : ''}
               />
@@ -360,7 +346,6 @@ const TimeSlotObservation = ({
             <select
               value={observation.interactionType}
               onChange={handleInteractionTypeChange}
-              onBlur={handleInteractionTypeBlur}
               className={interactionTypeError ? 'error' : ''}
             >
               {INTERACTION_TYPES.map((interaction) => (
@@ -383,7 +368,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.interactionTypeOther}
                 onChange={handleInteractionTypeOtherChange}
-                onBlur={handleInteractionTypeOtherBlur}
+                onKeyDown={handleKeyDown('interactionTypeOther')}
                 placeholder="Enter interaction type..."
                 className={interactionTypeOtherError ? 'error' : ''}
               />
@@ -404,7 +389,7 @@ const TimeSlotObservation = ({
             type="text"
             value={observation.description}
             onChange={handleDescriptionChange}
-            onBlur={handleDescriptionBlur}
+            onKeyDown={handleKeyDown('description')}
             placeholder="Describe the behavior..."
             className={descriptionError ? 'error' : ''}
           />
@@ -420,6 +405,7 @@ const TimeSlotObservation = ({
           type="text"
           value={observation.notes}
           onChange={(e) => onChange(time, 'notes', e.target.value)}
+          onKeyDown={handleKeyDown('notes')}
           placeholder="Any additional observations..."
         />
       </div>
