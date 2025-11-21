@@ -6,7 +6,7 @@
  */
 
 import ExcelJS from 'exceljs';
-import { BEHAVIORS } from '../../constants/behaviors';
+import { generateTimeSlots } from '../../utils/timeUtils';
 
 /**
  * Maps behavior values from the form to display labels for Excel rows
@@ -30,19 +30,19 @@ const BEHAVIOR_ROW_MAPPING = {
   resting_alert: 'Resting on Perch/Ground - Alert (Note Location)',
   resting_not_alert: 'Resting on Perch/Ground - Not Alert (Note Location)',
   resting_unknown: 'Resting on Perch/Ground - Status Unknown (Note Location)',
-  'interaction-inanimate': 'Interacting with Inanimate Object (Note Object)',
-  'interaction-animal':
+  interacting_object: 'Interacting with Inanimate Object (Note Object)',
+  interacting_animal:
     'Interacting with Other Animal (Note Animal & Type of Interaction)',
   aggression: 'Aggression or Defensive Posturing',
-  'not-visible': 'Not Visible',
+  not_visible: 'Not Visible',
   other: 'Other',
 };
 
 /**
- * Converts absolute time (HH:MM) to relative format (M:SS) based on start time
+ * Converts absolute time (HH:MM) to relative format based on start time
  * @param {string} time - Time in HH:MM format
  * @param {string} startTime - Start time in HH:MM format
- * @returns {string} Relative time (e.g., "0:00", "0:05", "1:30")
+ * @returns {string} Relative time in H:MM format (e.g., "0:00", "0:05", "1:30")
  */
 const convertToRelativeTime = (time, startTime) => {
   const [timeHours, timeMinutes] = time.split(':').map(Number);
@@ -118,25 +118,8 @@ export const generateExcelWorkbook = async (formData) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Ethogram Data');
 
-  // Calculate time slots from start to end time
-  const timeSlots = [];
-  if (metadata.startTime && metadata.endTime) {
-    const [startHours, startMinutes] = metadata.startTime
-      .split(':')
-      .map(Number);
-    const [endHours, endMinutes] = metadata.endTime.split(':').map(Number);
-
-    let currentMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
-
-    while (currentMinutes <= endTotalMinutes) {
-      const hours = Math.floor(currentMinutes / 60);
-      const minutes = currentMinutes % 60;
-      const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-      timeSlots.push(timeString);
-      currentMinutes += 5;
-    }
-  }
+  // Generate time slots using existing utility function
+  const timeSlots = generateTimeSlots(metadata.startTime, metadata.endTime);
 
   // Row 1: Title, Date, Time Window
   worksheet.getCell('A1').value = 'Rehabilitation Raptor Ethogram';

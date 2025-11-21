@@ -39,7 +39,7 @@ describe('excelGenerator', () => {
           description: '',
         },
         '09:10': {
-          behavior: 'interaction-inanimate',
+          behavior: 'interacting_object',
           location: '',
           notes: '',
           object: 'toy',

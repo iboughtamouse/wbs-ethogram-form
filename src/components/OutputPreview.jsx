@@ -8,7 +8,12 @@ const OutputPreview = ({ data }) => {
   const handleDownloadExcel = async () => {
     try {
       setIsDownloading(true);
-      const filename = `ethogram-${data.metadata.patient}-${data.metadata.date}`;
+      // Sanitize patient name to remove invalid filename characters
+      const sanitizedPatient = data.metadata.patient.replace(
+        /[/\\:*?"<>|]/g,
+        '_'
+      );
+      const filename = `ethogram-${sanitizedPatient}-${data.metadata.date}`;
       await downloadExcelFile(data, filename);
     } catch (error) {
       console.error('Failed to generate Excel file:', error);
