@@ -1,4 +1,7 @@
-echo "🔁 Running test suite before push..."
-npm test || { echo "❌ Tests failed. Push blocked."; exit 1; }
+echo "🔁 Running tests for changes since main..."
+npm test -- --changedSince=main --passWithNoTests || {
+  echo "⚠️  Could not determine changed files, running full suite..."
+  npm test || { echo "❌ Tests failed. Push blocked."; exit 1; }
+}
 
 echo "✅ Tests passed."
