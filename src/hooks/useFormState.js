@@ -106,11 +106,13 @@ export const useFormState = () => {
     setMetadata(draftMetadata);
 
     // Then schedule observation restoration after time slots have been generated.
-    // Use queueMicrotask to ensure this runs after the current render cycle
-    // and the useEffect has completed, but before the next paint.
-    queueMicrotask(() => {
+    // We use setTimeout(..., 0) to defer execution to the next event loop cycle,
+    // ensuring the useEffect that generates time slots and initializes observations
+    // completes before we restore the draft observations. This prevents a race condition
+    // where the useEffect could overwrite the restored draft data.
+    setTimeout(() => {
       setObservations(draftObservations);
-    });
+    }, 0);
   }, []);
 
   return {
