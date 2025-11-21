@@ -467,13 +467,15 @@ describe('Form Components', () => {
     test('renders with location label for non-jumping behavior', () => {
       render(<LocationInput {...defaultProps} behaviorValue="preening" />);
 
-      expect(screen.getByText(/^Location/)).toBeInTheDocument();
+      // Use specific text to avoid matching "Starting Location"
+      expect(screen.getByText('Location (Perch # or "Ground")')).toBeInTheDocument();
     });
 
     test('renders with "Starting Location" label for jumping behavior', () => {
       render(<LocationInput {...defaultProps} behaviorValue="jumping" />);
 
-      expect(screen.getByText(/Starting Location/)).toBeInTheDocument();
+      // Use specific text for clarity
+      expect(screen.getByText('Starting Location (Perch # or "Ground")')).toBeInTheDocument();
     });
 
     test('renders map button', () => {
