@@ -4,13 +4,15 @@ import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
 import { debounce } from '../utils/debounce';
-import NotesField from './form/NotesField';
-import DescriptionField from './form/DescriptionField';
-import BehaviorSelect from './form/BehaviorSelect';
-import LocationInput from './form/LocationInput';
-import ObjectSelect from './form/ObjectSelect';
-import AnimalSelect from './form/AnimalSelect';
-import InteractionTypeSelect from './form/InteractionTypeSelect';
+import {
+  NotesField,
+  DescriptionField,
+  BehaviorSelect,
+  LocationInput,
+  ObjectSelect,
+  AnimalSelect,
+  InteractionTypeSelect
+} from './form';
 
 const TimeSlotObservation = ({
   time,
