@@ -1,18 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
-import PerchDiagramModal from './PerchDiagramModal';
 import { debounce } from '../utils/debounce';
 import NotesField from './form/NotesField';
 import DescriptionField from './form/DescriptionField';
 import BehaviorSelect from './form/BehaviorSelect';
+import LocationInput from './form/LocationInput';
 
-const TimeSlotObservation = ({ 
-  time, 
-  observation, 
-  behaviorError, 
+const TimeSlotObservation = ({
+  time,
+  observation,
+  behaviorError,
   locationError,
   objectError,
   objectOtherError,
@@ -26,7 +26,6 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot
 }) => {
-  const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
   
   // Create debounced validator for text fields (200ms delay)
   const debouncedValidateRef = useRef(
@@ -206,39 +205,15 @@ const TimeSlotObservation = ({
       />
 
       {requiresLocation && (
-        <div className="form-group location-input">
-          <label>
-            {observation.behavior === 'jumping' ? 'Starting Location' : 'Location'} (Perch # or "Ground") <span className="required">*</span>
-          </label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
-              <Select
-                options={perchOptions}
-                value={selectedLocationOption}
-                onChange={handleLocationChange}
-                placeholder="Type or select..."
-                isClearable
-                styles={selectStyles}
-              />
-            </div>
-            <button
-              type="button"
-              className="view-perch-map-btn"
-              onClick={() => setIsPerchModalOpen(true)}
-              title="Open perch diagram to select location"
-            >
-              <span className="map-icon">🗺️</span>
-              Map
-            </button>
-          </div>
-          {locationError && (
-            <div className="field-error">{locationError}</div>
-          )}
-          <PerchDiagramModal
-            isOpen={isPerchModalOpen}
-            onClose={() => setIsPerchModalOpen(false)}
-          />
-        </div>
+        <LocationInput
+          value={observation.location}
+          onChange={handleLocationChange}
+          error={locationError}
+          behaviorValue={observation.behavior}
+          perchOptions={perchOptions}
+          selectedLocationOption={selectedLocationOption}
+          selectStyles={selectStyles}
+        />
       )}
 
       {requiresObject && (
