@@ -52,7 +52,6 @@ const LocationInput = ({
 };
 
 LocationInput.propTypes = {
-  value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   error: PropTypes.string,
   behaviorValue: PropTypes.string.isRequired,
