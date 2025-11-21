@@ -1,9 +1,10 @@
 # Architecture Documentation
 
-> **Last Updated**: November 21, 2025
-> **Codebase Size**: 2,012 lines (source) + 3,404 lines (tests)
+> **Last Updated**: November 21, 2025 (Post-Phase 4/5 refactoring)
+> **Codebase Size**: ~2,200 lines (source) + 3,404 lines (tests)
 > **Test Count**: 208 passing tests across 9 test suites
 > **Components**: 11 React components (4 main + 7 form fields)
+> **Recent Changes**: Modularized constants, added helper functions, extracted pure validators
 
 ---
 
@@ -83,20 +84,20 @@ App.jsx (358 lines) - Root component
 
 ### Component Responsibilities
 
-| Component | Purpose | State | Props In | Props Out (Callbacks) |
-|-----------|---------|-------|----------|----------------------|
-| **App** | Orchestrator | All form state | None | None |
-| **MetadataSection** | Metadata inputs | None (controlled) | metadata, fieldErrors | onMetadataChange, onMetadataValidate |
-| **TimeSlotObservation** | Per-slot container | None (controlled) | time, observation, errors | onChange, onValidate, onCopyToNext |
-| **BehaviorSelect** | Behavior dropdown | None (controlled) | value, error | onChange |
-| **LocationInput** | Location + map | Modal open state | value, error, behaviorValue, perchOptions | onChange |
-| **ObjectSelect** | Object + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
-| **AnimalSelect** | Animal + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
-| **InteractionTypeSelect** | Interaction + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
-| **DescriptionField** | Description input | None (controlled) | value, error | onChange |
-| **NotesField** | Notes textarea | None (controlled) | value | onChange |
-| **PerchDiagramModal** | Perch map viewer | Active tab | isOpen | onClose |
-| **OutputPreview** | JSON display | None | data | None |
+| Component                 | Purpose               | State             | Props In                                  | Props Out (Callbacks)                |
+| ------------------------- | --------------------- | ----------------- | ----------------------------------------- | ------------------------------------ |
+| **App**                   | Orchestrator          | All form state    | None                                      | None                                 |
+| **MetadataSection**       | Metadata inputs       | None (controlled) | metadata, fieldErrors                     | onMetadataChange, onMetadataValidate |
+| **TimeSlotObservation**   | Per-slot container    | None (controlled) | time, observation, errors                 | onChange, onValidate, onCopyToNext   |
+| **BehaviorSelect**        | Behavior dropdown     | None (controlled) | value, error                              | onChange                             |
+| **LocationInput**         | Location + map        | Modal open state  | value, error, behaviorValue, perchOptions | onChange                             |
+| **ObjectSelect**          | Object + "other"      | None (controlled) | value, otherValue, errors                 | onChange, onOtherChange              |
+| **AnimalSelect**          | Animal + "other"      | None (controlled) | value, otherValue, errors                 | onChange, onOtherChange              |
+| **InteractionTypeSelect** | Interaction + "other" | None (controlled) | value, otherValue, errors                 | onChange, onOtherChange              |
+| **DescriptionField**      | Description input     | None (controlled) | value, error                              | onChange                             |
+| **NotesField**            | Notes textarea        | None (controlled) | value                                     | onChange                             |
+| **PerchDiagramModal**     | Perch map viewer      | Active tab        | isOpen                                    | onClose                              |
+| **OutputPreview**         | JSON display          | None              | data                                      | None                                 |
 
 ---
 
@@ -110,7 +111,7 @@ graph TD
     B --> C[App.jsx State Update]
     C --> D{Validation Triggered?}
     D -->|Yes| E[useFormValidation Hook]
-    E --> F[Validation Rules in constants.js]
+    E --> F[Validation Rules using constants helpers]
     F --> G[Error State Update]
     G --> H[Component Rerenders with Errors]
     D -->|No| H
@@ -143,45 +144,50 @@ graph TD
 
 ### Source Files (by size)
 
-| File | Lines | Category | Purpose |
-|------|-------|----------|---------|
-| `App.jsx` | 358 | Component | Root orchestrator |
-| `components/TimeSlotObservation.jsx` | 311 | Component | Per-slot container |
-| `hooks/useFormValidation.js` | 246 | Hook | Centralized validation |
-| `components/MetadataSection.jsx` | 159 | Component | Metadata inputs |
-| `utils/timeUtils.js` | 95 | Utility | Time operations |
-| `components/PerchDiagramModal.jsx` | 83 | Component | Perch map modal |
-| `utils/timezoneUtils.js` | 82 | Utility | Timezone conversion |
-| `constants.js` | 79 | Config | Domain data |
-| `utils/localStorageUtils.js` | 73 | Utility | Autosave logic |
-| `components/form/LocationInput.jsx` | 79 | Component | Location select + map |
-| `components/form/ObjectSelect.jsx` | 68 | Component | Object dropdown + "other" |
-| `components/form/AnimalSelect.jsx` | 68 | Component | Animal dropdown + "other" |
-| `components/form/InteractionTypeSelect.jsx` | 68 | Component | Interaction dropdown + "other" |
-| `utils/observationUtils.js` | 47 | Utility | Observation helpers |
-| `components/form/BehaviorSelect.jsx` | 35 | Component | Behavior dropdown |
-| `components/form/DescriptionField.jsx` | 32 | Component | Description text input |
-| `components/form/NotesField.jsx` | 25 | Component | Notes textarea |
-| `utils/debounce.js` | 21 | Utility | Debounce function |
-| `components/OutputPreview.jsx` | 15 | Component | JSON display |
-| `main.jsx` | 10 | Entry | React mount point |
-| `components/form/index.js` | 8 | Export | Barrel export |
+| File                                        | Lines | Category  | Purpose                             |
+| ------------------------------------------- | ----- | --------- | ----------------------------------- |
+| `App.jsx`                                   | 396   | Component | Root orchestrator                   |
+| `components/TimeSlotObservation.jsx`        | 311   | Component | Per-slot container                  |
+| `hooks/useFormValidation.js`                | 302   | Hook      | Centralized validation (refactored) |
+| `components/MetadataSection.jsx`            | 159   | Component | Metadata inputs                     |
+| `constants/behaviors.js`                    | 136   | Config    | BEHAVIORS + helpers                 |
+| `utils/timeUtils.js`                        | 95    | Utility   | Time operations                     |
+| `components/PerchDiagramModal.jsx`          | 83    | Component | Perch map modal                     |
+| `utils/timezoneUtils.js`                    | 82    | Utility   | Timezone conversion                 |
+| `components/form/LocationInput.jsx`         | 79    | Component | Location select + map               |
+| `utils/localStorageUtils.js`                | 73    | Utility   | Autosave logic                      |
+| `components/form/ObjectSelect.jsx`          | 68    | Component | Object dropdown + "other"           |
+| `components/form/AnimalSelect.jsx`          | 68    | Component | Animal dropdown + "other"           |
+| `components/form/InteractionTypeSelect.jsx` | 68    | Component | Interaction dropdown + "other"      |
+| `constants/interactions.js`                 | 51    | Config    | Objects, animals, interaction types |
+| `utils/observationUtils.js`                 | 47    | Utility   | Observation helpers                 |
+| `constants/locations.js`                    | 46    | Config    | VALID_PERCHES, TIME_SLOTS           |
+| `components/form/BehaviorSelect.jsx`        | 35    | Component | Behavior dropdown                   |
+| `components/form/DescriptionField.jsx`      | 32    | Component | Description text input              |
+| `utils/validators/locationValidator.js`     | 29    | Validator | Pure location validation            |
+| `components/form/NotesField.jsx`            | 25    | Component | Notes textarea                      |
+| `utils/debounce.js`                         | 21    | Utility   | Debounce function                   |
+| `constants/index.js`                        | 18    | Export    | Barrel export for constants         |
+| `components/OutputPreview.jsx`              | 15    | Component | JSON display                        |
+| `main.jsx`                                  | 10    | Entry     | React mount point                   |
+| `components/form/index.js`                  | 8     | Export    | Barrel export for form components   |
+| `utils/validators/index.js`                 | 2     | Export    | Barrel export for validators        |
 
-**Total Source**: 2,012 lines
+**Total Source**: ~2,200 lines (updated after Phase 4/5 refactoring)
 
 ### Test Files
 
-| Test Suite | Lines | Coverage |
-|------------|-------|----------|
-| `tests/integration/App.test.jsx` | 684 | Full app integration & E2E |
-| `tests/integration/TimeSlotObservation.test.jsx` | 566 | Time slot component |
-| `tests/integration/FormComponents.test.jsx` | 526 | Form field components |
-| `tests/integration/MetadataSection.test.jsx` | 394 | Metadata section |
-| `hooks/__tests__/useFormValidation.test.js` | 378 | Validation rules |
-| `utils/__tests__/localStorageUtils.test.js` | 287 | localStorage |
-| `tests/copyToNextSlot.test.js` | 237 | Copy to next feature |
-| `utils/__tests__/timeUtils.test.js` | 188 | Time operations |
-| `utils/__tests__/timezoneUtils.test.js` | 144 | Timezone logic |
+| Test Suite                                       | Lines | Coverage                   |
+| ------------------------------------------------ | ----- | -------------------------- |
+| `tests/integration/App.test.jsx`                 | 684   | Full app integration & E2E |
+| `tests/integration/TimeSlotObservation.test.jsx` | 566   | Time slot component        |
+| `tests/integration/FormComponents.test.jsx`      | 526   | Form field components      |
+| `tests/integration/MetadataSection.test.jsx`     | 394   | Metadata section           |
+| `hooks/__tests__/useFormValidation.test.js`      | 378   | Validation rules           |
+| `utils/__tests__/localStorageUtils.test.js`      | 287   | localStorage               |
+| `tests/copyToNextSlot.test.js`                   | 237   | Copy to next feature       |
+| `utils/__tests__/timeUtils.test.js`              | 188   | Time operations            |
+| `utils/__tests__/timezoneUtils.test.js`          | 144   | Timezone logic             |
 
 **Total Tests**: 3,404 lines, 208 test cases, 9 test suites
 
@@ -189,8 +195,8 @@ graph TD
 
 ```
 src/
-├── components/          # React components (11 files, 1,011 lines)
-│   ├── form/           # Form field components (8 files, 493 lines)
+├── components/          # React components (11 files, ~1,000 lines)
+│   ├── form/           # Form field components (8 files, ~490 lines)
 │   │   ├── BehaviorSelect.jsx
 │   │   ├── LocationInput.jsx
 │   │   ├── ObjectSelect.jsx
@@ -203,10 +209,25 @@ src/
 │   ├── TimeSlotObservation.jsx
 │   ├── PerchDiagramModal.jsx
 │   └── OutputPreview.jsx
-├── hooks/              # Custom hooks (1 file, 246 lines)
-├── utils/              # Utilities (6 files, 418 lines)
-├── constants.js        # Domain data (79 lines)
-├── App.jsx             # Root component (353 lines)
+├── hooks/              # Custom hooks (1 file, 302 lines)
+│   ├── useFormValidation.js
+│   └── __tests__/
+├── utils/              # Utilities (7 files, ~450 lines)
+│   ├── timeUtils.js
+│   ├── timezoneUtils.js
+│   ├── localStorageUtils.js
+│   ├── observationUtils.js
+│   ├── debounce.js
+│   ├── validators/     # Pure validator functions
+│   │   ├── locationValidator.js
+│   │   └── index.js
+│   └── __tests__/
+├── constants/          # Domain data modules (4 files, 251 lines)
+│   ├── behaviors.js    # BEHAVIORS array + helper functions
+│   ├── locations.js    # VALID_PERCHES, TIME_SLOTS
+│   ├── interactions.js # Objects, animals, interaction types
+│   └── index.js        # Barrel export
+├── App.jsx             # Root component (396 lines)
 ├── App.css             # Component styles
 ├── index.css           # Global styles
 └── main.jsx            # Entry point (10 lines)
@@ -222,41 +243,43 @@ src/
 // Metadata state
 const [metadata, setMetadata] = useState({
   observerName: '',
-  date: today,              // YYYY-MM-DD format
-  startTime: '',            // HH:MM (24-hour)
-  endTime: '',              // HH:MM (24-hour)
+  date: today, // YYYY-MM-DD format
+  startTime: '', // HH:MM (24-hour)
+  endTime: '', // HH:MM (24-hour)
   aviary: "Sayyida's Cove", // Fixed
-  patient: 'Sayyida',       // Fixed
-  mode: 'live'              // 'live' or 'vod'
+  patient: 'Sayyida', // Fixed
+  mode: 'live', // 'live' or 'vod'
 });
 
 // Observations state (object keyed by time strings)
 const [observations, setObservations] = useState({
-  "15:00": {
+  '15:00': {
     behavior: '',
     location: '',
     notes: '',
-    object: '',               // For "interacting_object" behavior
-    objectOther: '',          // When object === "other"
-    animal: '',               // For "interacting_animal" behavior
-    animalOther: '',          // When animal === "other"
-    interactionType: '',      // For "interacting_animal" behavior
+    object: '', // For "interacting_object" behavior
+    objectOther: '', // When object === "other"
+    animal: '', // For "interacting_animal" behavior
+    animalOther: '', // When animal === "other"
+    interactionType: '', // For "interacting_animal" behavior
     interactionTypeOther: '', // When interactionType === "other"
-    description: ''           // For behaviors requiring description
+    description: '', // For behaviors requiring description
   },
-  "15:05": { /* ... */ },
+  '15:05': {
+    /* ... */
+  },
   // ... one entry per 5-minute slot
 });
 
 // Validation errors (flat object with dot-notation keys)
 const [fieldErrors, setFieldErrors] = useState({
-  observerName: '',        // Metadata errors use field name
+  observerName: '', // Metadata errors use field name
   date: '',
   startTime: '',
   endTime: '',
-  "15:00_behavior": '',    // Observation errors use time_field format
-  "15:00_location": '',
-  "15:05_object": '',
+  '15:00_behavior': '', // Observation errors use time_field format
+  '15:00_location': '',
+  '15:05_object': '',
   // ... etc
 });
 ```
@@ -264,18 +287,21 @@ const [fieldErrors, setFieldErrors] = useState({
 ### Why This Structure?
 
 **Observations keyed by time strings:**
+
 - ✅ Easy lookup: `observations[time]`
 - ✅ Natural ordering (time strings sort correctly)
 - ✅ Unique keys (no duplicates possible)
 - ✅ Simple iteration: `Object.entries(observations)`
 
 **Flat observation structure (not nested):**
+
 - ✅ Simpler Excel export (each field → one column)
 - ✅ Easier validation (flat error keys)
 - ✅ Consistent with location field pattern
 - ❌ More fields at top level (trade-off accepted)
 
 **Error keys with time prefix:**
+
 - ✅ Unique keys per slot and field
 - ✅ Easy to clear errors for a specific slot
 - ✅ Simple lookup: `fieldErrors[${time}_${field}]`
@@ -292,11 +318,11 @@ The validation hook is the **single source of truth** for all validation rules.
 
 ```javascript
 const {
-  validateForm,                    // Validates entire form, returns boolean
-  validateSingleMetadataField,     // Validates one metadata field
-  validateSingleObservationField,  // Validates one observation field
-  clearFieldError,                 // Clears error for one field
-  clearAllErrors                   // Clears all errors
+  validateForm, // Validates entire form, returns boolean
+  validateSingleMetadataField, // Validates one metadata field
+  validateSingleObservationField, // Validates one observation field
+  clearFieldError, // Clears error for one field
+  clearAllErrors, // Clears all errors
 } = useFormValidation(metadata, observations, setFieldErrors);
 ```
 
@@ -317,22 +343,24 @@ const {
 Validation rules are **dynamic** based on behavior selection:
 
 ```javascript
-// In constants.js
+// In constants/behaviors.js
 BEHAVIORS = [
   {
     value: 'interacting_object',
     label: 'Interacting with Inanimate Object',
     requiresLocation: false,
-    requiresObject: true,    // ← Triggers object validation
-    requiresAnimal: false
+    requiresObject: true, // ← Triggers object validation
+    requiresAnimal: false,
   },
   // ...
-]
+];
 
-// In useFormValidation.js
-const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
+// Helper functions in constants/behaviors.js
+export const requiresObject = (behaviorValue) =>
+  getBehaviorByValue(behaviorValue)?.requiresObject || false;
 
-if (behaviorDef?.requiresObject && !observation.object) {
+// In useFormValidation.js (refactored in Phase 4/5)
+if (requiresObject(observation.behavior) && !observation.object) {
   errors[`${time}_object`] = 'Object is required';
 }
 
@@ -361,6 +389,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 **Decision**: Build as pure client-side SPA, no server required
 
 **Rationale**:
+
 - Reduces hosting costs (static hosting is free/cheap)
 - Simplifies deployment (just upload HTML/JS/CSS)
 - No backend maintenance burden
@@ -368,6 +397,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 - Works offline (after initial load)
 
 **Trade-offs**:
+
 - ❌ Can't enforce data validation server-side
 - ❌ Can't aggregate/analyze data centrally (yet)
 - ❌ User must manually copy/paste JSON output
@@ -378,12 +408,14 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 **Decision**: Use browser localStorage for draft persistence
 
 **Rationale**:
+
 - ✅ No server needed
 - ✅ Automatic draft recovery if tab closes
 - ✅ Works offline
 - ✅ Simple API
 
 **Trade-offs**:
+
 - ❌ Data is device-specific (can't sync across devices)
 - ❌ Clearing browser data loses drafts
 - ✅ Acceptable for single-session data entry
@@ -393,6 +425,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 **Decision**: All fields at top level, not nested (see interaction-subfields-design.md)
 
 **Alternative considered**: Nested structure like:
+
 ```javascript
 {
   behavior: 'interacting_object',
@@ -404,6 +437,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 ```
 
 **Why flat won**:
+
 - Excel export is way simpler (each field = one column)
 - Validation logic is simpler (flat error keys)
 - Consistent with existing `location` field
@@ -416,6 +450,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 **Alternative**: Each TimeSlotObservation manages its own state
 
 **Why centralized won**:
+
 - ✅ Single source of truth
 - ✅ Easy to implement "Copy to next" feature
 - ✅ Easy to serialize entire form for localStorage
@@ -427,6 +462,7 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 **Decision**: Build custom `useFormValidation` hook instead of React Hook Form / Formik
 
 **Rationale**:
+
 - Domain-specific rules (behavior flags, location codes)
 - Conditional validation based on behavior selection
 - Need tight integration with BEHAVIORS constants
@@ -461,7 +497,7 @@ When behavior changes, clear all conditional fields to prevent orphaned data:
 
 ```javascript
 const handleBehaviorChange = (time, value) => {
-  setObservations(prev => ({
+  setObservations((prev) => ({
     ...prev,
     [time]: {
       ...prev[time],
@@ -473,8 +509,8 @@ const handleBehaviorChange = (time, value) => {
       animalOther: '',
       interactionType: '',
       interactionTypeOther: '',
-      description: ''
-    }
+      description: '',
+    },
   }));
 };
 ```
@@ -499,6 +535,7 @@ const newErrors = Object.fromEntries(
 **Displayed as**: 12-hour format via `formatTo12Hour()` (`"3:05 PM"`, `"9:30 AM"`)
 
 **Why 24-hour storage?**
+
 - ✅ Natural sorting (Object.keys sort correctly)
 - ✅ No AM/PM ambiguity
 - ✅ HTML `<input type="time">` uses 24-hour
@@ -506,14 +543,28 @@ const newErrors = Object.fromEntries(
 
 ### 5. Constants as Single Source of Truth
 
-Domain data lives in `constants.js`:
+Domain data lives in modular `constants/` directory (Phase 4/5 refactoring):
+
+**`constants/behaviors.js`:**
+
 - `BEHAVIORS` - List of observable behaviors with feature flags
-- `VALID_PERCHES` - Valid location codes
+- Helper functions: `requiresLocation()`, `requiresObject()`, `requiresAnimal()`, etc.
+- `getBehaviorByValue()` - Lookup function
+
+**`constants/locations.js`:**
+
+- `VALID_PERCHES` - Valid location codes (1-31 + special codes)
+- `TIME_SLOTS` - Time slot intervals
+
+**`constants/interactions.js`:**
+
 - `INANIMATE_OBJECTS` - Object dropdown options
 - `ANIMAL_TYPES` - Animal dropdown options
 - `INTERACTION_TYPES` - Interaction type dropdown options
 
-**Pattern**: UI and validation both read from constants, ensuring consistency
+**`constants/index.js`** - Barrel export for clean imports
+
+**Pattern**: UI and validation both use helper functions and constants, ensuring consistency
 
 ### 6. Debounced Text Validation
 
@@ -528,8 +579,8 @@ const debouncedValidateRef = useRef(
 
 const handleTextChange = (e) => {
   const value = e.target.value;
-  onChange(time, field, value);  // Update state immediately
-  debouncedValidateRef.current(time, field, value);  // Validate after 200ms
+  onChange(time, field, value); // Update state immediately
+  debouncedValidateRef.current(time, field, value); // Validate after 200ms
 };
 ```
 
@@ -542,8 +593,8 @@ Text inputs validate on Enter but **do not submit** the form:
 ```javascript
 const handleKeyDown = (e) => {
   if (e.key === 'Enter') {
-    e.preventDefault();  // Prevent form submission
-    onValidate(time, field, e.target.value);  // Validate this field
+    e.preventDefault(); // Prevent form submission
+    onValidate(time, field, e.target.value); // Validate this field
   }
 };
 ```
@@ -557,6 +608,7 @@ const handleKeyDown = (e) => {
 ### When Might We Need State Management Library?
 
 Consider Redux/Zustand if:
+
 - Form becomes multi-page with complex navigation
 - Need to share observation data across multiple views
 - Need time-travel debugging for complex interactions
@@ -567,6 +619,7 @@ Consider Redux/Zustand if:
 ### When Might We Need TypeScript?
 
 Consider TypeScript if:
+
 - Team grows beyond 1-2 developers
 - Refactoring becomes risky due to prop mismatches
 - IDE autocomplete becomes important
@@ -577,6 +630,7 @@ Consider TypeScript if:
 ### When Might We Need Backend?
 
 Consider adding a backend if:
+
 - Need to aggregate data from multiple observers
 - Want to provide data analysis dashboard
 - Need to enforce server-side validation

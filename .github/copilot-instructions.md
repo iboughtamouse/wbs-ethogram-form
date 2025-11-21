@@ -4,10 +4,16 @@ This is a small Vite + React single-page app for entering ethogram observations 
 Keep edits local and minimal: prefer changing the single source of truth files listed below rather than duplicating logic across components.
 
 ### Big picture
+
 - Single-page form: `src/App.jsx` orchestrates metadata, generates time slots, and holds `observations` state.
 - Time logic lives in `src/utils/timeUtils.js` (rounding, slot generation, validation). Time strings are stored as "HH:MM" (24-hour) and displayed in 12-hour format via `formatTo12Hour`.
-- Domain definitions live in `src/constants.js` (`BEHAVIORS`, `VALID_PERCHES`). These drive UI options and validation.
-- Validation is centralized in `src/hooks/useFormValidation.js`. It exposes: `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `clearFieldError`, and `clearAllErrors`.
+- Domain definitions live in modular `src/constants/` directory (Phase 4/5 refactoring):
+  - `behaviors.js` — `BEHAVIORS` array + helper functions (`requiresLocation()`, `requiresObject()`, etc.)
+  - `locations.js` — `VALID_PERCHES`, `TIME_SLOTS`
+  - `interactions.js` — `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `INTERACTION_TYPES`
+  - `index.js` — barrel export for clean imports
+- Validation is centralized in `src/hooks/useFormValidation.js` (uses helper functions from constants). It exposes: `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `clearFieldError`, and `clearAllErrors`.
+- Pure validators in `src/utils/validators/` — e.g., `locationValidator.js` exports `validateLocation()` function.
 - UI components:
   - `src/components/MetadataSection.jsx` — controlled inputs for metadata (observerName, date, startTime, endTime).
   - `src/components/TimeSlotObservation.jsx` — per-slot container that coordinates form field components; handles conditional visibility based on behavior.
@@ -16,6 +22,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
   - `src/components/OutputPreview.jsx` — JSON preview of submission.
 
 ### Data shapes and naming conventions (important)
+
 - `metadata` object keys: `observerName`, `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`, `mode` ('live' or 'vod').
 - `observations` is an object keyed by time strings with flat structure:
   ```
@@ -39,27 +46,42 @@ Keep edits local and minimal: prefer changing the single source of truth files l
   - Observations: `${time}_behavior`, `${time}_location`, `${time}_object`, `${time}_objectOther`, `${time}_animal`, `${time}_animalOther`, `${time}_interactionType`, `${time}_interactionTypeOther`, `${time}_description` (e.g. `"15:05_behavior"`).
 
 ### Project-specific behaviours to respect
+
 - Time granularity: every 5 minutes. `generateTimeSlots(start, end)` generates slots from start inclusive to end exclusive. Rounding is done via `roundToNearestFiveMinutes` and inputs use `step="300"`.
 - Maximum duration: 60 minutes (enforced in `validateTimeRange`). Do not change time validation semantics without updating UI hints and tests.
-- Location validation accepts numbers (1-31), special codes (`BB1`, `BB2`, `F1`, `F2`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants.js`.
-- `BEHAVIORS` items include conditional requirement flags — UI and validation rely on these:
+- Location validation accepts numbers (1-31), special codes (`BB1`, `BB2`, `F1`, `F2`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants/locations.js`.
+- `BEHAVIORS` items (in `src/constants/behaviors.js`) include conditional requirement flags — UI and validation rely on these:
   - `requiresLocation`: Shows/requires location field
   - `requiresObject`: Shows/requires object dropdown (for inanimate object interactions)
   - `requiresAnimal`: Shows/requires animal dropdown (for animal interactions)
   - `requiresInteraction`: Shows/requires interaction type dropdown (for animal interactions)
   - `requiresDescription`: Shows/requires description text field (for behaviors needing detail)
+- Helper functions (from `src/constants/behaviors.js`) check requirements without direct BEHAVIORS lookups:
+  - `requiresLocation(behaviorValue)` — returns boolean
+  - `requiresObject(behaviorValue)` — returns boolean
+  - `requiresAnimal(behaviorValue)` — returns boolean
+  - `requiresInteraction(behaviorValue)` — returns boolean
+  - `requiresDescription(behaviorValue)` — returns boolean
+  - `getBehaviorByValue(value)` — returns behavior object or undefined
 
 ### How to make common changes (concrete examples)
+
 - Add a new behavior:
-  1. Update `src/constants.js` — add an entry to `BEHAVIORS` with `value`, `label`, and any conditional flags (`requiresLocation`, `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`).
-  2. No other files require changes for the option to appear, but if the new behavior needs special location codes, add them to `VALID_PERCHES`.
-  3. Validation will pick it up automatically because `useFormValidation` consults `BEHAVIORS`.
+  1. Update `src/constants/behaviors.js` — add an entry to `BEHAVIORS` array with `value`, `label`, and any conditional flags (`requiresLocation`, `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`).
+  2. No other files require changes for the option to appear. Helper functions will automatically work with the new behavior.
+  3. If the new behavior needs special location codes, add them to `VALID_PERCHES` in `src/constants/locations.js`.
+  4. Validation will pick it up automatically because `useFormValidation` uses helper functions that consult `BEHAVIORS`.
 
 - Add new perch labels for the select menu:
-  1. Update `VALID_PERCHES` in `src/constants.js`.
+  1. Update `VALID_PERCHES` in `src/constants/locations.js`.
   2. Optionally update the grouped `perchOptions` builder in `src/components/TimeSlotObservation.jsx` to control labels or grouping.
 
+- Add new object/animal/interaction types:
+  1. Update the appropriate array in `src/constants/interactions.js` (`INANIMATE_OBJECTS`, `ANIMAL_TYPES`, or `INTERACTION_TYPES`).
+  2. UI dropdowns will automatically include the new options.
+
 ### Build / dev / deploy commands
+
 - Install: `npm install`
 - Dev server: `npm run dev` (Vite — default port 5173)
 - Build: `npm run build` (output -> `dist/`)
@@ -67,6 +89,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - The repository is set up for Vercel auto-deploys. CI/CD is not in-repo; check the Vercel dashboard for build env settings.
 
 ### Patterns and gotchas for edits
+
 - **Validation timing**: Most dropdowns validate onChange for immediate feedback. Text fields (objectOther, animalOther, interactionTypeOther, description) use debounced validation (200ms) to avoid flickering while typing. Preserve these patterns when refactoring.
 - **Enter key handling**: Text inputs validate on Enter but do NOT submit the form (prevents accidental mobile submissions).
 - **Conditional field clearing**: When behavior changes, all conditional fields (object, animal, interactionType, description, etc.) are cleared to prevent orphaned data.
@@ -75,13 +98,18 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - `useFormValidation` uppercases and trims location values when validating — downstream code that reads `observations` may need to handle case differences.
 
 ### Files to inspect first for any change
+
 - `src/App.jsx` — state shape and how slots/observations are initialized
 - `src/hooks/useFormValidation.js` — validation rules and error key conventions
 - `src/utils/timeUtils.js` — time rounding, generation, and range validation
-- `src/constants.js` — behaviors and valid location codes
+- `src/constants/behaviors.js` — BEHAVIORS array and helper functions
+- `src/constants/locations.js` — valid location codes and time slots
+- `src/constants/interactions.js` — object, animal, and interaction type options
+- `src/utils/validators/locationValidator.js` — pure location validation logic
 - `src/components/TimeSlotObservation.jsx` — react-select usage and perchOptions grouping
 
 ### Testing
+
 - The repo has 208 passing tests using Jest + React Testing Library across 9 test suites
 - Test coverage includes:
   - E2E integration tests (`tests/integration/App.test.jsx`, `TimeSlotObservation.test.jsx`, `FormComponents.test.jsx`, `MetadataSection.test.jsx`)
