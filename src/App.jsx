@@ -1,111 +1,31 @@
-import { useState, useEffect } from 'react';
-import { generateTimeSlots, validateTimeRange } from './utils/timeUtils';
-import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
-import {
-  saveDraft,
-  loadDraft,
-  clearDraft,
-  hasDraft,
-} from './utils/localStorageUtils';
-import { copyObservationToNext } from './utils/observationUtils';
+import { useState } from 'react';
+import { clearDraft } from './utils/localStorageUtils';
 import { useFormValidation } from './hooks/useFormValidation';
+import { useFormState } from './hooks/useFormState';
+import { useAutoSave } from './hooks/useAutoSave';
+import { prepareOutputData } from './services/formSubmission';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import './App.css';
 
 function App() {
-  const today = new Date().toISOString().split('T')[0];
-
-  const [metadata, setMetadata] = useState({
-    observerName: '',
-    date: today,
-    startTime: '',
-    endTime: '',
-    aviary: "Sayyida's Cove",
-    patient: 'Sayyida',
-    mode: 'live', // 'live' or 'vod'
-  });
-
-  const [timeSlots, setTimeSlots] = useState([]);
-  const [observations, setObservations] = useState({});
   const [showOutput, setShowOutput] = useState(false);
-  const [showDraftNotice, setShowDraftNotice] = useState(false);
-  const [draftTimestamp, setDraftTimestamp] = useState(null);
 
-  // Check for saved draft on mount
-  useEffect(() => {
-    if (hasDraft()) {
-      const draft = loadDraft();
-      if (draft) {
-        setShowDraftNotice(true);
-        setDraftTimestamp(draft.savedAt);
-      }
-    }
-  }, []);
+  // Form state management
+  const {
+    metadata,
+    timeSlots,
+    observations,
+    handleMetadataChange,
+    handleObservationChange,
+    handleCopyToNext,
+    resetForm,
+    setMetadata,
+    setObservations,
+  } = useFormState();
 
-  // Autosave to localStorage when metadata or observations change
-  useEffect(() => {
-    // Don't autosave if form is empty
-    const hasData =
-      metadata.observerName ||
-      metadata.startTime ||
-      metadata.endTime ||
-      Object.values(observations).some(
-        (obs) => obs.behavior || obs.location || obs.notes
-      );
-
-    if (hasData) {
-      saveDraft(metadata, observations);
-    }
-  }, [metadata, observations]);
-
-  // Generate time slots when start/end time changes
-  // Note: observations is intentionally excluded from deps. We only want to regenerate
-  // time slots when start/end times change, not when observation data changes.
-  useEffect(() => {
-    if (metadata.startTime && metadata.endTime) {
-      // Validate time range before generating slots
-      const validation = validateTimeRange(
-        metadata.startTime,
-        metadata.endTime
-      );
-
-      if (validation.valid) {
-        const slots = generateTimeSlots(metadata.startTime, metadata.endTime);
-        setTimeSlots(slots);
-
-        // Initialize observations for new slots
-        const newObservations = {};
-        slots.forEach((time) => {
-          // Keep existing observation if it exists, otherwise create new
-          newObservations[time] = observations[time] || {
-            behavior: '',
-            location: '',
-            notes: '',
-            description: '',
-            // Interaction sub-fields
-            object: '',
-            objectOther: '',
-            animal: '',
-            animalOther: '',
-            interactionType: '',
-            interactionTypeOther: '',
-          };
-        });
-        setObservations(newObservations);
-      } else {
-        // Invalid time range - clear slots and observations
-        setTimeSlots([]);
-        setObservations({});
-      }
-    } else {
-      setTimeSlots([]);
-      setObservations({});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [metadata.startTime, metadata.endTime]);
-
+  // Form validation
   const {
     fieldErrors,
     validateForm,
@@ -115,9 +35,26 @@ function App() {
     clearAllErrors,
   } = useFormValidation();
 
-  const handleMetadataChange = (field, value, shouldValidate = false) => {
-    const updatedMetadata = { ...metadata, [field]: value };
-    setMetadata(updatedMetadata);
+  // Draft management and autosave
+  const handleDraftRestore = (draft) => {
+    setMetadata(draft.metadata);
+    // Time slots will regenerate via useEffect in useFormState
+    // but we need to restore observations after slots are set
+    setTimeout(() => {
+      setObservations(draft.observations);
+    }, 0);
+  };
+
+  const {
+    showDraftNotice,
+    draftTimestamp,
+    handleRestoreDraft,
+    handleDiscardDraft,
+  } = useAutoSave(metadata, observations, handleDraftRestore);
+
+  // Metadata change handler with validation
+  const onMetadataChange = (field, value, shouldValidate = false) => {
+    handleMetadataChange(field, value);
 
     // Clear error when user starts typing
     if (!shouldValidate && fieldErrors[field]) {
@@ -126,49 +63,15 @@ function App() {
 
     // Validate on blur
     if (shouldValidate) {
+      // Need to construct updated metadata for validation
+      const updatedMetadata = { ...metadata, [field]: value };
       validateSingleMetadataField(field, value, updatedMetadata);
     }
   };
 
-  const handleObservationChange = (time, field, value) => {
-    setObservations((prev) => {
-      const updatedObservation = {
-        ...prev[time],
-        [field]: value,
-      };
-
-      // Clear location if behavior doesn't require it
-      if (field === 'behavior' && !value) {
-        updatedObservation.location = '';
-      }
-
-      // Clear all conditional sub-fields when behavior changes
-      if (field === 'behavior') {
-        updatedObservation.description = '';
-        updatedObservation.object = '';
-        updatedObservation.objectOther = '';
-        updatedObservation.animal = '';
-        updatedObservation.animalOther = '';
-        updatedObservation.interactionType = '';
-        updatedObservation.interactionTypeOther = '';
-      }
-
-      // Clear "other" text when dropdown changes away from "other"
-      if (field === 'object' && value !== 'other') {
-        updatedObservation.objectOther = '';
-      }
-      if (field === 'animal' && value !== 'other') {
-        updatedObservation.animalOther = '';
-      }
-      if (field === 'interactionType' && value !== 'other') {
-        updatedObservation.interactionTypeOther = '';
-      }
-
-      return {
-        ...prev,
-        [time]: updatedObservation,
-      };
-    });
+  // Observation change handler
+  const onObservationChange = (time, field, value) => {
+    handleObservationChange(time, field, value);
 
     // Clear error when user starts typing
     const errorKey = `${time}_${field}`;
@@ -177,22 +80,12 @@ function App() {
     }
   };
 
-  const handleObservationValidate = (time, field, currentValue = null) => {
+  // Observation validation handler
+  const onObservationValidate = (time, field, currentValue = null) => {
     validateSingleObservationField(time, field, observations, currentValue);
   };
 
-  const handleCopyToNext = (time) => {
-    const result = copyObservationToNext(observations, timeSlots, time);
-
-    if (result.success) {
-      setObservations(result.updatedObservations);
-      // Autosave will trigger automatically via useEffect
-      return true;
-    }
-
-    return false;
-  };
-
+  // Form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm(metadata, observations)) {
@@ -209,74 +102,17 @@ function App() {
     }
   };
 
+  // Form reset
   const handleReset = () => {
-    setMetadata({
-      observerName: '',
-      date: today,
-      startTime: '',
-      endTime: '',
-      aviary: "Sayyida's Cove",
-      patient: 'Sayyida',
-      mode: 'live',
-    });
-    setTimeSlots([]);
-    setObservations({});
+    resetForm();
     clearAllErrors();
     setShowOutput(false);
-    // Clear draft from localStorage
     clearDraft();
   };
 
-  const handleRestoreDraft = () => {
-    const draft = loadDraft();
-    if (draft) {
-      setMetadata(draft.metadata);
-      // Time slots will regenerate via useEffect
-      // but we need to restore observations after slots are set
-      setTimeout(() => {
-        setObservations(draft.observations);
-      }, 0);
-      setShowDraftNotice(false);
-      setDraftTimestamp(null);
-    }
-  };
-
-  const handleDiscardDraft = () => {
-    clearDraft();
-    setShowDraftNotice(false);
-    setDraftTimestamp(null);
-  };
-
+  // Get output data with timezone conversion
   const getOutputData = () => {
-    // Apply timezone conversion for live mode
-    let outputMetadata = { ...metadata };
-    let outputObservations = observations;
-
-    if (metadata.mode === 'live') {
-      // Convert times to WBS timezone
-      outputMetadata.startTime = convertToWBSTime(
-        metadata.date,
-        metadata.startTime
-      );
-      outputMetadata.endTime = convertToWBSTime(
-        metadata.date,
-        metadata.endTime
-      );
-      outputMetadata.observerTimezone = getUserTimezone();
-
-      // Convert observation timestamps to WBS timezone
-      outputObservations = {};
-      Object.entries(observations).forEach(([localTime, observation]) => {
-        const wbsTime = convertToWBSTime(metadata.date, localTime);
-        outputObservations[wbsTime] = observation;
-      });
-    }
-
-    return {
-      metadata: outputMetadata,
-      observations: outputObservations,
-      submittedAt: new Date().toISOString(),
-    };
+    return prepareOutputData(metadata, observations);
   };
 
   return (
@@ -321,7 +157,7 @@ function App() {
           <MetadataSection
             metadata={metadata}
             fieldErrors={fieldErrors}
-            onChange={handleMetadataChange}
+            onChange={onMetadataChange}
           />
 
           <section className="section">
@@ -360,8 +196,8 @@ function App() {
                         fieldErrors[`${time}_interactionTypeOther`]
                       }
                       descriptionError={fieldErrors[`${time}_description`]}
-                      onChange={handleObservationChange}
-                      onValidate={handleObservationValidate}
+                      onChange={onObservationChange}
+                      onValidate={onObservationValidate}
                       onCopyToNext={handleCopyToNext}
                       isLastSlot={index === timeSlots.length - 1}
                     />
