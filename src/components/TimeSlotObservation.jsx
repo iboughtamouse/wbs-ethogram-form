@@ -6,6 +6,7 @@ import { formatTo12Hour } from '../utils/timeUtils';
 import PerchDiagramModal from './PerchDiagramModal';
 import { debounce } from '../utils/debounce';
 import NotesField from './form/NotesField';
+import DescriptionField from './form/DescriptionField';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -383,22 +384,12 @@ const TimeSlotObservation = ({
       )}
 
       {requiresDescription && (
-        <div className="form-group">
-          <label>
-            Description <span className="required">*</span>
-          </label>
-          <input
-            type="text"
-            value={observation.description}
-            onChange={handleDescriptionChange}
-            onKeyDown={handleKeyDown('description')}
-            placeholder="Describe the behavior..."
-            className={descriptionError ? 'error' : ''}
-          />
-          {descriptionError && (
-            <div className="field-error">{descriptionError}</div>
-          )}
-        </div>
+        <DescriptionField
+          value={observation.description}
+          onChange={handleDescriptionChange}
+          onKeyDown={handleKeyDown('description')}
+          error={descriptionError}
+        />
       )}
 
       <NotesField
