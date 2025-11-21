@@ -63,13 +63,18 @@ export const updateObservationField = (observations, time, field, value) => {
     [field]: value,
   };
 
-  // Clear location if behavior doesn't require it
-  if (field === 'behavior' && !value) {
-    updatedObservation.location = '';
-  }
-
-  // Clear all conditional sub-fields when behavior changes
+  // Handle behavior field changes with special logic
   if (field === 'behavior') {
+    // When behavior is cleared (set to empty), also clear location
+    // since most behaviors don't require a location. This provides
+    // a cleaner UX when resetting the observation.
+    if (!value) {
+      updatedObservation.location = '';
+    }
+
+    // Always clear interaction-specific sub-fields when behavior changes,
+    // regardless of whether it's being set to empty or a different value.
+    // This ensures stale interaction data doesn't persist when switching behaviors.
     updatedObservation.description = '';
     updatedObservation.object = '';
     updatedObservation.objectOther = '';

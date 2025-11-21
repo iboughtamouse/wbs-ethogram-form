@@ -261,14 +261,10 @@ describe('useFormState', () => {
         },
       });
 
-      // Manually set observations and timeSlots to test the handler
+      // Add an observation via the normal handler
       act(() => {
-        result.current.setObservations({
-          '09:00': { behavior: 'perching', location: '1' },
-        });
-        // Set metadata to trigger time slots (indirectly)
-        result.current.handleMetadataChange('startTime', '09:00');
-        result.current.handleMetadataChange('endTime', '10:00');
+        result.current.handleObservationChange('09:00', 'behavior', 'perching');
+        result.current.handleObservationChange('09:00', 'location', '1');
       });
 
       let copyResult;
@@ -296,23 +292,19 @@ describe('useFormState', () => {
   });
 
   describe('resetForm', () => {
-    it('should reset all form state', async () => {
+    it('should reset all form state', () => {
       const { result } = renderHook(() => useFormState());
 
       // Set up some data
       act(() => {
         result.current.handleMetadataChange('observerName', 'John Doe');
-        result.current.handleMetadataChange('startTime', '09:00');
-        result.current.handleMetadataChange('endTime', '10:00');
-      });
-
-      await waitFor(() => {
-        expect(result.current.timeSlots.length).toBeGreaterThan(0);
-      });
-
-      act(() => {
+        result.current.handleMetadataChange('mode', 'vod');
         result.current.handleObservationChange('09:00', 'behavior', 'perching');
       });
+
+      expect(result.current.metadata.observerName).toBe('John Doe');
+      expect(result.current.metadata.mode).toBe('vod');
+      expect(result.current.observations['09:00']).toBeDefined();
 
       // Reset
       act(() => {
@@ -320,10 +312,51 @@ describe('useFormState', () => {
       });
 
       expect(result.current.metadata.observerName).toBe('');
+      expect(result.current.metadata.mode).toBe('live'); // Back to default
       expect(result.current.metadata.startTime).toBe('');
       expect(result.current.metadata.endTime).toBe('');
       expect(result.current.timeSlots).toEqual([]);
       expect(result.current.observations).toEqual({});
+    });
+  });
+
+  describe('restoreDraft', () => {
+    it('should restore metadata and observations from draft', async () => {
+      const { result } = renderHook(() => useFormState());
+
+      const draftMetadata = {
+        observerName: 'Jane Doe',
+        date: '2025-01-15',
+        startTime: '14:00',
+        endTime: '14:30',
+        aviary: "Sayyida's Cove",
+        patient: 'Sayyida',
+        mode: 'live',
+      };
+
+      const draftObservations = {
+        '14:00': { behavior: 'perching', location: '1', notes: 'Draft note' },
+        '14:05': { behavior: 'flying', location: '', notes: '' },
+      };
+
+      act(() => {
+        result.current.restoreDraft(draftMetadata, draftObservations);
+      });
+
+      // Wait for metadata to be set and time slots to generate
+      await waitFor(() => {
+        expect(result.current.metadata.observerName).toBe('Jane Doe');
+        expect(result.current.metadata.startTime).toBe('14:00');
+        expect(result.current.metadata.endTime).toBe('14:30');
+      });
+
+      // Wait for observations to be restored via queueMicrotask
+      await waitFor(() => {
+        expect(result.current.observations['14:00']).toBeDefined();
+        expect(result.current.observations['14:00'].behavior).toBe('perching');
+        expect(result.current.observations['14:00'].location).toBe('1');
+        expect(result.current.observations['14:00'].notes).toBe('Draft note');
+      });
     });
   });
 });

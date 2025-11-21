@@ -57,6 +57,11 @@ export const useFormState = () => {
       setTimeSlots([]);
       setObservations({});
     }
+    // Note: `observations` is intentionally excluded from dependencies.
+    // We only want to regenerate time slots when start/end times change,
+    // not when observation data changes. The generateObservationsForSlots
+    // function accesses the current observations via closure, which is
+    // the correct behavior for preserving existing data during slot regeneration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metadata.startTime, metadata.endTime]);
 
@@ -85,7 +90,7 @@ export const useFormState = () => {
   const resetForm = useCallback(() => {
     setMetadata({
       observerName: '',
-      date: today,
+      date: new Date().toISOString().split('T')[0],
       startTime: '',
       endTime: '',
       aviary: "Sayyida's Cove",
@@ -94,7 +99,19 @@ export const useFormState = () => {
     });
     setTimeSlots([]);
     setObservations({});
-  }, [today]);
+  }, []);
+
+  const restoreDraft = useCallback((draftMetadata, draftObservations) => {
+    // First, update metadata (will trigger time slot regeneration via useEffect)
+    setMetadata(draftMetadata);
+
+    // Then schedule observation restoration after time slots have been generated.
+    // Use queueMicrotask to ensure this runs after the current render cycle
+    // and the useEffect has completed, but before the next paint.
+    queueMicrotask(() => {
+      setObservations(draftObservations);
+    });
+  }, []);
 
   return {
     metadata,
@@ -104,7 +121,6 @@ export const useFormState = () => {
     handleObservationChange,
     handleCopyToNext,
     resetForm,
-    setMetadata,
-    setObservations,
+    restoreDraft,
   };
 };

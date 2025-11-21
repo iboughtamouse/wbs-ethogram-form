@@ -21,8 +21,7 @@ function App() {
     handleObservationChange,
     handleCopyToNext,
     resetForm,
-    setMetadata,
-    setObservations,
+    restoreDraft,
   } = useFormState();
 
   // Form validation
@@ -37,12 +36,7 @@ function App() {
 
   // Draft management and autosave
   const handleDraftRestore = (draft) => {
-    setMetadata(draft.metadata);
-    // Time slots will regenerate via useEffect in useFormState
-    // but we need to restore observations after slots are set
-    setTimeout(() => {
-      setObservations(draft.observations);
-    }, 0);
+    restoreDraft(draft.metadata, draft.observations);
   };
 
   const {
