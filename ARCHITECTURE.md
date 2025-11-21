@@ -147,30 +147,30 @@ graph TD
 | File                                        | Lines | Category  | Purpose                             |
 | ------------------------------------------- | ----- | --------- | ----------------------------------- |
 | `App.jsx`                                   | 396   | Component | Root orchestrator                   |
-| `components/TimeSlotObservation.jsx`        | 311   | Component | Per-slot container                  |
+| `components/TimeSlotObservation.jsx`        | 304   | Component | Per-slot container                  |
 | `hooks/useFormValidation.js`                | 302   | Hook      | Centralized validation (refactored) |
-| `components/MetadataSection.jsx`            | 159   | Component | Metadata inputs                     |
+| `components/MetadataSection.jsx`            | 175   | Component | Metadata inputs                     |
 | `constants/behaviors.js`                    | 136   | Config    | BEHAVIORS + helpers                 |
 | `utils/timeUtils.js`                        | 95    | Utility   | Time operations                     |
-| `components/PerchDiagramModal.jsx`          | 83    | Component | Perch map modal                     |
+| `components/PerchDiagramModal.jsx`          | 91    | Component | Perch map modal                     |
 | `utils/timezoneUtils.js`                    | 82    | Utility   | Timezone conversion                 |
-| `components/form/LocationInput.jsx`         | 79    | Component | Location select + map               |
+| `components/form/LocationInput.jsx`         | 76    | Component | Location select + map               |
 | `utils/localStorageUtils.js`                | 73    | Utility   | Autosave logic                      |
-| `components/form/ObjectSelect.jsx`          | 68    | Component | Object dropdown + "other"           |
-| `components/form/AnimalSelect.jsx`          | 68    | Component | Animal dropdown + "other"           |
-| `components/form/InteractionTypeSelect.jsx` | 68    | Component | Interaction dropdown + "other"      |
+| `components/form/ObjectSelect.jsx`          | 63    | Component | Object dropdown + "other"           |
+| `components/form/AnimalSelect.jsx`          | 63    | Component | Animal dropdown + "other"           |
+| `components/form/InteractionTypeSelect.jsx` | 63    | Component | Interaction dropdown + "other"      |
 | `constants/interactions.js`                 | 51    | Config    | Objects, animals, interaction types |
 | `utils/observationUtils.js`                 | 47    | Utility   | Observation helpers                 |
 | `constants/locations.js`                    | 46    | Config    | VALID_PERCHES, TIME_SLOTS           |
-| `components/form/BehaviorSelect.jsx`        | 35    | Component | Behavior dropdown                   |
-| `components/form/DescriptionField.jsx`      | 32    | Component | Description text input              |
+| `components/OutputPreview.jsx`              | 45    | Component | JSON display                        |
+| `components/form/BehaviorSelect.jsx`        | 32    | Component | Behavior dropdown                   |
+| `components/form/DescriptionField.jsx`      | 29    | Component | Description text input              |
 | `utils/validators/locationValidator.js`     | 29    | Validator | Pure location validation            |
-| `components/form/NotesField.jsx`            | 25    | Component | Notes textarea                      |
+| `components/form/NotesField.jsx`            | 24    | Component | Notes textarea                      |
 | `utils/debounce.js`                         | 21    | Utility   | Debounce function                   |
 | `constants/index.js`                        | 18    | Export    | Barrel export for constants         |
-| `components/OutputPreview.jsx`              | 15    | Component | JSON display                        |
 | `main.jsx`                                  | 10    | Entry     | React mount point                   |
-| `components/form/index.js`                  | 8     | Export    | Barrel export for form components   |
+| `components/form/index.js`                  | 7     | Export    | Barrel export for form components   |
 | `utils/validators/index.js`                 | 2     | Export    | Barrel export for validators        |
 
 **Total Source**: ~2,200 lines (updated after Phase 4/5 refactoring)
@@ -553,8 +553,10 @@ Domain data lives in modular `constants/` directory (Phase 4/5 refactoring):
 
 **`constants/locations.js`:**
 
-- `VALID_PERCHES` - Valid location codes (1-31 + special codes)
+- `VALID_PERCHES` - Valid location codes (1-31 as integers, plus 'BB1', 'BB2', 'F1', 'F2', 'G', 'W' as strings)
 - `TIME_SLOTS` - Time slot intervals
+
+**Note on Ground Location:** The "Ground" location is **not** in `VALID_PERCHES`. It's added dynamically in `TimeSlotObservation.jsx`'s `perchOptions` array and validated separately in `locationValidator.js` (line 21). This separates the numbered perches/special codes from the common "Ground" location in the UI.
 
 **`constants/interactions.js`:**
 

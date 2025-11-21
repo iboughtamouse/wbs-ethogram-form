@@ -220,6 +220,9 @@ const { valid, error } = validateLocation('12');
 if (!valid) {
   return error; // "Location must be a valid perch number (1-31)..."
 }
+
+// Note: "Ground" is a special case validated separately (not in VALID_PERCHES constant)
+// It's added dynamically in TimeSlotObservation.jsx's perchOptions
 ```
 
 ### Autosave Flow
@@ -318,7 +321,9 @@ BEHAVIORS = [
   // ...
 ]
 
-VALID_PERCHES = ['1', '2', ..., '31', 'BB1', 'F1', 'G', 'W', 'GROUND']
+VALID_PERCHES = [1, 2, ..., 31, 'BB1', 'BB2', 'F1', 'F2', 'G', 'W']
+// Note: Numbers 1-31 are integers, not strings
+// 'Ground' is handled separately in validation (not in this array)
 
 INANIMATE_OBJECTS = [
   { value: 'newspaper', label: 'Newspaper' },

@@ -7,32 +7,33 @@
 ```
 Large files (>200 lines):
 - App.jsx: 396 lines ⚠️ [Extract business logic - Phase 3]
-- TimeSlotObservation.jsx: 311 lines ✅ [Refactored - was 417 lines, 25% reduction]
+- TimeSlotObservation.jsx: 304 lines ✅ [Refactored - was 417 lines, 27% reduction]
 - useFormValidation.js: 302 lines ✅ [Refactored with helpers - Phase 4/5]
 
 Medium files (100-200 lines):
-- MetadataSection.jsx: 159 lines [Good size]
+- MetadataSection.jsx: 175 lines [Good size]
 - constants/behaviors.js: 136 lines ✅ [Extracted with helpers - Phase 4/5]
 - timeUtils.js: 95 lines [Good size]
-- PerchDiagramModal.jsx: 83 lines [Good size]
-- LocationInput.jsx: 79 lines [Good size - extracted]
+- PerchDiagramModal.jsx: 91 lines [Good size]
+- LocationInput.jsx: 76 lines [Good size - extracted]
 
 Small files (<100 lines):
 - constants/interactions.js: 51 lines ✅ [Extracted - Phase 4/5]
+- observationUtils.js: 47 lines [Good size]
 - constants/locations.js: 46 lines ✅ [Extracted - Phase 4/5]
+- OutputPreview.jsx: 45 lines [Good size]
 - timezoneUtils.js: 82 lines [Good size]
 - localStorageUtils.js: 73 lines [Good size]
-- ObjectSelect.jsx: 68 lines [Good size - extracted]
-- AnimalSelect.jsx: 68 lines [Good size - extracted]
-- InteractionTypeSelect.jsx: 68 lines [Good size - extracted]
-- observationUtils.js: 47 lines [Good size]
-- BehaviorSelect.jsx: 35 lines [Perfect - extracted]
-- DescriptionField.jsx: 32 lines [Perfect - extracted]
+- ObjectSelect.jsx: 63 lines [Good size - extracted]
+- AnimalSelect.jsx: 63 lines [Good size - extracted]
+- InteractionTypeSelect.jsx: 63 lines [Good size - extracted]
+- BehaviorSelect.jsx: 32 lines [Perfect - extracted]
+- DescriptionField.jsx: 29 lines [Perfect - extracted]
 - validators/locationValidator.js: 29 lines ✅ [Pure validator - Phase 4/5]
-- NotesField.jsx: 25 lines [Perfect - extracted]
-- constants/index.js: 18 lines ✅ [Barrel export - Phase 4/5]
+- NotesField.jsx: 24 lines [Perfect - extracted]
 - debounce.js: 21 lines [Perfect]
-- OutputPreview.jsx: 15 lines [Perfect]
+- constants/index.js: 18 lines ✅ [Barrel export - Phase 4/5]
+- form/index.js: 7 lines ✅ [Barrel export - Phase 2]
 - validators/index.js: 2 lines ✅ [Barrel export - Phase 4/5]
 ```
 
@@ -165,7 +166,7 @@ src/components/form/
   └── index.js                    (8 lines - barrel export)
 ```
 
-**TimeSlotObservation.jsx reduced to container** (311 lines, was 417):
+**TimeSlotObservation.jsx reduced to container** (304 lines, was 417):
 
 - Imports field components via barrel export
 - No longer owns modal state (moved to LocationInput)
@@ -176,7 +177,7 @@ src/components/form/
 
 **Results**:
 
-- Reduced TimeSlotObservation by 106 lines (~25% reduction)
+- Reduced TimeSlotObservation by 113 lines (~27% reduction)
 - All form fields now reusable, composable components
 - Each component has PropTypes for type safety
 - Consistent patterns across similar fields
@@ -472,9 +473,9 @@ src/hooks/
 
 ### Quantitative metrics:
 
-- [x] Average file size reduces from ~150 lines to ~80 lines ✅ (form components average 52 lines)
-- [x] TimeSlotObservation.jsx reduces from 417 → ~100 lines ✅ (achieved 311 lines, 25% reduction)
-- [ ] App.jsx reduces from 358 → ~150 lines (Phase 3 target - currently 396 lines)
+- [x] Average file size reduces from ~150 lines to ~80 lines ✅ (form components average 50 lines)
+- [x] TimeSlotObservation.jsx reduces from 417 → ~100 lines ✅ (achieved 304 lines, 27% reduction)
+- [ ] App.jsx reduces from 396 → ~150 lines (Phase 3 target)
 - [x] Test count increases from 101 → ~150+ tests ✅ (achieved 208 tests, 105% increase)
 - [x] Test coverage remains ≥90% ✅ (comprehensive E2E and integration tests)
 - [x] No decrease in functionality ✅ (all features working, bugs fixed)
