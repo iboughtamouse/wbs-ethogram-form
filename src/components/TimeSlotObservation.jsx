@@ -8,6 +8,7 @@ import NotesField from './form/NotesField';
 import DescriptionField from './form/DescriptionField';
 import BehaviorSelect from './form/BehaviorSelect';
 import LocationInput from './form/LocationInput';
+import ObjectSelect from './form/ObjectSelect';
 
 const TimeSlotObservation = ({
   time,
@@ -217,46 +218,15 @@ const TimeSlotObservation = ({
       )}
 
       {requiresObject && (
-        <>
-          <div className="form-group">
-            <label>
-              Object <span className="required">*</span>
-            </label>
-            <select
-              value={observation.object}
-              onChange={handleObjectChange}
-              className={objectError ? 'error' : ''}
-            >
-              {INANIMATE_OBJECTS.map((obj) => (
-                <option key={obj.value} value={obj.value}>
-                  {obj.label}
-                </option>
-              ))}
-            </select>
-            {objectError && (
-              <div className="field-error">{objectError}</div>
-            )}
-          </div>
-
-          {observation.object === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify object: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.objectOther}
-                onChange={handleObjectOtherChange}
-                onKeyDown={handleKeyDown('objectOther')}
-                placeholder="Enter object name..."
-                className={objectOtherError ? 'error' : ''}
-              />
-              {objectOtherError && (
-                <div className="field-error">{objectOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <ObjectSelect
+          value={observation.object}
+          otherValue={observation.objectOther}
+          onChange={handleObjectChange}
+          onOtherChange={handleObjectOtherChange}
+          onKeyDown={handleKeyDown('objectOther')}
+          error={objectError}
+          otherError={objectOtherError}
+        />
       )}
 
       {requiresAnimal && (
