@@ -5,6 +5,7 @@ import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_
 import { formatTo12Hour } from '../utils/timeUtils';
 import PerchDiagramModal from './PerchDiagramModal';
 import { debounce } from '../utils/debounce';
+import NotesField from './form/NotesField';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -400,16 +401,11 @@ const TimeSlotObservation = ({
         </div>
       )}
 
-      <div className="form-group">
-        <label>Notes (optional)</label>
-        <input
-          type="text"
-          value={observation.notes}
-          onChange={(e) => onChange(time, 'notes', e.target.value)}
-          onKeyDown={handleKeyDown('notes')}
-          placeholder="Any additional observations..."
-        />
-      </div>
+      <NotesField
+        value={observation.notes}
+        onChange={(e) => onChange(time, 'notes', e.target.value)}
+        onKeyDown={handleKeyDown('notes')}
+      />
 
     </div>
   );
