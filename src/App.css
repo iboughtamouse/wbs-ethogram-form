@@ -293,42 +293,46 @@ input:disabled {
   border-radius: 8px;
 }
 
-.perch-hotspots {
+/* SVG overlay for perch hotspots */
+.perch-diagram-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.perch-hotspot {
-  position: absolute;
-  background-color: rgba(155, 89, 182, 0.9);
-  color: white;
-  border: 2px solid white;
-  border-radius: 6px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+.perch-hotspot-group {
+  pointer-events: auto;
+  transition: all 0.15s ease-in-out;
+}
+
+.perch-hotspot-circle {
+  fill: rgba(155, 89, 182, 0.9);
+  stroke: white;
+  stroke-width: 2;
+  transition: all 0.15s ease-in-out;
+}
+
+.perch-hotspot-group:hover .perch-hotspot-circle {
+  fill: #3498db;
+  r: 28;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.perch-hotspot-group.selected .perch-hotspot-circle {
+  fill: #27ae60;
+  stroke: #2ecc71;
+  stroke-width: 3;
+  r: 27;
+}
+
+.perch-hotspot-text {
+  fill: white;
+  font-size: 18px;
   font-weight: 700;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  transition: all 0.15s;
-  min-width: 32px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.perch-hotspot:hover {
-  background-color: #3498db;
-  transform: translate(-50%, -50%) scale(1.15);
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.perch-hotspot.selected {
-  background-color: #27ae60;
-  border-color: #2ecc71;
-  transform: translate(-50%, -50%) scale(1.1);
+  user-select: none;
 }
 
 .perch-modal-footer {
@@ -393,10 +397,20 @@ input:disabled {
     border-bottom-color: transparent;
   }
   
-  .perch-hotspot {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.4rem;
-    min-width: 28px;
+  .perch-hotspot-text {
+    font-size: 14px;
+  }
+  
+  .perch-hotspot-circle {
+    r: 22;
+  }
+  
+  .perch-hotspot-group:hover .perch-hotspot-circle {
+    r: 25;
+  }
+  
+  .perch-hotspot-group.selected .perch-hotspot-circle {
+    r: 24;
   }
 }
 

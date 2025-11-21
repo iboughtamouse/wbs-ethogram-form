@@ -84,10 +84,6 @@ const TimeSlotObservation = ({
     onValidate(time, 'location');
   };
 
-  const handlePerchSelectFromModal = (perchId) => {
-    onChange(time, 'location', perchId);
-  };
-
   // Object interaction handlers
   const handleObjectChange = (e) => {
     onChange(time, 'object', e.target.value);
@@ -252,8 +248,6 @@ const TimeSlotObservation = ({
           <PerchDiagramModal
             isOpen={isPerchModalOpen}
             onClose={() => setIsPerchModalOpen(false)}
-            onSelectPerch={handlePerchSelectFromModal}
-            currentPerch={observation.location}
           />
         </div>
       )}
