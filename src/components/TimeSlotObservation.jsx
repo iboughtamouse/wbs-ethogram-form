@@ -30,14 +30,18 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot
 }) => {
-  
+  // Guard against undefined observation during React render cycles
+  if (!observation) {
+    return null;
+  }
+
   // Create debounced validator for text fields (200ms delay)
   const debouncedValidateRef = useRef(
     debounce((time, field, value) => {
       onValidate(time, field, value);
     }, 200)
   );
-  
+
   const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
   const requiresObject = behaviorDef?.requiresObject || false;
