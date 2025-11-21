@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+coverage
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+.git
+.husky
