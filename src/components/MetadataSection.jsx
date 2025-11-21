@@ -8,6 +8,13 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
     onChange(field, roundedTime, true);
   };
 
+  // Prevent Enter key from submitting form in text inputs
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  };
+
   // Check for time range validation error
   const timeRangeError = metadata.startTime && metadata.endTime
     ? validateTimeRange(metadata.startTime, metadata.endTime).error
@@ -70,6 +77,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
             type="text"
             value={metadata.observerName}
             onChange={(e) => onChange('observerName', e.target.value, true)}
+            onKeyDown={handleKeyDown}
             placeholder="Enter your Discord username"
             className={fieldErrors.observerName ? 'error' : ''}
           />
