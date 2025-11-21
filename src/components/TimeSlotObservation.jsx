@@ -131,10 +131,12 @@ const TimeSlotObservation = ({
     debouncedValidateRef.current(time, 'description', newValue);
   };
 
-  // Prevent Enter key from submitting form in text inputs
-  const handleKeyDown = (e) => {
+  // Prevent Enter key from submitting form, but trigger validation
+  const handleKeyDown = (field) => (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger validation with current value
+      onValidate(time, field, e.target.value);
     }
   };
 
@@ -280,7 +282,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.objectOther}
                 onChange={handleObjectOtherChange}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleKeyDown('objectOther')}
                 placeholder="Enter object name..."
                 className={objectOtherError ? 'error' : ''}
               />
@@ -323,7 +325,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.animalOther}
                 onChange={handleAnimalOtherChange}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleKeyDown('animalOther')}
                 placeholder="Enter animal type..."
                 className={animalOtherError ? 'error' : ''}
               />
@@ -366,7 +368,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.interactionTypeOther}
                 onChange={handleInteractionTypeOtherChange}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleKeyDown('interactionTypeOther')}
                 placeholder="Enter interaction type..."
                 className={interactionTypeOtherError ? 'error' : ''}
               />
@@ -387,7 +389,7 @@ const TimeSlotObservation = ({
             type="text"
             value={observation.description}
             onChange={handleDescriptionChange}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleKeyDown('description')}
             placeholder="Describe the behavior..."
             className={descriptionError ? 'error' : ''}
           />
@@ -403,7 +405,7 @@ const TimeSlotObservation = ({
           type="text"
           value={observation.notes}
           onChange={(e) => onChange(time, 'notes', e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDown('notes')}
           placeholder="Any additional observations..."
         />
       </div>

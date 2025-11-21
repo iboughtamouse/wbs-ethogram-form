@@ -8,10 +8,12 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
     onChange(field, roundedTime, true);
   };
 
-  // Prevent Enter key from submitting form in text inputs
-  const handleKeyDown = (e) => {
+  // Prevent Enter key from submitting form, but trigger validation
+  const handleKeyDown = (field) => (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger validation with current value
+      onChange(field, e.target.value, true);
     }
   };
 
@@ -77,7 +79,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
             type="text"
             value={metadata.observerName}
             onChange={(e) => onChange('observerName', e.target.value, true)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleKeyDown('observerName')}
             placeholder="Enter your Discord username"
             className={fieldErrors.observerName ? 'error' : ''}
           />
