@@ -1,8 +1,8 @@
 # Architecture Documentation
 
 > **Last Updated**: November 21, 2025
-> **Codebase Size**: 1,971 lines (source) + 994 lines (tests)
-> **Test Count**: 101+ passing tests across 5 test suites
+> **Codebase Size**: 2,012 lines (source) + 3,404 lines (tests)
+> **Test Count**: 208 passing tests across 9 test suites
 > **Components**: 11 React components (4 main + 7 form fields)
 
 ---
@@ -44,7 +44,7 @@ WBS Ethogram Form is a **client-side single-page application** (SPA) with no bac
 ### ASCII Tree
 
 ```
-App.jsx (353 lines) - Root component
+App.jsx (358 lines) - Root component
 │
 ├── MetadataSection.jsx (159 lines)
 │   ├── Observer name input
@@ -53,23 +53,23 @@ App.jsx (353 lines) - Root component
 │   ├── Start time input
 │   └── End time input
 │
-├── TimeSlotObservation.jsx (257 lines) [×N instances, one per 5-min slot]
-│   ├── BehaviorSelect.jsx (37 lines)
-│   ├── LocationInput.jsx (69 lines) [conditional]
+├── TimeSlotObservation.jsx (311 lines) [×N instances, one per 5-min slot]
+│   ├── BehaviorSelect.jsx (35 lines)
+│   ├── LocationInput.jsx (79 lines) [conditional]
 │   │   ├── React Select dropdown
 │   │   ├── Map button
 │   │   └── PerchDiagramModal (owned state)
-│   ├── ObjectSelect.jsx (71 lines) [conditional]
+│   ├── ObjectSelect.jsx (68 lines) [conditional]
 │   │   ├── Object dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── AnimalSelect.jsx (71 lines) [conditional]
+│   ├── AnimalSelect.jsx (68 lines) [conditional]
 │   │   ├── Animal dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── InteractionTypeSelect.jsx (71 lines) [conditional]
+│   ├── InteractionTypeSelect.jsx (68 lines) [conditional]
 │   │   ├── Interaction Type dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── DescriptionField.jsx (33 lines) [conditional]
-│   ├── NotesField.jsx (27 lines)
+│   ├── DescriptionField.jsx (32 lines) [conditional]
+│   ├── NotesField.jsx (25 lines)
 │   └── "Copy to next" button
 │
 ├── PerchDiagramModal.jsx (83 lines)
@@ -145,8 +145,8 @@ graph TD
 
 | File | Lines | Category | Purpose |
 |------|-------|----------|---------|
-| `App.jsx` | 353 | Component | Root orchestrator |
-| `components/TimeSlotObservation.jsx` | 257 | Component | Per-slot container |
+| `App.jsx` | 358 | Component | Root orchestrator |
+| `components/TimeSlotObservation.jsx` | 311 | Component | Per-slot container |
 | `hooks/useFormValidation.js` | 246 | Hook | Centralized validation |
 | `components/MetadataSection.jsx` | 159 | Component | Metadata inputs |
 | `utils/timeUtils.js` | 95 | Utility | Time operations |
@@ -154,38 +154,43 @@ graph TD
 | `utils/timezoneUtils.js` | 82 | Utility | Timezone conversion |
 | `constants.js` | 79 | Config | Domain data |
 | `utils/localStorageUtils.js` | 73 | Utility | Autosave logic |
-| `components/form/ObjectSelect.jsx` | 71 | Component | Object dropdown + "other" |
-| `components/form/AnimalSelect.jsx` | 71 | Component | Animal dropdown + "other" |
-| `components/form/InteractionTypeSelect.jsx` | 71 | Component | Interaction dropdown + "other" |
-| `components/form/LocationInput.jsx` | 69 | Component | Location select + map |
+| `components/form/LocationInput.jsx` | 79 | Component | Location select + map |
+| `components/form/ObjectSelect.jsx` | 68 | Component | Object dropdown + "other" |
+| `components/form/AnimalSelect.jsx` | 68 | Component | Animal dropdown + "other" |
+| `components/form/InteractionTypeSelect.jsx` | 68 | Component | Interaction dropdown + "other" |
 | `utils/observationUtils.js` | 47 | Utility | Observation helpers |
-| `components/form/BehaviorSelect.jsx` | 37 | Component | Behavior dropdown |
-| `components/form/DescriptionField.jsx` | 33 | Component | Description text input |
-| `components/form/NotesField.jsx` | 27 | Component | Notes textarea |
+| `components/form/BehaviorSelect.jsx` | 35 | Component | Behavior dropdown |
+| `components/form/DescriptionField.jsx` | 32 | Component | Description text input |
+| `components/form/NotesField.jsx` | 25 | Component | Notes textarea |
 | `utils/debounce.js` | 21 | Utility | Debounce function |
 | `components/OutputPreview.jsx` | 15 | Component | JSON display |
 | `main.jsx` | 10 | Entry | React mount point |
 | `components/form/index.js` | 8 | Export | Barrel export |
 
-**Total Source**: 1,971 lines
+**Total Source**: 2,012 lines
 
 ### Test Files
 
 | Test Suite | Lines | Coverage |
 |------------|-------|----------|
-| `hooks/__tests__/useFormValidation.test.js` | ~400 | Validation rules |
-| `utils/__tests__/timeUtils.test.js` | ~300 | Time operations |
-| `utils/__tests__/timezoneUtils.test.js` | ~200 | Timezone logic |
-| `utils/__tests__/localStorageUtils.test.js` | ~94 | localStorage |
+| `tests/integration/App.test.jsx` | 684 | Full app integration & E2E |
+| `tests/integration/TimeSlotObservation.test.jsx` | 566 | Time slot component |
+| `tests/integration/FormComponents.test.jsx` | 526 | Form field components |
+| `tests/integration/MetadataSection.test.jsx` | 394 | Metadata section |
+| `hooks/__tests__/useFormValidation.test.js` | 378 | Validation rules |
+| `utils/__tests__/localStorageUtils.test.js` | 287 | localStorage |
+| `tests/copyToNextSlot.test.js` | 237 | Copy to next feature |
+| `utils/__tests__/timeUtils.test.js` | 188 | Time operations |
+| `utils/__tests__/timezoneUtils.test.js` | 144 | Timezone logic |
 
-**Total Tests**: 994 lines, 101+ test cases, 4 test suites
+**Total Tests**: 3,404 lines, 208 test cases, 9 test suites
 
 ### Directory Structure
 
 ```
 src/
-├── components/          # React components (11 files, 958 lines)
-│   ├── form/           # Form field components (8 files, 487 lines)
+├── components/          # React components (11 files, 1,011 lines)
+│   ├── form/           # Form field components (8 files, 493 lines)
 │   │   ├── BehaviorSelect.jsx
 │   │   ├── LocationInput.jsx
 │   │   ├── ObjectSelect.jsx

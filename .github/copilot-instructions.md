@@ -10,7 +10,8 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - Validation is centralized in `src/hooks/useFormValidation.js`. It exposes: `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `clearFieldError`, and `clearAllErrors`.
 - UI components:
   - `src/components/MetadataSection.jsx` — controlled inputs for metadata (observerName, date, startTime, endTime).
-  - `src/components/TimeSlotObservation.jsx` — per-slot behavior/location/notes/interactions; uses `react-select` for location dropdown and includes conditional fields for object/animal interactions.
+  - `src/components/TimeSlotObservation.jsx` — per-slot container that coordinates form field components; handles conditional visibility based on behavior.
+  - `src/components/form/` — extracted form field components (BehaviorSelect, LocationInput, ObjectSelect, AnimalSelect, InteractionTypeSelect, DescriptionField, NotesField).
   - `src/components/PerchDiagramModal.jsx` — modal with tabbed perch diagram images (NE/SW halves) for visual reference.
   - `src/components/OutputPreview.jsx` — JSON preview of submission.
 
@@ -81,11 +82,13 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - `src/components/TimeSlotObservation.jsx` — react-select usage and perchOptions grouping
 
 ### Testing
-- The repo has 101+ passing tests using Jest + React Testing Library
+- The repo has 208 passing tests using Jest + React Testing Library across 9 test suites
 - Test coverage includes:
-  - Time utilities (`timeUtils.js`, `timezoneUtils.js`)
-  - Form validation hook (`useFormValidation.js`)
-  - localStorage utilities (`localStorageUtils.js`)
-- When adding new features, add corresponding tests in `__tests__` directories
+  - E2E integration tests (`tests/integration/App.test.jsx`, `TimeSlotObservation.test.jsx`, `FormComponents.test.jsx`, `MetadataSection.test.jsx`)
+  - Feature tests (`tests/copyToNextSlot.test.js`)
+  - Utility tests (`timeUtils.js`, `timezoneUtils.js`, `localStorageUtils.js`)
+  - Hook tests (`useFormValidation.js`)
+- When adding new features, add corresponding tests in `__tests__` or `tests/integration/` directories
+- Use helper functions for test setup (see existing integration tests for patterns)
 
 If anything here is unclear or you'd like me to expand examples (for instance add a small test or a template PR message), tell me which section to expand.

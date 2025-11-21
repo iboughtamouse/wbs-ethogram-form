@@ -23,7 +23,7 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 - **React 18.2.0** - UI framework with hooks
 - **Vite 5.0.8** - Build tool and dev server
 - **React Select 5.8.0** - Autocomplete dropdown for locations
-- **Jest + React Testing Library** - Testing (101+ tests, 4 test suites)
+- **Jest + React Testing Library** - Testing (208 tests, 9 test suites)
 - **Native Browser APIs**:
   - `Intl.DateTimeFormat` - Timezone conversion
   - `localStorage` - Autosave functionality
@@ -118,14 +118,14 @@ const [fieldErrors, setFieldErrors] = useState({});
 |-----------|---------------|
 | `App.jsx` | State orchestration, time slot generation, form submission |
 | `MetadataSection.jsx` | Observer info inputs, mode selector, time range picker |
-| `TimeSlotObservation.jsx` | Time slot container, coordinates form fields and conditional visibility |
-| `BehaviorSelect.jsx` | Behavior dropdown field |
-| `LocationInput.jsx` | Location select with perch diagram map button + modal state |
-| `ObjectSelect.jsx` | Object dropdown with conditional "other" text field |
-| `AnimalSelect.jsx` | Animal dropdown with conditional "other" text field |
-| `InteractionTypeSelect.jsx` | Interaction type dropdown with conditional "other" text field |
-| `DescriptionField.jsx` | Description text input field |
-| `NotesField.jsx` | Notes textarea field |
+| `TimeSlotObservation.jsx` | Time slot container, coordinates form field components and conditional visibility |
+| `form/BehaviorSelect.jsx` | Behavior dropdown field |
+| `form/LocationInput.jsx` | Location select with perch diagram map button + modal state |
+| `form/ObjectSelect.jsx` | Object dropdown with conditional "other" text field |
+| `form/AnimalSelect.jsx` | Animal dropdown with conditional "other" text field |
+| `form/InteractionTypeSelect.jsx` | Interaction type dropdown with conditional "other" text field |
+| `form/DescriptionField.jsx` | Description text input field |
+| `form/NotesField.jsx` | Notes textarea field |
 | `PerchDiagramModal.jsx` | Perch map viewer with NE/SW tabs |
 | `OutputPreview.jsx` | JSON display, copy-to-clipboard, timezone conversion |
 | `useFormValidation.js` | Validation logic for all fields |
