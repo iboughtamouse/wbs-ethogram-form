@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { BEHAVIORS } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
@@ -10,7 +10,7 @@ import {
   LocationInput,
   ObjectSelect,
   AnimalSelect,
-  InteractionTypeSelect
+  InteractionTypeSelect,
 } from './form';
 
 const TimeSlotObservation = ({
@@ -28,21 +28,22 @@ const TimeSlotObservation = ({
   onChange,
   onValidate,
   onCopyToNext,
-  isLastSlot
+  isLastSlot,
 }) => {
-  // Guard against undefined observation during React render cycles
-  if (!observation) {
-    return null;
-  }
-
   // Create debounced validator for text fields (200ms delay)
+  // MUST be called before any conditional returns (Rules of Hooks)
   const debouncedValidateRef = useRef(
     debounce((time, field, value) => {
       onValidate(time, field, value);
     }, 200)
   );
 
-  const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
+  // Guard against undefined observation during React render cycles
+  if (!observation) {
+    return null;
+  }
+
+  const behaviorDef = BEHAVIORS.find((b) => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
   const requiresObject = behaviorDef?.requiresObject || false;
   const requiresAnimal = behaviorDef?.requiresAnimal || false;
@@ -51,40 +52,38 @@ const TimeSlotObservation = ({
 
   // Format perch options for React Select
   const perchOptions = [
-    { 
+    {
       label: 'Common Locations',
-      options: [
-        { value: 'Ground', label: 'Ground' }
-      ]
+      options: [{ value: 'Ground', label: 'Ground' }],
     },
     {
       label: 'Perches (1-31)',
       options: [...Array(31)].map((_, i) => ({
         value: String(i + 1),
-        label: `Perch ${i + 1}`
-      }))
+        label: `Perch ${i + 1}`,
+      })),
     },
     {
       label: 'Baby Boxes',
       options: [
         { value: 'BB1', label: 'BB1 - North Baby Box' },
-        { value: 'BB2', label: 'BB2 - South Baby Box' }
-      ]
+        { value: 'BB2', label: 'BB2 - South Baby Box' },
+      ],
     },
     {
       label: 'Food Platforms',
       options: [
         { value: 'F1', label: 'F1 - Food Platform 1' },
-        { value: 'F2', label: 'F2 - Food Platform 2' }
-      ]
+        { value: 'F2', label: 'F2 - Food Platform 2' },
+      ],
     },
     {
       label: 'Other',
       options: [
         { value: 'G', label: 'G - Ground' },
-        { value: 'W', label: 'W - Water Bowl' }
-      ]
-    }
+        { value: 'W', label: 'W - Water Bowl' },
+      ],
+    },
   ];
 
   // Select/dropdown handlers - validate immediately on change
@@ -151,44 +150,39 @@ const TimeSlotObservation = ({
     }
   };
 
-  const handleDescriptionBlur = (e) => {
-    onValidate(time, 'description', e.target.value);
-  };
-
   // Find the currently selected option for React Select
   const selectedLocationOption = perchOptions
-    .flatMap(group => group.options)
-    .find(option => option.value === observation.location);
+    .flatMap((group) => group.options)
+    .find((option) => option.value === observation.location);
 
   // Custom styles for React Select to match our form styling
   const selectStyles = {
     control: (base, state) => ({
       ...base,
-      borderColor: locationError ? '#e74c3c' : (state.isFocused ? '#3498db' : '#ddd'),
+      borderColor: locationError
+        ? '#e74c3c'
+        : state.isFocused
+          ? '#3498db'
+          : '#ddd',
       boxShadow: 'none',
       '&:hover': {
-        borderColor: locationError ? '#e74c3c' : (state.isFocused ? '#3498db' : '#ddd')
+        borderColor: locationError
+          ? '#e74c3c'
+          : state.isFocused
+            ? '#3498db'
+            : '#ddd',
       },
       minHeight: '38px',
-      fontSize: '14px'
+      fontSize: '14px',
     }),
     menu: (base) => ({
       ...base,
-      fontSize: '14px'
-    })
+      fontSize: '14px',
+    }),
   };
 
   // Convert 24-hour time to 12-hour format for display
   const displayTime = formatTo12Hour(time);
-
-  const handleCopyPrevious = (e) => {
-    if (e.target.checked && onCopyToNext) {
-      // Find previous time slot and copy it to this one
-      // This is a bit of a hack - we're using onCopyToNext with the previous time
-      // We'll need to add a new prop for the previous time
-      // For now, let's add this functionality properly
-    }
-  };
 
   return (
     <div className="time-slot">
@@ -205,7 +199,7 @@ const TimeSlotObservation = ({
           </button>
         )}
       </div>
-      
+
       <BehaviorSelect
         value={observation.behavior}
         onChange={handleBehaviorChange}
@@ -274,7 +268,6 @@ const TimeSlotObservation = ({
         onChange={(e) => onChange(time, 'notes', e.target.value)}
         onKeyDown={handleKeyDown('notes')}
       />
-
     </div>
   );
 };
@@ -291,7 +284,7 @@ TimeSlotObservation.propTypes = {
     animalOther: PropTypes.string.isRequired,
     interactionType: PropTypes.string.isRequired,
     interactionTypeOther: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired
+    description: PropTypes.string.isRequired,
   }).isRequired,
   behaviorError: PropTypes.string,
   locationError: PropTypes.string,
@@ -305,7 +298,7 @@ TimeSlotObservation.propTypes = {
   onChange: PropTypes.func.isRequired,
   onValidate: PropTypes.func.isRequired,
   onCopyToNext: PropTypes.func.isRequired,
-  isLastSlot: PropTypes.bool.isRequired
+  isLastSlot: PropTypes.bool.isRequired,
 };
 
 export default TimeSlotObservation;

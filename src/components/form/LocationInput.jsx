@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import PerchDiagramModal from '../PerchDiagramModal';
 
 const LocationInput = ({
-  value,
   onChange,
   error,
   behaviorValue,
   perchOptions,
   selectedLocationOption,
-  selectStyles
+  selectStyles,
 }) => {
   const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
 
@@ -19,7 +18,8 @@ const LocationInput = ({
   return (
     <div className="form-group location-input">
       <label>
-        {label} (Perch # or "Ground") <span className="required">*</span>
+        {label} (Perch # or &quot;Ground&quot;){' '}
+        <span className="required">*</span>
       </label>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
@@ -42,9 +42,7 @@ const LocationInput = ({
           Map
         </button>
       </div>
-      {error && (
-        <div className="field-error">{error}</div>
-      )}
+      {error && <div className="field-error">{error}</div>}
       <PerchDiagramModal
         isOpen={isPerchModalOpen}
         onClose={() => setIsPerchModalOpen(false)}
@@ -64,16 +62,16 @@ LocationInput.propTypes = {
       options: PropTypes.arrayOf(
         PropTypes.shape({
           value: PropTypes.string.isRequired,
-          label: PropTypes.string.isRequired
+          label: PropTypes.string.isRequired,
         })
-      ).isRequired
+      ).isRequired,
     })
   ).isRequired,
   selectedLocationOption: PropTypes.shape({
     value: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired
+    label: PropTypes.string.isRequired,
   }),
-  selectStyles: PropTypes.objectOf(PropTypes.func).isRequired
+  selectStyles: PropTypes.objectOf(PropTypes.func).isRequired,
 };
 
 export default LocationInput;

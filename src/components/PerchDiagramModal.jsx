@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 const PerchDiagramModal = ({ isOpen, onClose }) => {
@@ -18,14 +18,16 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const imageSrc = activeTab === 'ne' ? '/images/perches-ne.png' : '/images/perches-sw.png';
-  const imageAlt = activeTab === 'ne' 
-    ? 'Perches in NE Half of Sayyida\'s Cove' 
-    : 'Perches in SW Half of Sayyida\'s Cove';
+  const imageSrc =
+    activeTab === 'ne' ? '/images/perches-ne.png' : '/images/perches-sw.png';
+  const imageAlt =
+    activeTab === 'ne'
+      ? "Perches in NE Half of Sayyida's Cove"
+      : "Perches in SW Half of Sayyida's Cove";
 
   return (
-    <div 
-      className="perch-modal-backdrop" 
+    <div
+      className="perch-modal-backdrop"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       role="dialog"
@@ -35,8 +37,8 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
       <div className="perch-modal">
         <div className="perch-modal-header">
           <h2 id="perch-modal-title">Perch Reference</h2>
-          <button 
-            className="perch-modal-close" 
+          <button
+            className="perch-modal-close"
             onClick={onClose}
             aria-label="Close perch diagram"
           >
@@ -63,8 +65,8 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
 
         <div className="perch-modal-content">
           <div className="perch-diagram-container">
-            <img 
-              src={imageSrc} 
+            <img
+              src={imageSrc}
               alt={imageAlt}
               className="perch-diagram-image"
             />
@@ -83,7 +85,7 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
 
 PerchDiagramModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
 };
 
 export default PerchDiagramModal;

@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { INANIMATE_OBJECTS } from '../../constants';
 
@@ -9,7 +8,7 @@ const ObjectSelect = ({
   onOtherChange,
   onKeyDown,
   error,
-  otherError
+  otherError,
 }) => {
   return (
     <>
@@ -28,9 +27,7 @@ const ObjectSelect = ({
             </option>
           ))}
         </select>
-        {error && (
-          <div className="field-error">{error}</div>
-        )}
+        {error && <div className="field-error">{error}</div>}
       </div>
 
       {value === 'other' && (
@@ -46,9 +43,7 @@ const ObjectSelect = ({
             placeholder="Enter object name..."
             className={otherError ? 'error' : ''}
           />
-          {otherError && (
-            <div className="field-error">{otherError}</div>
-          )}
+          {otherError && <div className="field-error">{otherError}</div>}
         </div>
       )}
     </>
@@ -62,7 +57,7 @@ ObjectSelect.propTypes = {
   onOtherChange: PropTypes.func.isRequired,
   onKeyDown: PropTypes.func.isRequired,
   error: PropTypes.string,
-  otherError: PropTypes.string
+  otherError: PropTypes.string,
 };
 
 export default ObjectSelect;
