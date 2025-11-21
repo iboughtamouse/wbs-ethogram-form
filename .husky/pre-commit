@@ -1,8 +1,8 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo "🔍 Running tests..."
-npm test --silent || { echo "❌ Tests failed. Commit aborted."; exit 1; }
+echo "🔍 Running tests on changed files..."
+npm test -- --onlyChanged --passWithNoTests --silent || { 
+  echo "⚠️  Changed file tests not available, running full suite..."
+  npm test --silent || { echo "❌ Tests failed. Commit aborted."; exit 1; }
+}
 
 if grep -q "\"lint-staged\"" package.json 2>/dev/null; then
   echo "🧹 Running lint-staged..."

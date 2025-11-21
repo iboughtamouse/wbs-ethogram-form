@@ -7,7 +7,7 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: ['dist', 'coverage', '.eslintrc.cjs'],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
@@ -24,4 +24,18 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'warn',
     'react/prop-types': 'warn',
   },
+  overrides: [
+    {
+      // Test files have different linting needs
+      files: ['**/*.test.js', '**/*.test.jsx', 'tests/**/*'],
+      rules: {
+        // PropTypes not needed in test mocks
+        'react/prop-types': 'off',
+        // Unused vars in tests often intentional (setup, mocks)
+        'no-unused-vars': 'off',
+        // Console logs acceptable for test debugging
+        'no-console': 'off',
+      },
+    },
+  ],
 }

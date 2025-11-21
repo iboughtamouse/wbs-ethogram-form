@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { generateTimeSlots, validateTimeRange } from './utils/timeUtils';
 import { convertToWBSTime, getUserTimezone } from './utils/timezoneUtils';
-import { saveDraft, loadDraft, clearDraft, hasDraft } from './utils/localStorageUtils';
+import {
+  saveDraft,
+  loadDraft,
+  clearDraft,
+  hasDraft,
+} from './utils/localStorageUtils';
 import { copyObservationToNext } from './utils/observationUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import MetadataSection from './components/MetadataSection';
@@ -11,7 +16,7 @@ import './App.css';
 
 function App() {
   const today = new Date().toISOString().split('T')[0];
-  
+
   const [metadata, setMetadata] = useState({
     observerName: '',
     date: today,
@@ -19,7 +24,7 @@ function App() {
     endTime: '',
     aviary: "Sayyida's Cove",
     patient: 'Sayyida',
-    mode: 'live' // 'live' or 'vod'
+    mode: 'live', // 'live' or 'vod'
   });
 
   const [timeSlots, setTimeSlots] = useState([]);
@@ -42,31 +47,41 @@ function App() {
   // Autosave to localStorage when metadata or observations change
   useEffect(() => {
     // Don't autosave if form is empty
-    const hasData = metadata.observerName || metadata.startTime || metadata.endTime || 
-                    Object.values(observations).some(obs => obs.behavior || obs.location || obs.notes);
-    
+    const hasData =
+      metadata.observerName ||
+      metadata.startTime ||
+      metadata.endTime ||
+      Object.values(observations).some(
+        (obs) => obs.behavior || obs.location || obs.notes
+      );
+
     if (hasData) {
       saveDraft(metadata, observations);
     }
   }, [metadata, observations]);
 
   // Generate time slots when start/end time changes
+  // Note: observations is intentionally excluded from deps. We only want to regenerate
+  // time slots when start/end times change, not when observation data changes.
   useEffect(() => {
     if (metadata.startTime && metadata.endTime) {
       // Validate time range before generating slots
-      const validation = validateTimeRange(metadata.startTime, metadata.endTime);
-      
+      const validation = validateTimeRange(
+        metadata.startTime,
+        metadata.endTime
+      );
+
       if (validation.valid) {
         const slots = generateTimeSlots(metadata.startTime, metadata.endTime);
         setTimeSlots(slots);
-        
+
         // Initialize observations for new slots
         const newObservations = {};
-        slots.forEach(time => {
+        slots.forEach((time) => {
           // Keep existing observation if it exists, otherwise create new
-          newObservations[time] = observations[time] || { 
-            behavior: '', 
-            location: '', 
+          newObservations[time] = observations[time] || {
+            behavior: '',
+            location: '',
             notes: '',
             description: '',
             // Interaction sub-fields
@@ -75,7 +90,7 @@ function App() {
             animal: '',
             animalOther: '',
             interactionType: '',
-            interactionTypeOther: ''
+            interactionTypeOther: '',
           };
         });
         setObservations(newObservations);
@@ -88,6 +103,7 @@ function App() {
       setTimeSlots([]);
       setObservations({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metadata.startTime, metadata.endTime]);
 
   const {
@@ -96,18 +112,18 @@ function App() {
     validateSingleMetadataField,
     validateSingleObservationField,
     clearFieldError,
-    clearAllErrors
+    clearAllErrors,
   } = useFormValidation();
 
   const handleMetadataChange = (field, value, shouldValidate = false) => {
     const updatedMetadata = { ...metadata, [field]: value };
     setMetadata(updatedMetadata);
-    
+
     // Clear error when user starts typing
     if (!shouldValidate && fieldErrors[field]) {
       clearFieldError(field);
     }
-    
+
     // Validate on blur
     if (shouldValidate) {
       validateSingleMetadataField(field, value, updatedMetadata);
@@ -115,10 +131,10 @@ function App() {
   };
 
   const handleObservationChange = (time, field, value) => {
-    setObservations(prev => {
+    setObservations((prev) => {
       const updatedObservation = {
         ...prev[time],
-        [field]: value
+        [field]: value,
       };
 
       // Clear location if behavior doesn't require it
@@ -150,10 +166,10 @@ function App() {
 
       return {
         ...prev,
-        [time]: updatedObservation
+        [time]: updatedObservation,
       };
     });
-    
+
     // Clear error when user starts typing
     const errorKey = `${time}_${field}`;
     if (fieldErrors[errorKey]) {
@@ -167,13 +183,13 @@ function App() {
 
   const handleCopyToNext = (time) => {
     const result = copyObservationToNext(observations, timeSlots, time);
-    
+
     if (result.success) {
       setObservations(result.updatedObservations);
       // Autosave will trigger automatically via useEffect
       return true;
     }
-    
+
     return false;
   };
 
@@ -201,7 +217,7 @@ function App() {
       endTime: '',
       aviary: "Sayyida's Cove",
       patient: 'Sayyida',
-      mode: 'live'
+      mode: 'live',
     });
     setTimeSlots([]);
     setObservations({});
@@ -235,13 +251,19 @@ function App() {
     // Apply timezone conversion for live mode
     let outputMetadata = { ...metadata };
     let outputObservations = observations;
-    
+
     if (metadata.mode === 'live') {
       // Convert times to WBS timezone
-      outputMetadata.startTime = convertToWBSTime(metadata.date, metadata.startTime);
-      outputMetadata.endTime = convertToWBSTime(metadata.date, metadata.endTime);
+      outputMetadata.startTime = convertToWBSTime(
+        metadata.date,
+        metadata.startTime
+      );
+      outputMetadata.endTime = convertToWBSTime(
+        metadata.date,
+        metadata.endTime
+      );
       outputMetadata.observerTimezone = getUserTimezone();
-      
+
       // Convert observation timestamps to WBS timezone
       outputObservations = {};
       Object.entries(observations).forEach(([localTime, observation]) => {
@@ -249,11 +271,11 @@ function App() {
         outputObservations[wbsTime] = observation;
       });
     }
-    
+
     return {
       metadata: outputMetadata,
       observations: outputObservations,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
     };
   };
 
@@ -261,7 +283,9 @@ function App() {
     <div className="app">
       <header>
         <h1>WBS Ethogram Data Entry</h1>
-        <p className="subtitle">Rehabilitation Raptor Ethogram - One Hour Section</p>
+        <p className="subtitle">
+          Rehabilitation Raptor Ethogram - One Hour Section
+        </p>
       </header>
 
       {showDraftNotice && (
@@ -274,16 +298,16 @@ function App() {
             </div>
           </div>
           <div className="draft-actions">
-            <button 
-              type="button" 
-              onClick={handleRestoreDraft} 
+            <button
+              type="button"
+              onClick={handleRestoreDraft}
               className="btn-draft-restore"
             >
               Resume Draft
             </button>
-            <button 
-              type="button" 
-              onClick={handleDiscardDraft} 
+            <button
+              type="button"
+              onClick={handleDiscardDraft}
               className="btn-draft-discard"
             >
               Start Fresh
@@ -302,46 +326,60 @@ function App() {
 
           <section className="section">
             <h2 className="section-title">Observations (5-minute intervals)</h2>
-          {timeSlots.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#7f8c8d' }}>
-              Please select a time range above to begin entering observations.
-            </div>
-          ) : (
-            <div className="time-slots">
-              {timeSlots.map((time, index) => {
-                // Only render if observation exists (guards against timing issues during state updates)
-                if (!observations[time]) return null;
-                
-                return (
-                  <TimeSlotObservation
-                    key={time}
-                    time={time}
-                    observation={observations[time]}
-                    behaviorError={fieldErrors[`${time}_behavior`]}
-                    locationError={fieldErrors[`${time}_location`]}
-                    objectError={fieldErrors[`${time}_object`]}
-                    objectOtherError={fieldErrors[`${time}_objectOther`]}
-                    animalError={fieldErrors[`${time}_animal`]}
-                    animalOtherError={fieldErrors[`${time}_animalOther`]}
-                    interactionTypeError={fieldErrors[`${time}_interactionType`]}
-                    interactionTypeOtherError={fieldErrors[`${time}_interactionTypeOther`]}
-                    descriptionError={fieldErrors[`${time}_description`]}
-                    onChange={handleObservationChange}
-                    onValidate={handleObservationValidate}
-                    onCopyToNext={handleCopyToNext}
-                    isLastSlot={index === timeSlots.length - 1}
-                  />
-                );
-              })}
-            </div>
-          )}
+            {timeSlots.length === 0 ? (
+              <div
+                style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#7f8c8d',
+                }}
+              >
+                Please select a time range above to begin entering observations.
+              </div>
+            ) : (
+              <div className="time-slots">
+                {timeSlots.map((time, index) => {
+                  // Only render if observation exists (guards against timing issues during state updates)
+                  if (!observations[time]) return null;
+
+                  return (
+                    <TimeSlotObservation
+                      key={time}
+                      time={time}
+                      observation={observations[time]}
+                      behaviorError={fieldErrors[`${time}_behavior`]}
+                      locationError={fieldErrors[`${time}_location`]}
+                      objectError={fieldErrors[`${time}_object`]}
+                      objectOtherError={fieldErrors[`${time}_objectOther`]}
+                      animalError={fieldErrors[`${time}_animal`]}
+                      animalOtherError={fieldErrors[`${time}_animalOther`]}
+                      interactionTypeError={
+                        fieldErrors[`${time}_interactionType`]
+                      }
+                      interactionTypeOtherError={
+                        fieldErrors[`${time}_interactionTypeOther`]
+                      }
+                      descriptionError={fieldErrors[`${time}_description`]}
+                      onChange={handleObservationChange}
+                      onValidate={handleObservationValidate}
+                      onCopyToNext={handleCopyToNext}
+                      isLastSlot={index === timeSlots.length - 1}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <div className="button-group">
             <button type="submit" className="btn-primary">
               Validate & Preview
             </button>
-            <button type="button" onClick={handleReset} className="btn-secondary">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="btn-secondary"
+            >
               Reset Form
             </button>
           </div>

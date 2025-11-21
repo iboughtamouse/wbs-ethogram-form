@@ -1,6 +1,8 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { validateTimeRange, roundToNearestFiveMinutes } from '../utils/timeUtils';
+import {
+  validateTimeRange,
+  roundToNearestFiveMinutes,
+} from '../utils/timeUtils';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   const handleTimeChange = (field, value) => {
@@ -19,24 +21,30 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   };
 
   // Check for time range validation error
-  const timeRangeError = metadata.startTime && metadata.endTime
-    ? validateTimeRange(metadata.startTime, metadata.endTime).error
-    : null;
+  const timeRangeError =
+    metadata.startTime && metadata.endTime
+      ? validateTimeRange(metadata.startTime, metadata.endTime).error
+      : null;
 
   // Mode-specific help text
-  const timeRangeHelpText = metadata.mode === 'live' 
-    ? 'Enter times in YOUR local time. We\'ll convert to WBS time automatically.'
-    : 'Enter times exactly as shown on stream (top left corner). These are already in WBS time.';
+  const timeRangeHelpText =
+    metadata.mode === 'live'
+      ? "Enter times in YOUR local time. We'll convert to WBS time automatically."
+      : 'Enter times exactly as shown on stream (top left corner). These are already in WBS time.';
 
   return (
     <section className="section">
       <h2 className="section-title">Observer Information</h2>
-      
+
       {/* Observation Mode Selector */}
       <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-        <label>What are you observing? <span className="required">*</span></label>
+        <label>
+          What are you observing? <span className="required">*</span>
+        </label>
         <div className="mode-selector">
-          <label className={`mode-option ${metadata.mode === 'live' ? 'selected' : ''}`}>
+          <label
+            className={`mode-option ${metadata.mode === 'live' ? 'selected' : ''}`}
+          >
             <input
               type="radio"
               name="mode"
@@ -52,7 +60,9 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               </div>
             </div>
           </label>
-          <label className={`mode-option ${metadata.mode === 'vod' ? 'selected' : ''}`}>
+          <label
+            className={`mode-option ${metadata.mode === 'vod' ? 'selected' : ''}`}
+          >
             <input
               type="radio"
               name="mode"
@@ -106,11 +116,12 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
 
         <div className="form-group">
           <label>
-            {metadata.mode === 'live' ? 'Observation Time Range' : 'VOD Time Range'} <span className="required">*</span>
+            {metadata.mode === 'live'
+              ? 'Observation Time Range'
+              : 'VOD Time Range'}{' '}
+            <span className="required">*</span>
           </label>
-          <div className="time-range-help-text">
-            {timeRangeHelpText}
-          </div>
+          <div className="time-range-help-text">{timeRangeHelpText}</div>
           <div className="time-range-inputs">
             <input
               type="time"
@@ -135,22 +146,12 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
 
         <div className="form-group">
           <label>Aviary</label>
-          <input
-            type="text"
-            value={metadata.aviary}
-            readOnly
-            disabled
-          />
+          <input type="text" value={metadata.aviary} readOnly disabled />
         </div>
 
         <div className="form-group">
           <label>Patient</label>
-          <input
-            type="text"
-            value={metadata.patient}
-            readOnly
-            disabled
-          />
+          <input type="text" value={metadata.patient} readOnly disabled />
         </div>
       </div>
     </section>
@@ -165,10 +166,10 @@ MetadataSection.propTypes = {
     endTime: PropTypes.string.isRequired,
     aviary: PropTypes.string.isRequired,
     patient: PropTypes.string.isRequired,
-    mode: PropTypes.oneOf(['live', 'vod']).isRequired
+    mode: PropTypes.oneOf(['live', 'vod']).isRequired,
   }).isRequired,
   fieldErrors: PropTypes.objectOf(PropTypes.string).isRequired,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
 };
 
 export default MetadataSection;

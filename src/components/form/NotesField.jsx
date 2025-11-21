@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
 const NotesField = ({ value, onChange, onKeyDown }) => {
@@ -19,7 +18,7 @@ const NotesField = ({ value, onChange, onKeyDown }) => {
 NotesField.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
-  onKeyDown: PropTypes.func.isRequired
+  onKeyDown: PropTypes.func.isRequired,
 };
 
 export default NotesField;

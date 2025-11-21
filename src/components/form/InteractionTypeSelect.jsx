@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { INTERACTION_TYPES } from '../../constants';
 
@@ -9,7 +8,7 @@ const InteractionTypeSelect = ({
   onOtherChange,
   onKeyDown,
   error,
-  otherError
+  otherError,
 }) => {
   return (
     <>
@@ -28,9 +27,7 @@ const InteractionTypeSelect = ({
             </option>
           ))}
         </select>
-        {error && (
-          <div className="field-error">{error}</div>
-        )}
+        {error && <div className="field-error">{error}</div>}
       </div>
 
       {value === 'other' && (
@@ -46,9 +43,7 @@ const InteractionTypeSelect = ({
             placeholder="Enter interaction type..."
             className={otherError ? 'error' : ''}
           />
-          {otherError && (
-            <div className="field-error">{otherError}</div>
-          )}
+          {otherError && <div className="field-error">{otherError}</div>}
         </div>
       )}
     </>
@@ -62,7 +57,7 @@ InteractionTypeSelect.propTypes = {
   onOtherChange: PropTypes.func.isRequired,
   onKeyDown: PropTypes.func.isRequired,
   error: PropTypes.string,
-  otherError: PropTypes.string
+  otherError: PropTypes.string,
 };
 
 export default InteractionTypeSelect;

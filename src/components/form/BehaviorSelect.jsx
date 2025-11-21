@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { BEHAVIORS } from '../../constants';
 
@@ -19,9 +18,7 @@ const BehaviorSelect = ({ value, onChange, error }) => {
           </option>
         ))}
       </select>
-      {error && (
-        <div className="field-error">{error}</div>
-      )}
+      {error && <div className="field-error">{error}</div>}
     </div>
   );
 };
@@ -29,7 +26,7 @@ const BehaviorSelect = ({ value, onChange, error }) => {
 BehaviorSelect.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
-  error: PropTypes.string
+  error: PropTypes.string,
 };
 
 export default BehaviorSelect;

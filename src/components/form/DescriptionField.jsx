@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
 const DescriptionField = ({ value, onChange, onKeyDown, error }) => {
@@ -15,9 +14,7 @@ const DescriptionField = ({ value, onChange, onKeyDown, error }) => {
         placeholder="Describe the behavior..."
         className={error ? 'error' : ''}
       />
-      {error && (
-        <div className="field-error">{error}</div>
-      )}
+      {error && <div className="field-error">{error}</div>}
     </div>
   );
 };
@@ -26,7 +23,7 @@ DescriptionField.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   onKeyDown: PropTypes.func.isRequired,
-  error: PropTypes.string
+  error: PropTypes.string,
 };
 
 export default DescriptionField;
