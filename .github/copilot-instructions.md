@@ -40,7 +40,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 ### Project-specific behaviours to respect
 - Time granularity: every 5 minutes. `generateTimeSlots(start, end)` generates slots from start inclusive to end exclusive. Rounding is done via `roundToNearestFiveMinutes` and inputs use `step="300"`.
 - Maximum duration: 60 minutes (enforced in `validateTimeRange`). Do not change time validation semantics without updating UI hints and tests.
-- Location validation accepts numbers (1-31), special codes (`BB1`, `F1`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants.js`.
+- Location validation accepts numbers (1-31), special codes (`BB1`, `BB2`, `F1`, `F2`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants.js`.
 - `BEHAVIORS` items include conditional requirement flags — UI and validation rely on these:
   - `requiresLocation`: Shows/requires location field
   - `requiresObject`: Shows/requires object dropdown (for inanimate object interactions)
