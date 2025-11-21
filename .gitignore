@@ -28,3 +28,6 @@ coverage
 
 # Internal notes and planning docs
 notes/
+
+# Temporary helper files
+PR_DESCRIPTION.md
