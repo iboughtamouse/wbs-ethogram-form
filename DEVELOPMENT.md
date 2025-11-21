@@ -49,13 +49,24 @@ ethogram-form/
 │   │   ├── PerchDiagramModal.jsx     # Perch map viewer modal
 │   │   └── OutputPreview.jsx         # JSON output display with copy button
 │   ├── hooks/
-│   │   └── useFormValidation.js      # Centralized validation logic
+│   │   ├── useFormValidation.js      # Centralized validation logic (302 lines)
+│   │   └── __tests__/
+│   │       └── useFormValidation.test.js
 │   ├── utils/
 │   │   ├── timeUtils.js              # Time rounding, generation, formatting
 │   │   ├── timezoneUtils.js          # Timezone conversion utilities
-│   │   └── localStorageUtils.js      # Autosave/draft management
-│   ├── constants.js                  # Behaviors, perches, objects, animals
-│   ├── App.jsx                       # Main orchestrator, state management
+│   │   ├── localStorageUtils.js      # Autosave/draft management
+│   │   ├── observationUtils.js       # Observation data utilities
+│   │   ├── validators/               # Pure validator functions
+│   │   │   ├── locationValidator.js  # Location validation logic (29 lines)
+│   │   │   └── index.js              # Barrel export
+│   │   └── __tests__/                # Utility test suites
+│   ├── constants/                    # Domain-specific constant modules
+│   │   ├── behaviors.js              # BEHAVIORS array + helper functions (136 lines)
+│   │   ├── locations.js              # VALID_PERCHES, TIME_SLOTS (46 lines)
+│   │   ├── interactions.js           # Objects, animals, interaction types (51 lines)
+│   │   └── index.js                  # Barrel export (18 lines)
+│   ├── App.jsx                       # Main orchestrator, state management (396 lines)
 │   ├── App.css                       # Component-specific styles
 │   ├── index.css                     # Global styles
 │   └── main.jsx                      # React entry point
@@ -65,7 +76,9 @@ ethogram-form/
 │   └── testing-checklist.md             # Comprehensive QA checklist
 ├── .github/
 │   └── copilot-instructions.md       # AI coding assistant guidance
-├── tests/                            # Jest test suites
+├── tests/                            # Jest test suites (9 suites, 208 tests)
+│   ├── integration/                  # E2E integration tests
+│   └── copyToNextSlot.test.js
 ├── index.html                        # HTML entry point
 ├── vite.config.js                    # Vite configuration
 ├── jest.config.js                    # Jest configuration
@@ -91,7 +104,7 @@ const [metadata, setMetadata] = useState({
   endTime: '',
   aviary: "Sayyida's Cove",
   patient: 'Sayyida',
-  mode: 'live'  // 'live' or 'vod'
+  mode: 'live', // 'live' or 'vod'
 });
 
 // Observations state (object keyed by time strings)
@@ -114,24 +127,28 @@ const [fieldErrors, setFieldErrors] = useState({});
 
 ### Component Responsibilities
 
-| Component | Responsibility |
-|-----------|---------------|
-| `App.jsx` | State orchestration, time slot generation, form submission |
-| `MetadataSection.jsx` | Observer info inputs, mode selector, time range picker |
-| `TimeSlotObservation.jsx` | Time slot container, coordinates form field components and conditional visibility |
-| `form/BehaviorSelect.jsx` | Behavior dropdown field |
-| `form/LocationInput.jsx` | Location select with perch diagram map button + modal state |
-| `form/ObjectSelect.jsx` | Object dropdown with conditional "other" text field |
-| `form/AnimalSelect.jsx` | Animal dropdown with conditional "other" text field |
-| `form/InteractionTypeSelect.jsx` | Interaction type dropdown with conditional "other" text field |
-| `form/DescriptionField.jsx` | Description text input field |
-| `form/NotesField.jsx` | Notes textarea field |
-| `PerchDiagramModal.jsx` | Perch map viewer with NE/SW tabs |
-| `OutputPreview.jsx` | JSON display, copy-to-clipboard, timezone conversion |
-| `useFormValidation.js` | Validation logic for all fields |
-| `timeUtils.js` | Time manipulation, rounding, slot generation |
-| `timezoneUtils.js` | Convert times between timezones |
-| `localStorageUtils.js` | Save/load/clear draft data |
+| Component                         | Responsibility                                                                    |
+| --------------------------------- | --------------------------------------------------------------------------------- |
+| `App.jsx`                         | State orchestration, time slot generation, form submission                        |
+| `MetadataSection.jsx`             | Observer info inputs, mode selector, time range picker                            |
+| `TimeSlotObservation.jsx`         | Time slot container, coordinates form field components and conditional visibility |
+| `form/BehaviorSelect.jsx`         | Behavior dropdown field                                                           |
+| `form/LocationInput.jsx`          | Location select with perch diagram map button + modal state                       |
+| `form/ObjectSelect.jsx`           | Object dropdown with conditional "other" text field                               |
+| `form/AnimalSelect.jsx`           | Animal dropdown with conditional "other" text field                               |
+| `form/InteractionTypeSelect.jsx`  | Interaction type dropdown with conditional "other" text field                     |
+| `form/DescriptionField.jsx`       | Description text input field                                                      |
+| `form/NotesField.jsx`             | Notes textarea field                                                              |
+| `PerchDiagramModal.jsx`           | Perch map viewer with NE/SW tabs                                                  |
+| `OutputPreview.jsx`               | JSON display, copy-to-clipboard, timezone conversion                              |
+| `useFormValidation.js`            | Validation logic for all fields, uses helper functions                            |
+| `constants/behaviors.js`          | BEHAVIORS array + helper functions (requiresLocation, etc.)                       |
+| `constants/locations.js`          | VALID_PERCHES, TIME_SLOTS constants                                               |
+| `constants/interactions.js`       | Objects, animals, interaction types constants                                     |
+| `validators/locationValidator.js` | Pure location validation function                                                 |
+| `timeUtils.js`                    | Time manipulation, rounding, slot generation                                      |
+| `timezoneUtils.js`                | Convert times between timezones                                                   |
+| `localStorageUtils.js`            | Save/load/clear draft data                                                        |
 
 ## 🔄 Key Workflows
 
@@ -139,7 +156,7 @@ const [fieldErrors, setFieldErrors] = useState({});
 
 ```javascript
 // From timeUtils.js
-generateTimeSlots(startTime, endTime) 
+generateTimeSlots(startTime, endTime);
 // Returns: ["15:00", "15:05", "15:10", ...]
 // - Rounds start to nearest 5 minutes
 // - Generates slots in 5-minute increments
@@ -158,7 +175,7 @@ const WBS_TIMEZONE = 'America/Chicago';
 // 3. On output, convert observation keys to WBS timezone
 // 4. Metadata times remain in local time (for reference)
 
-convertTimeToTimezone(dateStr, timeStr, fromTz, toTz)
+convertTimeToTimezone(dateStr, timeStr, fromTz, toTz);
 // Returns: time string in target timezone
 ```
 
@@ -168,11 +185,41 @@ convertTimeToTimezone(dateStr, timeStr, fromTz, toTz)
 // User tabs away from field (onBlur)
 → Component calls onValidate(time, field, currentValue)
 → App.jsx calls validateSingleObservationField(time, field, observations, currentValue)
-→ useFormValidation extracts observation, checks requirements
+→ useFormValidation extracts observation, checks requirements using helper functions
 → Returns error string or null
 → setFieldErrors updates error state
 → Error flows back down as prop
 → Component displays error message
+```
+
+**Behavior Helper Functions** (from `constants/behaviors.js`):
+
+```javascript
+// Helper functions for checking behavior requirements
+requiresLocation(behaviorValue); // → boolean
+requiresObject(behaviorValue); // → boolean
+requiresAnimal(behaviorValue); // → boolean
+requiresInteraction(behaviorValue); // → boolean
+requiresDescription(behaviorValue); // → boolean
+getBehaviorByValue(value); // → behavior object or undefined
+
+// Example usage in validation:
+if (requiresLocation(behavior) && !location) {
+  return 'Location is required for this behavior';
+}
+```
+
+**Pure Validator Functions** (from `utils/validators/`):
+
+```javascript
+// Pure function for location validation
+validateLocation(value); // → { valid: boolean, error: string | null }
+
+// Example:
+const { valid, error } = validateLocation('12');
+if (!valid) {
+  return error; // "Location must be a valid perch number (1-31)..."
+}
 ```
 
 ### Autosave Flow
@@ -297,12 +344,12 @@ INTERACTION_TYPES = [
 // vite.config.js
 export default defineConfig({
   plugins: [react()],
-  base: '/',  // Adjust if deploying to subdirectory
+  base: '/', // Adjust if deploying to subdirectory
   build: {
     outDir: 'dist',
-    sourcemap: true
-  }
-})
+    sourcemap: true,
+  },
+});
 ```
 
 ### Jest Configuration
@@ -313,9 +360,9 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   moduleNameMapper: {
-    '\\.(css|less)$': 'identity-obj-proxy'
-  }
-}
+    '\\.(css|less)$': 'identity-obj-proxy',
+  },
+};
 ```
 
 ## 🚀 Build & Deployment
@@ -357,6 +404,7 @@ This project auto-deploys to Vercel:
 4. Deploys to https://wbs-ethogram-form.vercel.app/
 
 **Vercel Configuration** (auto-detected):
+
 - Build Command: `npm run build`
 - Output Directory: `dist`
 - Install Command: `npm install`
@@ -367,20 +415,24 @@ This project auto-deploys to Vercel:
 ### Common Issues
 
 **Time slots not generating:**
+
 - Check that start < end
 - Check that times are in 24-hour format ("HH:MM")
 - Verify time range is ≤ 60 minutes
 
 **Validation errors not clearing:**
+
 - Check that onChange is calling with `shouldValidate: false`
 - Verify onBlur is passing current value directly
 
 **Timezone conversion issues:**
+
 - Check browser timezone (affects `new Date()`)
 - Verify mode is set correctly ('live' vs 'vod')
 - Check WBS_TIMEZONE constant
 
 **localStorage not working:**
+
 - Check browser privacy settings
 - Verify localStorage is not disabled
 - Check for quota exceeded errors
@@ -417,19 +469,33 @@ useEffect(() => {
 
 ### Adding a New Behavior
 
-1. Update `src/constants.js`:
+1. Update `src/constants/behaviors.js`:
+
    ```javascript
-   BEHAVIORS.push({
-     value: 'new_behavior',
-     label: 'New Behavior',
-     requiresLocation: true,
-     requiresObject: false,
-     requiresAnimal: false,
-     requiresInteraction: false
-   });
+   // Add to BEHAVIORS array
+   export const BEHAVIORS = [
+     // ... existing behaviors
+     {
+       value: 'new_behavior',
+       label: 'New Behavior',
+       requiresLocation: true,
+       requiresObject: false,
+       requiresAnimal: false,
+       requiresInteraction: false,
+       requiresDescription: false,
+     },
+   ];
    ```
 
-2. No other changes needed! Validation and UI automatically adapt.
+2. No other changes needed! Helper functions and validation automatically adapt.
+
+3. If the behavior needs special location codes, add them to `src/constants/locations.js`:
+   ```javascript
+   export const VALID_PERCHES = [
+     // ... existing perches
+     'NEW_CODE', // Add your new special location code
+   ];
+   ```
 
 ### Adding a New Observation Field
 
@@ -452,6 +518,7 @@ useEffect(() => {
 ### November 2025: Comprehensive Refactoring
 
 **Phase 0 - Documentation:**
+
 - Created `ARCHITECTURE.md` (649 lines) with detailed component hierarchy and data flow diagrams
 - Updated `copilot-instructions.md` with current patterns
 - Fixed README accuracy for perch diagram feature
@@ -459,12 +526,14 @@ useEffect(() => {
 - Added `refactoring-strategy.md` documenting phased approach
 
 **Phase 1 - PropTypes & Type Safety:**
+
 - Added PropTypes to all 4 main components for runtime type validation
 - Fixed timezone test to handle UTC format in CI/Docker environments
 - Improved PropTypes specificity (objectOf, shape) per code review feedback
 - All 101 tests passing
 
 **Phase 2 - Component Extraction:**
+
 - Extracted 7 form field components from TimeSlotObservation into `src/components/form/`
 - Reduced TimeSlotObservation from 417 to 257 lines (~38% reduction)
 - Components: BehaviorSelect, LocationInput, ObjectSelect, AnimalSelect, InteractionTypeSelect, DescriptionField, NotesField
@@ -474,6 +543,7 @@ useEffect(() => {
 - Consistent patterns across similar field types
 
 **Interaction Subfields Feature (Earlier):**
+
 - Added structured interaction subfields:
   - Object dropdown for "Interacting with Inanimate Object" behavior
   - Animal + Interaction Type dropdowns for "Interacting with Other Animal" behavior
@@ -484,6 +554,7 @@ useEffect(() => {
 - Enter key now validates field without submitting form (mobile UX improvement)
 
 **Architecture:**
+
 - Flat observation structure with conditional fields (see `docs/interaction-subfields-design.md`)
 - BEHAVIORS includes feature flags: `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`
 - Constants expanded: `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `INTERACTION_TYPES`
@@ -492,6 +563,7 @@ useEffect(() => {
 - Component composition pattern with form field components
 
 **Testing:**
+
 - Test count: 101+ tests across 5 test suites
 - All tests passing
 - Integration tests cover extracted components
