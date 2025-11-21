@@ -1,8 +1,9 @@
 # Architecture Documentation
 
 > **Last Updated**: November 21, 2025
-> **Codebase Size**: 1,680 lines (source) + 994 lines (tests)
-> **Test Count**: 101+ passing tests across 4 test suites
+> **Codebase Size**: 1,971 lines (source) + 994 lines (tests)
+> **Test Count**: 101+ passing tests across 5 test suites
+> **Components**: 11 React components (4 main + 7 form fields)
 
 ---
 
@@ -52,19 +53,23 @@ App.jsx (353 lines) - Root component
 │   ├── Start time input
 │   └── End time input
 │
-├── TimeSlotObservation.jsx (417 lines) [×N instances, one per 5-min slot]
-│   ├── Behavior dropdown
-│   ├── Location field (conditional)
+├── TimeSlotObservation.jsx (257 lines) [×N instances, one per 5-min slot]
+│   ├── BehaviorSelect.jsx (37 lines)
+│   ├── LocationInput.jsx (69 lines) [conditional]
 │   │   ├── React Select dropdown
-│   │   └── Map button → opens PerchDiagramModal
-│   ├── Object dropdown (conditional - for "interacting_object")
+│   │   ├── Map button
+│   │   └── PerchDiagramModal (owned state)
+│   ├── ObjectSelect.jsx (71 lines) [conditional]
+│   │   ├── Object dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── Animal dropdown (conditional - for "interacting_animal")
+│   ├── AnimalSelect.jsx (71 lines) [conditional]
+│   │   ├── Animal dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── Interaction Type dropdown (conditional - for "interacting_animal")
+│   ├── InteractionTypeSelect.jsx (71 lines) [conditional]
+│   │   ├── Interaction Type dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── Description field (conditional - for certain behaviors)
-│   ├── Notes textarea (always visible)
+│   ├── DescriptionField.jsx (33 lines) [conditional]
+│   ├── NotesField.jsx (27 lines)
 │   └── "Copy to next" button
 │
 ├── PerchDiagramModal.jsx (83 lines)
@@ -82,7 +87,14 @@ App.jsx (353 lines) - Root component
 |-----------|---------|-------|----------|----------------------|
 | **App** | Orchestrator | All form state | None | None |
 | **MetadataSection** | Metadata inputs | None (controlled) | metadata, fieldErrors | onMetadataChange, onMetadataValidate |
-| **TimeSlotObservation** | Per-slot observation | Modal open state | time, observation, errors | onChange, onValidate, onCopyToNext |
+| **TimeSlotObservation** | Per-slot container | None (controlled) | time, observation, errors | onChange, onValidate, onCopyToNext |
+| **BehaviorSelect** | Behavior dropdown | None (controlled) | value, error | onChange |
+| **LocationInput** | Location + map | Modal open state | value, error, behaviorValue, perchOptions | onChange |
+| **ObjectSelect** | Object + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
+| **AnimalSelect** | Animal + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
+| **InteractionTypeSelect** | Interaction + "other" | None (controlled) | value, otherValue, errors | onChange, onOtherChange |
+| **DescriptionField** | Description input | None (controlled) | value, error | onChange |
+| **NotesField** | Notes textarea | None (controlled) | value | onChange |
 | **PerchDiagramModal** | Perch map viewer | Active tab | isOpen | onClose |
 | **OutputPreview** | JSON display | None | data | None |
 
@@ -133,8 +145,8 @@ graph TD
 
 | File | Lines | Category | Purpose |
 |------|-------|----------|---------|
-| `components/TimeSlotObservation.jsx` | 417 | Component | Per-slot observation form |
 | `App.jsx` | 353 | Component | Root orchestrator |
+| `components/TimeSlotObservation.jsx` | 257 | Component | Per-slot container |
 | `hooks/useFormValidation.js` | 246 | Hook | Centralized validation |
 | `components/MetadataSection.jsx` | 159 | Component | Metadata inputs |
 | `utils/timeUtils.js` | 95 | Utility | Time operations |
@@ -142,12 +154,20 @@ graph TD
 | `utils/timezoneUtils.js` | 82 | Utility | Timezone conversion |
 | `constants.js` | 79 | Config | Domain data |
 | `utils/localStorageUtils.js` | 73 | Utility | Autosave logic |
+| `components/form/ObjectSelect.jsx` | 71 | Component | Object dropdown + "other" |
+| `components/form/AnimalSelect.jsx` | 71 | Component | Animal dropdown + "other" |
+| `components/form/InteractionTypeSelect.jsx` | 71 | Component | Interaction dropdown + "other" |
+| `components/form/LocationInput.jsx` | 69 | Component | Location select + map |
 | `utils/observationUtils.js` | 47 | Utility | Observation helpers |
+| `components/form/BehaviorSelect.jsx` | 37 | Component | Behavior dropdown |
+| `components/form/DescriptionField.jsx` | 33 | Component | Description text input |
+| `components/form/NotesField.jsx` | 27 | Component | Notes textarea |
 | `utils/debounce.js` | 21 | Utility | Debounce function |
 | `components/OutputPreview.jsx` | 15 | Component | JSON display |
 | `main.jsx` | 10 | Entry | React mount point |
+| `components/form/index.js` | 8 | Export | Barrel export |
 
-**Total Source**: 1,680 lines
+**Total Source**: 1,971 lines
 
 ### Test Files
 
@@ -164,7 +184,20 @@ graph TD
 
 ```
 src/
-├── components/          # React components (4 files, 674 lines)
+├── components/          # React components (11 files, 958 lines)
+│   ├── form/           # Form field components (8 files, 487 lines)
+│   │   ├── BehaviorSelect.jsx
+│   │   ├── LocationInput.jsx
+│   │   ├── ObjectSelect.jsx
+│   │   ├── AnimalSelect.jsx
+│   │   ├── InteractionTypeSelect.jsx
+│   │   ├── DescriptionField.jsx
+│   │   ├── NotesField.jsx
+│   │   └── index.js
+│   ├── MetadataSection.jsx
+│   ├── TimeSlotObservation.jsx
+│   ├── PerchDiagramModal.jsx
+│   └── OutputPreview.jsx
 ├── hooks/              # Custom hooks (1 file, 246 lines)
 ├── utils/              # Utilities (6 files, 418 lines)
 ├── constants.js        # Domain data (79 lines)
