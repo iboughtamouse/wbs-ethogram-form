@@ -1,13 +1,42 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { downloadExcelFile } from '../services/export/excelGenerator';
 
 const OutputPreview = ({ data }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadExcel = async () => {
+    try {
+      setIsDownloading(true);
+      const filename = `ethogram-${data.metadata.patient}-${data.metadata.date}`;
+      await downloadExcelFile(data, filename);
+    } catch (error) {
+      console.error('Failed to generate Excel file:', error);
+      alert('Failed to generate Excel file. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="output-preview">
-      <h3>Data Preview (JSON Format)</h3>
+      <h3>Data Preview</h3>
       <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
-        This is what will be submitted. In the final version, this will be
-        converted to Excel format and emailed.
+        Review your data below, then download the Excel file to submit.
       </p>
+
+      <div style={{ marginBottom: '20px' }}>
+        <button
+          onClick={handleDownloadExcel}
+          disabled={isDownloading}
+          className="btn-primary"
+          style={{ marginRight: '10px' }}
+        >
+          {isDownloading ? 'Generating...' : 'Download Excel File'}
+        </button>
+      </div>
+
+      <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>JSON Preview</h4>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
