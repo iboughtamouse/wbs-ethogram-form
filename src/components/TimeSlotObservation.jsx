@@ -131,6 +131,13 @@ const TimeSlotObservation = ({
     debouncedValidateRef.current(time, 'description', newValue);
   };
 
+  // Prevent Enter key from submitting form in text inputs
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  };
+
   const handleDescriptionBlur = (e) => {
     onValidate(time, 'description', e.target.value);
   };
@@ -273,6 +280,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.objectOther}
                 onChange={handleObjectOtherChange}
+                onKeyDown={handleKeyDown}
                 placeholder="Enter object name..."
                 className={objectOtherError ? 'error' : ''}
               />
@@ -315,6 +323,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.animalOther}
                 onChange={handleAnimalOtherChange}
+                onKeyDown={handleKeyDown}
                 placeholder="Enter animal type..."
                 className={animalOtherError ? 'error' : ''}
               />
@@ -357,6 +366,7 @@ const TimeSlotObservation = ({
                 type="text"
                 value={observation.interactionTypeOther}
                 onChange={handleInteractionTypeOtherChange}
+                onKeyDown={handleKeyDown}
                 placeholder="Enter interaction type..."
                 className={interactionTypeOtherError ? 'error' : ''}
               />
@@ -377,6 +387,7 @@ const TimeSlotObservation = ({
             type="text"
             value={observation.description}
             onChange={handleDescriptionChange}
+            onKeyDown={handleKeyDown}
             placeholder="Describe the behavior..."
             className={descriptionError ? 'error' : ''}
           />
@@ -392,6 +403,7 @@ const TimeSlotObservation = ({
           type="text"
           value={observation.notes}
           onChange={(e) => onChange(time, 'notes', e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Any additional observations..."
         />
       </div>
