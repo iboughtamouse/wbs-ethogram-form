@@ -10,8 +10,11 @@ describe('timezoneUtils', () => {
       const timezone = getUserTimezone();
       expect(timezone).toBeDefined();
       expect(typeof timezone).toBe('string');
-      // Should be in format like "America/New_York"
-      expect(timezone).toMatch(/^[A-Za-z_]+\/[A-Za-z_]+/);
+      expect(timezone.length).toBeGreaterThan(0);
+      // Should be in format like "America/New_York" OR "UTC" (common in CI/Docker)
+      expect(
+        timezone === 'UTC' || timezone.match(/^[A-Za-z_]+\/[A-Za-z_]+/)
+      ).toBeTruthy();
     });
   });
 
