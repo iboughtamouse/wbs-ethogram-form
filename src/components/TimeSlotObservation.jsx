@@ -9,6 +9,8 @@ import DescriptionField from './form/DescriptionField';
 import BehaviorSelect from './form/BehaviorSelect';
 import LocationInput from './form/LocationInput';
 import ObjectSelect from './form/ObjectSelect';
+import AnimalSelect from './form/AnimalSelect';
+import InteractionTypeSelect from './form/InteractionTypeSelect';
 
 const TimeSlotObservation = ({
   time,
@@ -230,89 +232,27 @@ const TimeSlotObservation = ({
       )}
 
       {requiresAnimal && (
-        <>
-          <div className="form-group">
-            <label>
-              Animal <span className="required">*</span>
-            </label>
-            <select
-              value={observation.animal}
-              onChange={handleAnimalChange}
-              className={animalError ? 'error' : ''}
-            >
-              {ANIMAL_TYPES.map((animal) => (
-                <option key={animal.value} value={animal.value}>
-                  {animal.label}
-                </option>
-              ))}
-            </select>
-            {animalError && (
-              <div className="field-error">{animalError}</div>
-            )}
-          </div>
-
-          {observation.animal === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify animal: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.animalOther}
-                onChange={handleAnimalOtherChange}
-                onKeyDown={handleKeyDown('animalOther')}
-                placeholder="Enter animal type..."
-                className={animalOtherError ? 'error' : ''}
-              />
-              {animalOtherError && (
-                <div className="field-error">{animalOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <AnimalSelect
+          value={observation.animal}
+          otherValue={observation.animalOther}
+          onChange={handleAnimalChange}
+          onOtherChange={handleAnimalOtherChange}
+          onKeyDown={handleKeyDown('animalOther')}
+          error={animalError}
+          otherError={animalOtherError}
+        />
       )}
 
       {requiresInteraction && (
-        <>
-          <div className="form-group">
-            <label>
-              Interaction Type <span className="required">*</span>
-            </label>
-            <select
-              value={observation.interactionType}
-              onChange={handleInteractionTypeChange}
-              className={interactionTypeError ? 'error' : ''}
-            >
-              {INTERACTION_TYPES.map((interaction) => (
-                <option key={interaction.value} value={interaction.value}>
-                  {interaction.label}
-                </option>
-              ))}
-            </select>
-            {interactionTypeError && (
-              <div className="field-error">{interactionTypeError}</div>
-            )}
-          </div>
-
-          {observation.interactionType === 'other' && (
-            <div className="form-group">
-              <label>
-                Specify interaction: <span className="required">*</span>
-              </label>
-              <input
-                type="text"
-                value={observation.interactionTypeOther}
-                onChange={handleInteractionTypeOtherChange}
-                onKeyDown={handleKeyDown('interactionTypeOther')}
-                placeholder="Enter interaction type..."
-                className={interactionTypeOtherError ? 'error' : ''}
-              />
-              {interactionTypeOtherError && (
-                <div className="field-error">{interactionTypeOtherError}</div>
-              )}
-            </div>
-          )}
-        </>
+        <InteractionTypeSelect
+          value={observation.interactionType}
+          otherValue={observation.interactionTypeOther}
+          onChange={handleInteractionTypeChange}
+          onOtherChange={handleInteractionTypeOtherChange}
+          onKeyDown={handleKeyDown('interactionTypeOther')}
+          error={interactionTypeError}
+          otherError={interactionTypeOtherError}
+        />
       )}
 
       {requiresDescription && (
