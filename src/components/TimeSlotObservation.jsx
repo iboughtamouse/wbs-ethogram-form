@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select';
 import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
+import PerchDiagramModal from './PerchDiagramModal';
 
 const TimeSlotObservation = ({ 
   time, 
@@ -20,6 +21,8 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot
 }) => {
+  const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
+  
   const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
   const requiresLocation = behaviorDef?.requiresLocation || false;
   const requiresObject = behaviorDef?.requiresObject || false;
@@ -217,18 +220,35 @@ const TimeSlotObservation = ({
           <label>
             {observation.behavior === 'jumping' ? 'Starting Location' : 'Location'} (Perch # or "Ground") <span className="required">*</span>
           </label>
-          <Select
-            options={perchOptions}
-            value={selectedLocationOption}
-            onChange={handleLocationChange}
-            onBlur={handleLocationBlur}
-            placeholder="Type or select..."
-            isClearable
-            styles={selectStyles}
-          />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <Select
+                options={perchOptions}
+                value={selectedLocationOption}
+                onChange={handleLocationChange}
+                onBlur={handleLocationBlur}
+                placeholder="Type or select..."
+                isClearable
+                styles={selectStyles}
+              />
+            </div>
+            <button
+              type="button"
+              className="view-perch-map-btn"
+              onClick={() => setIsPerchModalOpen(true)}
+              title="Open perch diagram to select location"
+            >
+              <span className="map-icon">🗺️</span>
+              Map
+            </button>
+          </div>
           {locationError && (
             <div className="field-error">{locationError}</div>
           )}
+          <PerchDiagramModal
+            isOpen={isPerchModalOpen}
+            onClose={() => setIsPerchModalOpen(false)}
+          />
         </div>
       )}
 
