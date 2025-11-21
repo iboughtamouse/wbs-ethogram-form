@@ -1,10 +1,12 @@
 # Architecture Documentation
 
-> **Last Updated**: November 21, 2025 (Post-Phase 4/5 refactoring)
-> **Codebase Size**: ~2,200 lines (source) + 3,404 lines (tests)
-> **Test Count**: 208 passing tests across 9 test suites
+> **Last Updated**: November 21, 2025 (Post-Phase 3 refactoring)
+> **Codebase Size**: ~2,500 lines (source) + 3,800 lines (tests)
+> **Test Count**: 267 passing tests across 14 test suites
 > **Components**: 11 React components (4 main + 7 form fields)
-> **Recent Changes**: Modularized constants, added helper functions, extracted pure validators
+> **Services**: 3 pure function modules (formStateManager, formSubmission, draftManager)
+> **Hooks**: 3 custom hooks (useFormValidation, useFormState, useAutoSave)
+> **Recent Changes**: Extracted business logic from App.jsx into services and hooks (Phase 3)
 
 ---
 
@@ -45,9 +47,11 @@ WBS Ethogram Form is a **client-side single-page application** (SPA) with no bac
 ### ASCII Tree
 
 ```
-App.jsx (358 lines) - Root component
+App.jsx (232 lines) - Root coordinator component
+│   Uses: useFormState, useAutoSave, useFormValidation hooks
+│   Delegates: Business logic to services, state to hooks
 │
-├── MetadataSection.jsx (159 lines)
+├── MetadataSection.jsx (175 lines)
 │   ├── Observer name input
 │   ├── Date picker
 │   ├── Mode selector (live/VOD)
@@ -101,6 +105,56 @@ App.jsx (358 lines) - Root component
 
 ---
 
+## Services & Hooks Architecture
+
+### Service Modules (Pure Functions)
+
+Business logic extracted from App.jsx into testable pure functions:
+
+| Service              | Size | Purpose                                       | Key Functions                                                |
+| -------------------- | ---- | --------------------------------------------- | ------------------------------------------------------------ |
+| **formStateManager** | 97L  | Observation state management                  | `generateObservationsForSlots()`, `updateObservationField()` |
+| **formSubmission**   | 50L  | Output data preparation & timezone conversion | `prepareOutputData()`                                        |
+| **draftManager**     | 31L  | Autosave decision logic                       | `shouldAutosave()`                                           |
+
+**Key Benefits:**
+
+- Testable without rendering React components
+- Clear single responsibility for each module
+- Reusable across the application
+- Easy to mock in tests
+
+### Custom Hooks
+
+React state and effects encapsulated into focused hooks:
+
+| Hook                  | Size | Purpose                           | Returns                                                                     |
+| --------------------- | ---- | --------------------------------- | --------------------------------------------------------------------------- |
+| **useFormState**      | 123L | Form state + time slot management | `{metadata, observations, timeSlots, handlers, resetForm, restoreDraft}`    |
+| **useAutoSave**       | 66L  | Draft loading & autosave effects  | `{showDraftNotice, draftTimestamp, handleRestoreDraft, handleDiscardDraft}` |
+| **useFormValidation** | 302L | Validation logic + error state    | `{fieldErrors, validateForm, validateSingle*, clear*}`                      |
+
+**Hook Interactions:**
+
+```
+App.jsx
+├── useFormState()
+│   ├── Manages metadata, observations, timeSlots state
+│   ├── Triggers time slot generation via useEffect
+│   └── Uses formStateManager service for updates
+│
+├── useAutoSave(metadata, observations, onRestore)
+│   ├── Monitors for draft on mount
+│   ├── Autosaves via useEffect when data changes
+│   └── Uses draftManager.shouldAutosave() for logic
+│
+└── useFormValidation()
+    ├── Validates metadata and observations
+    └── Uses constants helpers for requirement checks
+```
+
+---
+
 ## Data Flow
 
 ### Mermaid Diagram
@@ -108,24 +162,35 @@ App.jsx (358 lines) - Root component
 ```mermaid
 graph TD
     A[User Input] --> B[Component Event Handler]
-    B --> C[App.jsx State Update]
-    C --> D{Validation Triggered?}
-    D -->|Yes| E[useFormValidation Hook]
-    E --> F[Validation Rules using constants helpers]
-    F --> G[Error State Update]
-    G --> H[Component Rerenders with Errors]
-    D -->|No| H
-    H --> I[localStorage Autosave]
+    B --> C[useFormState.handleMetadataChange/handleObservationChange]
+    C --> D[formStateManager.updateObservationField]
+    D --> E[State Updated in useFormState]
+    E --> F{Validation Triggered?}
+    F -->|Yes| G[useFormValidation Hook]
+    G --> H[Validation Rules using constants helpers]
+    H --> I[Error State Update]
+    I --> J[Component Rerenders with Errors]
+    F -->|No| J
+    E --> K[useAutoSave Effect Triggered]
+    K --> L[draftManager.shouldAutosave]
+    L -->|Yes| M[localStorage.saveDraft]
+    L -->|No| N[Skip Autosave]
 
-    J[Submit Button] --> K[validateForm]
-    K --> L{All Valid?}
-    L -->|Yes| M[Generate JSON Output]
-    L -->|No| N[Show Errors + Scroll to First Error]
+    O[Submit Button] --> P[validateForm]
+    P --> Q{All Valid?}
+    Q -->|Yes| R[formSubmission.prepareOutputData]
+    R --> S[Apply Timezone Conversion for Live Mode]
+    S --> T[Generate JSON Output]
+    Q -->|No| U[Show Errors + Scroll to First Error]
 
-    O[Page Load] --> P[Check localStorage]
-    P --> Q{Draft Exists?}
-    Q -->|Yes| R[Restore Draft]
-    Q -->|No| S[Fresh Form]
+    V[Page Load] --> W[useAutoSave Effect on Mount]
+    W --> X{Draft Exists?}
+    X -->|Yes| Y[Show Draft Notice]
+    Y --> Z[User Clicks Resume Draft]
+    Z --> AA[useFormState.restoreDraft]
+    AA --> AB[Metadata Set → Time Slots Generated]
+    AB --> AC[setTimeout → Observations Restored]
+    X -->|No| AD[Fresh Form]
 ```
 
 ### State Flow Details
@@ -146,9 +211,14 @@ graph TD
 
 | File                                        | Category  | Purpose                             |
 | ------------------------------------------- | --------- | ----------------------------------- |
-| `App.jsx`                                   | Component | Root orchestrator                   |
+| `App.jsx`                                   | Component | Root coordinator (uses hooks)       |
+| `hooks/useFormState.js`                     | Hook      | Form state + operations             |
+| `hooks/useAutoSave.js`                      | Hook      | Draft management + autosave         |
+| `hooks/useFormValidation.js`                | Hook      | Centralized validation              |
+| `services/formStateManager.js`              | Service   | Observation state logic             |
+| `services/formSubmission.js`                | Service   | Output data preparation             |
+| `services/draftManager.js`                  | Service   | Autosave decision logic             |
 | `components/TimeSlotObservation.jsx`        | Component | Per-slot container                  |
-| `hooks/useFormValidation.js`                | Hook      | Centralized validation (refactored) |
 | `components/MetadataSection.jsx`            | Component | Metadata inputs                     |
 | `constants/behaviors.js`                    | Config    | BEHAVIORS + helpers                 |
 | `utils/timeUtils.js`                        | Utility   | Time operations                     |
@@ -175,19 +245,24 @@ graph TD
 
 ### Test Files
 
-| Test Suite                                       | Coverage                   |
-| ------------------------------------------------ | -------------------------- |
-| `tests/integration/App.test.jsx`                 | Full app integration & E2E |
-| `tests/integration/TimeSlotObservation.test.jsx` | Time slot component        |
-| `tests/integration/FormComponents.test.jsx`      | Form field components      |
-| `tests/integration/MetadataSection.test.jsx`     | Metadata section           |
-| `hooks/__tests__/useFormValidation.test.js`      | Validation rules           |
-| `utils/__tests__/localStorageUtils.test.js`      | localStorage               |
-| `tests/copyToNextSlot.test.js`                   | Copy to next feature       |
-| `utils/__tests__/timeUtils.test.js`              | Time operations            |
-| `utils/__tests__/timezoneUtils.test.js`          | Timezone logic             |
+| Test Suite                                       | Coverage                   | Tests |
+| ------------------------------------------------ | -------------------------- | ----- |
+| `tests/integration/App.test.jsx`                 | Full app integration & E2E | 23    |
+| `tests/integration/TimeSlotObservation.test.jsx` | Time slot component        | 37    |
+| `tests/integration/FormComponents.test.jsx`      | Form field components      | 42    |
+| `tests/integration/MetadataSection.test.jsx`     | Metadata section           | 26    |
+| `hooks/__tests__/useFormState.test.js`           | Form state hook            | 14    |
+| `hooks/__tests__/useAutoSave.test.js`            | Autosave hook              | 9     |
+| `hooks/__tests__/useFormValidation.test.js`      | Validation rules           | 66    |
+| `services/__tests__/formStateManager.test.js`    | State management service   | 14    |
+| `services/__tests__/formSubmission.test.js`      | Output preparation service | 11    |
+| `services/__tests__/draftManager.test.js`        | Draft logic service        | 11    |
+| `utils/__tests__/localStorageUtils.test.js`      | localStorage               | 4     |
+| `utils/__tests__/timeUtils.test.js`              | Time operations            | 4     |
+| `utils/__tests__/timezoneUtils.test.js`          | Timezone logic             | 2     |
+| `tests/copyToNextSlot.test.js`                   | Copy to next feature       | 14    |
 
-**Total**: 208 test cases across 9 test suites
+**Total**: 267 test cases across 14 test suites
 
 ### Directory Structure
 
@@ -207,8 +282,15 @@ src/
 │   ├── TimeSlotObservation.jsx
 │   ├── PerchDiagramModal.jsx
 │   └── OutputPreview.jsx
-├── hooks/              # Custom hooks (1 file, 302 lines)
+├── hooks/              # Custom hooks (3 files, ~490 lines)
+│   ├── useFormState.js
+│   ├── useAutoSave.js
 │   ├── useFormValidation.js
+│   └── __tests__/
+├── services/           # Business logic services (3 files, ~180 lines)
+│   ├── formStateManager.js
+│   ├── formSubmission.js
+│   ├── draftManager.js
 │   └── __tests__/
 ├── utils/              # Utilities (7 files, ~450 lines)
 │   ├── timeUtils.js

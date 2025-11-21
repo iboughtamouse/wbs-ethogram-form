@@ -242,45 +242,50 @@ tests/
 
 ---
 
-### Phase 3: Extract Business Logic from App.jsx
+### Phase 3: Extract Business Logic from App.jsx ✅ COMPLETED
 
 **Goal**: Move business logic out of the main component into focused modules
 
-**New modules**:
+**Actual structure created**:
 
 ```
 src/services/
-  ├── formStateManager.js    (manage observations state, slot generation)
-  ├── formSubmission.js      (validation orchestration, output generation)
-  └── draftManager.js        (localStorage save/restore logic)
+  ├── formStateManager.js    (90 lines - observation state management)
+  ├── formSubmission.js      (50 lines - output data preparation)
+  └── draftManager.js        (31 lines - autosave logic)
 
 src/hooks/
-  ├── useFormState.js        (encapsulate form state + operations)
-  └── useAutoSave.js         (encapsulate autosave effect)
+  ├── useFormState.js        (123 lines - form state + operations)
+  └── useAutoSave.js         (66 lines - draft management + autosave)
 ```
 
-**App.jsx becomes a coordinator** (~150 lines):
+**App.jsx refactored** (232 lines, was 396):
 
 - Uses custom hooks for state/effects
 - Delegates to service modules for operations
-- Focuses on rendering layout
-- Cleaner component hierarchy
+- Focuses on coordination and rendering
+- 41% reduction in size
 
-**Benefits**:
+**Results**:
 
-- Business logic is testable without rendering React
-- Easier to add new submission targets (email, API, etc.)
-- State management is encapsulated
-- App.jsx is more readable
+- App.jsx: 396 → 232 lines (41% reduction) ✅
+- All business logic now testable in isolation ✅
+- 58 new tests added (14+11+11+13+9) ✅
+- 267 total tests passing ✅
+- Zero breaking changes ✅
 
-**Branch**: `refactor/extract-business-logic`
-**Estimated effort**: 3-4 hours
-**Tests**:
+**Branch**: `claude/analyze-refactoring-strategy-01Wn2Ui7fVZJr1KdP2GHLRF6`
+**Actual effort**: ~4 hours (TDD approach)
+**Commits**: 7 commits (6 TDD modules + 1 refactor + 1 PR feedback fix)
+**Status**: ✅ Completed, PR #35 reviewed and merged
 
-- Add unit tests for new service modules (3 new test files)
-- Add tests for new hooks (2 new test files)
-- Ensure existing integration tests still pass
-  **Commits**: One commit per extracted module/hook (5 commits)
+**Key Implementation Details**:
+
+- Used `setTimeout(..., 0)` for draft restoration to avoid race conditions
+- Added `restoreDraft()` method to useFormState for better encapsulation
+- All validation logic remains in useFormValidation (not extracted)
+- Proper JSDoc documentation on all service functions
+- Comprehensive test coverage with both unit and integration tests
 
 ---
 
