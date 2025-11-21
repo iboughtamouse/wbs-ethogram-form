@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
-import { BEHAVIORS, VALID_PERCHES, INANIMATE_OBJECTS, ANIMAL_TYPES, INTERACTION_TYPES } from '../constants';
+import { BEHAVIORS } from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
 import { debounce } from '../utils/debounce';
 import {

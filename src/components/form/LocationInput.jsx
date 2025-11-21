@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import { VALID_PERCHES } from '../../constants';
 import PerchDiagramModal from '../PerchDiagramModal';
 
 const LocationInput = ({
@@ -59,9 +58,22 @@ LocationInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   error: PropTypes.string,
   behaviorValue: PropTypes.string.isRequired,
-  perchOptions: PropTypes.array.isRequired,
-  selectedLocationOption: PropTypes.object,
-  selectStyles: PropTypes.object.isRequired
+  perchOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      options: PropTypes.arrayOf(
+        PropTypes.shape({
+          value: PropTypes.string.isRequired,
+          label: PropTypes.string.isRequired
+        })
+      ).isRequired
+    })
+  ).isRequired,
+  selectedLocationOption: PropTypes.shape({
+    value: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired
+  }),
+  selectStyles: PropTypes.objectOf(PropTypes.func).isRequired
 };
 
 export default LocationInput;

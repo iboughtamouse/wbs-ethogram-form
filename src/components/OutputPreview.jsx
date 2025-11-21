@@ -15,8 +15,29 @@ const OutputPreview = ({ data }) => {
 
 OutputPreview.propTypes = {
   data: PropTypes.shape({
-    metadata: PropTypes.object.isRequired,
-    observations: PropTypes.object.isRequired,
+    metadata: PropTypes.shape({
+      observerName: PropTypes.string.isRequired,
+      date: PropTypes.string.isRequired,
+      startTime: PropTypes.string.isRequired,
+      endTime: PropTypes.string.isRequired,
+      aviary: PropTypes.string.isRequired,
+      patient: PropTypes.string.isRequired,
+      mode: PropTypes.string.isRequired
+    }).isRequired,
+    observations: PropTypes.objectOf(
+      PropTypes.shape({
+        behavior: PropTypes.string.isRequired,
+        location: PropTypes.string.isRequired,
+        notes: PropTypes.string.isRequired,
+        object: PropTypes.string.isRequired,
+        objectOther: PropTypes.string.isRequired,
+        animal: PropTypes.string.isRequired,
+        animalOther: PropTypes.string.isRequired,
+        interactionType: PropTypes.string.isRequired,
+        interactionTypeOther: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired
+      })
+    ).isRequired,
     submittedAt: PropTypes.string.isRequired
   }).isRequired
 };
