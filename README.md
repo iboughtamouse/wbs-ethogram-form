@@ -40,8 +40,13 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 When certain behaviors are selected, additional structured fields appear:
 
-- **Interacting with Inanimate Object**: Select object type (newspaper, rope ball, plastic ball, rubber duck, wooden blocks, camera, plant, stump, perch, or other)
-- **Interacting with Other Animal**: Select animal type (adult/juvenile aviary occupant, insect, prey animal, same species, predator, or other) and interaction type (watching, preening/grooming, feeding, playing, non-aggressive biting/foot grabbing, or other)
+- **Interacting with Inanimate Object**: Select object type from dropdown (newspaper, rope ball, plastic ball, rubber duck, wooden blocks, camera, plant, stump, perch, or other). If you select "other", a text field appears where you can type what the object is.
+
+- **Interacting with Other Animal**: Two dropdowns appear:
+  - **Animal type**: Adult/juvenile aviary occupant, insect within aviary, potential prey animal within aviary, potential prey item outside aviary, same species outside aviary, potential predator outside aviary, or other
+  - **Interaction type**: Watching, preening/grooming, feeding, playing, non-aggressive biting, non-aggressive foot grabbing, or other
+
+  For both fields, selecting "other" reveals a text field where you can specify the custom value.
 
 ## 📝 How to Use This Form
 
@@ -120,12 +125,14 @@ The form outputs structured JSON data:
 
 Interested in contributing or setting up your own instance? Check out:
 
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical details, architecture, and setup
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture, component structure, and data flow
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical setup, development workflow, and testing
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to this project
 
 ## 🗺️ Roadmap
 
 **Upcoming Features:**
+
 - [ ] Excel file export
 - [ ] Discord OAuth authentication
 - [ ] Email submission integration
