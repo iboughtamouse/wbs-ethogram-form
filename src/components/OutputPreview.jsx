@@ -14,7 +14,11 @@ const OutputPreview = ({ data }) => {
 };
 
 OutputPreview.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.shape({
+    metadata: PropTypes.object.isRequired,
+    observations: PropTypes.object.isRequired,
+    submittedAt: PropTypes.string.isRequired
+  }).isRequired
 };
 
 export default OutputPreview;

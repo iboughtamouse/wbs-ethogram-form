@@ -167,7 +167,7 @@ MetadataSection.propTypes = {
     patient: PropTypes.string.isRequired,
     mode: PropTypes.oneOf(['live', 'vod']).isRequired
   }).isRequired,
-  fieldErrors: PropTypes.object.isRequired,
+  fieldErrors: PropTypes.objectOf(PropTypes.string).isRequired,
   onChange: PropTypes.func.isRequired
 };
 
