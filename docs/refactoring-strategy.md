@@ -1,5 +1,7 @@
 # Refactoring Strategy for WBS Ethogram Form
 
+> **Note on Line Counts**: This document contains historical line count metrics as point-in-time snapshots from when the refactoring phases were completed. These numbers **will not be maintained** going forward as they drift constantly with every code change and provide minimal value compared to the maintenance burden. The important information is the organizational structure, refactoring decisions, and patterns - not the exact line counts.
+
 ## Current State Analysis
 
 ### File Size Overview

@@ -142,54 +142,52 @@ graph TD
 
 ## File Organization & Metrics
 
-### Source Files (by size)
+### Source Files Reference
 
-| File                                        | Lines | Category  | Purpose                             |
-| ------------------------------------------- | ----- | --------- | ----------------------------------- |
-| `App.jsx`                                   | 396   | Component | Root orchestrator                   |
-| `components/TimeSlotObservation.jsx`        | 304   | Component | Per-slot container                  |
-| `hooks/useFormValidation.js`                | 302   | Hook      | Centralized validation (refactored) |
-| `components/MetadataSection.jsx`            | 175   | Component | Metadata inputs                     |
-| `constants/behaviors.js`                    | 136   | Config    | BEHAVIORS + helpers                 |
-| `utils/timeUtils.js`                        | 95    | Utility   | Time operations                     |
-| `components/PerchDiagramModal.jsx`          | 91    | Component | Perch map modal                     |
-| `utils/timezoneUtils.js`                    | 82    | Utility   | Timezone conversion                 |
-| `components/form/LocationInput.jsx`         | 76    | Component | Location select + map               |
-| `utils/localStorageUtils.js`                | 73    | Utility   | Autosave logic                      |
-| `components/form/ObjectSelect.jsx`          | 63    | Component | Object dropdown + "other"           |
-| `components/form/AnimalSelect.jsx`          | 63    | Component | Animal dropdown + "other"           |
-| `components/form/InteractionTypeSelect.jsx` | 63    | Component | Interaction dropdown + "other"      |
-| `constants/interactions.js`                 | 51    | Config    | Objects, animals, interaction types |
-| `utils/observationUtils.js`                 | 47    | Utility   | Observation helpers                 |
-| `constants/locations.js`                    | 46    | Config    | VALID_PERCHES, TIME_SLOTS           |
-| `components/OutputPreview.jsx`              | 45    | Component | JSON display                        |
-| `components/form/BehaviorSelect.jsx`        | 32    | Component | Behavior dropdown                   |
-| `components/form/DescriptionField.jsx`      | 29    | Component | Description text input              |
-| `utils/validators/locationValidator.js`     | 29    | Validator | Pure location validation            |
-| `components/form/NotesField.jsx`            | 24    | Component | Notes textarea                      |
-| `utils/debounce.js`                         | 21    | Utility   | Debounce function                   |
-| `constants/index.js`                        | 18    | Export    | Barrel export for constants         |
-| `main.jsx`                                  | 10    | Entry     | React mount point                   |
-| `components/form/index.js`                  | 7     | Export    | Barrel export for form components   |
-| `utils/validators/index.js`                 | 2     | Export    | Barrel export for validators        |
-
-**Total Source**: ~2,200 lines (updated after Phase 4/5 refactoring)
+| File                                        | Category  | Purpose                             |
+| ------------------------------------------- | --------- | ----------------------------------- |
+| `App.jsx`                                   | Component | Root orchestrator                   |
+| `components/TimeSlotObservation.jsx`        | Component | Per-slot container                  |
+| `hooks/useFormValidation.js`                | Hook      | Centralized validation (refactored) |
+| `components/MetadataSection.jsx`            | Component | Metadata inputs                     |
+| `constants/behaviors.js`                    | Config    | BEHAVIORS + helpers                 |
+| `utils/timeUtils.js`                        | Utility   | Time operations                     |
+| `components/PerchDiagramModal.jsx`          | Component | Perch map modal                     |
+| `utils/timezoneUtils.js`                    | Utility   | Timezone conversion                 |
+| `components/form/LocationInput.jsx`         | Component | Location select + map               |
+| `utils/localStorageUtils.js`                | Utility   | Autosave logic                      |
+| `components/form/ObjectSelect.jsx`          | Component | Object dropdown + "other"           |
+| `components/form/AnimalSelect.jsx`          | Component | Animal dropdown + "other"           |
+| `components/form/InteractionTypeSelect.jsx` | Component | Interaction dropdown + "other"      |
+| `constants/interactions.js`                 | Config    | Objects, animals, interaction types |
+| `utils/observationUtils.js`                 | Utility   | Observation helpers                 |
+| `constants/locations.js`                    | Config    | VALID_PERCHES, TIME_SLOTS           |
+| `components/OutputPreview.jsx`              | Component | JSON display                        |
+| `components/form/BehaviorSelect.jsx`        | Component | Behavior dropdown                   |
+| `components/form/DescriptionField.jsx`      | Component | Description text input              |
+| `utils/validators/locationValidator.js`     | Validator | Pure location validation            |
+| `components/form/NotesField.jsx`            | Component | Notes textarea                      |
+| `utils/debounce.js`                         | Utility   | Debounce function                   |
+| `constants/index.js`                        | Export    | Barrel export for constants         |
+| `main.jsx`                                  | Entry     | React mount point                   |
+| `components/form/index.js`                  | Export    | Barrel export for form components   |
+| `utils/validators/index.js`                 | Export    | Barrel export for validators        |
 
 ### Test Files
 
-| Test Suite                                       | Lines | Coverage                   |
-| ------------------------------------------------ | ----- | -------------------------- |
-| `tests/integration/App.test.jsx`                 | 684   | Full app integration & E2E |
-| `tests/integration/TimeSlotObservation.test.jsx` | 566   | Time slot component        |
-| `tests/integration/FormComponents.test.jsx`      | 526   | Form field components      |
-| `tests/integration/MetadataSection.test.jsx`     | 394   | Metadata section           |
-| `hooks/__tests__/useFormValidation.test.js`      | 378   | Validation rules           |
-| `utils/__tests__/localStorageUtils.test.js`      | 287   | localStorage               |
-| `tests/copyToNextSlot.test.js`                   | 237   | Copy to next feature       |
-| `utils/__tests__/timeUtils.test.js`              | 188   | Time operations            |
-| `utils/__tests__/timezoneUtils.test.js`          | 144   | Timezone logic             |
+| Test Suite                                       | Coverage                   |
+| ------------------------------------------------ | -------------------------- |
+| `tests/integration/App.test.jsx`                 | Full app integration & E2E |
+| `tests/integration/TimeSlotObservation.test.jsx` | Time slot component        |
+| `tests/integration/FormComponents.test.jsx`      | Form field components      |
+| `tests/integration/MetadataSection.test.jsx`     | Metadata section           |
+| `hooks/__tests__/useFormValidation.test.js`      | Validation rules           |
+| `utils/__tests__/localStorageUtils.test.js`      | localStorage               |
+| `tests/copyToNextSlot.test.js`                   | Copy to next feature       |
+| `utils/__tests__/timeUtils.test.js`              | Time operations            |
+| `utils/__tests__/timezoneUtils.test.js`          | Timezone logic             |
 
-**Total Tests**: 3,404 lines, 208 test cases, 9 test suites
+**Total**: 208 test cases across 9 test suites
 
 ### Directory Structure
 
