@@ -70,26 +70,37 @@ const TimeSlotObservation = ({
 
   const handleBehaviorChange = (value) => {
     onChange(time, 'behavior', value);
+    // Validate immediately with the new value to avoid mobile timing issues
+    onValidate(time, 'behavior', value);
   };
 
   const handleBehaviorBlur = () => {
+    // Re-validate on blur as safety net
     onValidate(time, 'behavior');
   };
 
   const handleLocationChange = (selectedOption) => {
-    onChange(time, 'location', selectedOption ? selectedOption.value : '');
+    const newValue = selectedOption ? selectedOption.value : '';
+    onChange(time, 'location', newValue);
+    // Validate immediately with the new value to avoid mobile timing issues
+    onValidate(time, 'location', newValue);
   };
 
   const handleLocationBlur = () => {
+    // Re-validate on blur as safety net
     onValidate(time, 'location');
   };
 
   // Object interaction handlers
   const handleObjectChange = (e) => {
-    onChange(time, 'object', e.target.value);
+    const newValue = e.target.value;
+    onChange(time, 'object', newValue);
+    // Validate immediately with the new value to avoid mobile timing issues
+    onValidate(time, 'object', newValue);
   };
 
   const handleObjectBlur = (e) => {
+    // Re-validate on blur as safety net
     onValidate(time, 'object', e.target.value);
   };
 
