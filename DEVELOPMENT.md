@@ -6,6 +6,17 @@ Technical documentation for developers working on the WBS Ethogram Form.
 >
 > This document covers practical development workflows. For in-depth architectural decisions, component hierarchy, and design patterns, refer to the architecture documentation.
 
+## ⚙️ Prerequisites
+
+- **Node.js**: >= 18.0.0 (recommended: 24.11.1)
+- **npm**: >= 9.0.0 (recommended: 11.6.2)
+
+> **💡 Tip**: Use [nvm](https://github.com/nvm-sh/nvm) to manage Node versions. This project includes an `.nvmrc` file:
+>
+> ```bash
+> nvm use
+> ```
+
 ## 🏗️ Architecture Overview
 
 This is a client-side single-page application (SPA) built with React and Vite. There is no backend - all data processing happens in the browser, and output is provided as JSON for manual submission.
@@ -72,7 +83,7 @@ ethogram-form/
 │   └── main.jsx                      # React entry point
 ├── docs/
 │   ├── interaction-subfields-design.md  # Design decisions for sub-fields
-│   ├── refactoring-strategy.md          # Refactoring plan and phases
+│   ├── refactoring-history.md           # Completed refactoring phases (historical)
 │   └── testing-checklist.md             # Comprehensive QA checklist
 ├── .github/
 │   └── copilot-instructions.md       # AI coding assistant guidance
@@ -528,7 +539,7 @@ useEffect(() => {
 - Updated `copilot-instructions.md` with current patterns
 - Fixed README accuracy for perch diagram feature
 - Created comprehensive `testing-checklist.md`
-- Added `refactoring-strategy.md` documenting phased approach
+- Added `refactoring-history.md` documenting phased approach (now complete)
 
 **Phase 1 - PropTypes & Type Safety:**
 

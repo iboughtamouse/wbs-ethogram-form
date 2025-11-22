@@ -21,6 +21,8 @@
 
 ## Executive Summary
 
+> **Note**: This document focuses on **dependency maintenance and security updates**. For quality improvements (testing gaps, accessibility, governance), see [quality-improvements.md](./quality-improvements.md).
+
 **Overall Health**: ⭐⭐⭐⭐½ (4.5/5) - **Excellent**
 
 The WBS Ethogram Form codebase is in outstanding condition following the completion of Phase 6 refactoring. The architecture is clean, test coverage is comprehensive (287 passing tests), and there are no critical technical debt issues. However, some maintenance work is recommended to keep the codebase modern and secure.
@@ -475,7 +477,7 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
 2. **Documentation Review**:
    - Check README accuracy
    - Update ARCHITECTURE.md if changes made
-   - Review TODO lists in refactoring-strategy.md
+   - Review TODO lists in refactoring-history.md (all phases now complete)
 
 3. **Performance Check**:
    - Run Lighthouse audit
@@ -497,7 +499,7 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
    - Create PR with detailed changelog
 
 2. **Architecture Review**:
-   - Review refactoring-strategy.md
+   - Review refactoring-history.md
    - Assess if any phases need work
    - Document new architectural decisions
 
