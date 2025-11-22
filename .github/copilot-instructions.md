@@ -9,7 +9,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - State management (Phase 3 refactoring):
   - `src/hooks/useFormState.js` — manages metadata, observations, and time slots; delegates operations to service modules.
   - `src/hooks/useAutoSave.js` — handles draft persistence and recovery via localStorage.
-  - `src/hooks/useFormValidation.js` — centralized validation; exposes `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `clearFieldError`, and `clearAllErrors`.
+  - `src/hooks/useFormValidation.js` — centralized validation; exposes `validateForm`, `validateSingleMetadataField`, `validateSingleObservationField`, `validateObservationSlot` (for copy-to-next), `clearFieldError`, and `clearAllErrors`. Uses shared `validateObservation` helper internally.
 - Business logic services (Phase 3 refactoring):
   - `src/services/formStateManager.js` — pure functions for observation state operations (update, copy, clear).
   - `src/services/formSubmission.js` — prepares output data for JSON/Excel export.
@@ -87,6 +87,15 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 - Add new object/animal/interaction types:
   1. Update the appropriate array in `src/constants/interactions.js` (`INANIMATE_OBJECTS`, `ANIMAL_TYPES`, or `INTERACTION_TYPES`).
   2. UI dropdowns will automatically include the new options.
+
+### Copy-to-Next Validation (Important!)
+
+The "Copy to next" button validates the source observation before copying:
+
+- **Implementation**: `src/App.jsx` has `onCopyToNext` wrapper that calls `validateObservationSlot`
+- **Behavior**: If validation fails, errors are shown and copy is prevented. If valid, data is copied.
+- **What's validated**: All conditionally required fields (behavior, location, object, animal, interactionType, description, and their "other" text fields)
+- **Test coverage**: Unit tests in `src/hooks/__tests__/useFormValidation.test.js` + integration tests in `tests/integration/CopyToNextWithValidation.test.jsx`
 
 ### Build / dev / deploy commands
 
