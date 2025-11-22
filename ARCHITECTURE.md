@@ -422,13 +422,20 @@ The validation hook is the **single source of truth** for all validation rules.
 
 ```javascript
 const {
+  fieldErrors, // Object containing all validation errors
   validateForm, // Validates entire form, returns boolean
   validateSingleMetadataField, // Validates one metadata field
   validateSingleObservationField, // Validates one observation field
+  validateObservationSlot, // Validates all fields for one observation (for copy-to-next)
   clearFieldError, // Clears error for one field
   clearAllErrors, // Clears all errors
-} = useFormValidation(metadata, observations, setFieldErrors);
+} = useFormValidation();
 ```
+
+**Internal Helpers:**
+
+- `validateObservation(time, observation, observations)` - Shared helper that validates all fields for a single observation. Used by both `validateObservations` and `validateObservationSlot`.
+- `OBSERVATION_FIELDS_TO_VALIDATE` - Constant array listing all observation fields to validate (excludes 'notes' which is optional).
 
 ### Validation Patterns
 
@@ -483,6 +490,66 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 6. If `object === "other"`, validates `objectOther` field
 7. Errors set/cleared in `fieldErrors` state
 8. Component rerenders with error messages
+
+### Copy-to-Next Validation
+
+The "Copy to next" feature validates the source observation before copying to ensure only valid data is propagated.
+
+**Flow:**
+
+1. User clicks "Copy to next" button
+2. `App.jsx` calls `onCopyToNext(time)` wrapper function
+3. Wrapper calls `validateObservationSlot(time, observations)`
+4. `validateObservationSlot` internally calls `validateObservation` helper
+5. If validation fails:
+   - Errors are set in `fieldErrors` state
+   - Page scrolls to first error (if `scrollIntoView` is available)
+   - Copy operation is prevented
+   - Returns `false`
+6. If validation passes:
+   - Calls `handleCopyToNext(time)` from `useFormState`
+   - Data is copied to next slot
+   - Returns `true`
+
+**Implementation** (`src/App.jsx:84-100`):
+
+```javascript
+const onCopyToNext = (time) => {
+  // Validate the current observation slot before copying
+  const validation = validateObservationSlot(time, observations);
+
+  if (!validation.valid) {
+    // Scroll to first error if available
+    const firstError = document.querySelector(`[data-time="${time}"] .error`);
+    if (firstError && firstError.scrollIntoView) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return false;
+  }
+
+  // Validation passed - proceed with copy
+  return handleCopyToNext(time);
+};
+```
+
+**What Gets Validated:**
+
+All conditionally required fields based on selected behavior:
+
+- Behavior (always required)
+- Location (if `requiresLocation` is true)
+- Object (if `requiresObject` is true)
+- Object description (if object === "other")
+- Animal (if `requiresAnimal` is true)
+- Animal description (if animal === "other")
+- Interaction type (if `requiresInteraction` is true)
+- Interaction description (if interactionType === "other")
+- Description (if `requiresDescription` is true)
+
+**Test Coverage:**
+
+- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` (9 tests for `validateObservationSlot`)
+- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` (5 tests covering full user flow)
 
 ---
 

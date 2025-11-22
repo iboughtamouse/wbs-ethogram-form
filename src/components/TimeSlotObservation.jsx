@@ -191,7 +191,7 @@ const TimeSlotObservation = ({
   const displayTime = formatTo12Hour(time);
 
   return (
-    <div className="time-slot">
+    <div className="time-slot" data-time={time}>
       <div className="time-slot-header">
         <span className="time-slot-time">{displayTime}</span>
         {!isLastSlot && (

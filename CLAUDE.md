@@ -915,7 +915,113 @@ test('updates metadata field', () => {
 
 8. Write tests!
 
-### Task 3: Fix Timezone Conversion Bug
+### Task 3: Understanding Copy-to-Next Validation
+
+**Feature**: The "Copy to next" button validates the current observation before copying to ensure only valid data is propagated.
+
+**How it works:**
+
+1. **User clicks "Copy to next"** on a time slot
+2. **App.jsx** calls `onCopyToNext(time)` wrapper function
+3. **Validation runs** via `validateObservationSlot(time, observations)`
+4. **If invalid**:
+   - Errors appear on the current slot
+   - Page scrolls to first error (if browser supports it)
+   - Copy is prevented
+5. **If valid**:
+   - Data is copied to next slot via `handleCopyToNext(time)`
+
+**Implementation** (`src/App.jsx:84-100`):
+
+```javascript
+const onCopyToNext = (time) => {
+  // Validate the current observation slot before copying
+  const validation = validateObservationSlot(time, observations);
+
+  if (!validation.valid) {
+    // Scroll to first error if available
+    const firstError = document.querySelector(`[data-time="${time}"] .error`);
+    if (firstError && firstError.scrollIntoView) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return false;
+  }
+
+  // Validation passed - proceed with copy
+  return handleCopyToNext(time);
+};
+```
+
+**Validation helper** (`src/hooks/useFormValidation.js:253-272`):
+
+```javascript
+const validateObservationSlot = (time, observations) => {
+  const obs = observations[time];
+
+  if (!obs) {
+    return { valid: false, errors: {} };
+  }
+
+  // Use shared validation helper
+  const errors = validateObservation(time, obs, observations);
+
+  // Update field errors state with any errors found
+  if (Object.keys(errors).length > 0) {
+    setFieldErrors((prev) => ({ ...prev, ...errors }));
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
+```
+
+**Shared validation helper** (`src/hooks/useFormValidation.js:151-168`):
+
+The `validateObservation` helper function is used by both `validateObservations` (for form submission) and `validateObservationSlot` (for copy-to-next). This ensures consistent validation logic across both features.
+
+```javascript
+const validateObservation = (time, observation, observations) => {
+  const errors = {};
+
+  // Validate each field - validateObservationField returns null if field is not required
+  OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
+    const error = validateObservationField(
+      time,
+      field,
+      observation[field],
+      observations
+    );
+    if (error) {
+      errors[`${time}_${field}`] = error;
+    }
+  });
+
+  return errors;
+};
+```
+
+**What gets validated:**
+
+All conditionally required fields based on the selected behavior:
+
+- Behavior (always required)
+- Location (if behavior requires it)
+- Object (if behavior is "interacting_object")
+- Object description (if object === "other")
+- Animal (if behavior is "interacting_animal")
+- Animal description (if animal === "other")
+- Interaction type (if behavior is "interacting_animal")
+- Interaction description (if interactionType === "other")
+- Description (if behavior requires it, like "aggression" or "other")
+
+**Test coverage:**
+
+- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` - 9 tests for `validateObservationSlot`
+- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` - 5 tests covering full user flow
+
+### Task 4: Fix Timezone Conversion Bug
 
 **Common issues:**
 
@@ -935,7 +1041,7 @@ console.log({
 });
 ```
 
-### Task 4: Investigate Test Failure
+### Task 5: Investigate Test Failure
 
 **Steps:**
 
