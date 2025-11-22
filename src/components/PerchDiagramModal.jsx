@@ -18,7 +18,9 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const imageSrc =
+  const webpSrc =
+    activeTab === 'ne' ? '/images/perches-ne.webp' : '/images/perches-sw.webp';
+  const pngFallbackSrc =
     activeTab === 'ne' ? '/images/perches-ne.png' : '/images/perches-sw.png';
   const imageAlt =
     activeTab === 'ne'
@@ -65,11 +67,14 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
 
         <div className="perch-modal-content">
           <div className="perch-diagram-container">
-            <img
-              src={imageSrc}
-              alt={imageAlt}
-              className="perch-diagram-image"
-            />
+            <picture>
+              <source srcSet={webpSrc} type="image/webp" />
+              <img
+                src={pngFallbackSrc}
+                alt={imageAlt}
+                className="perch-diagram-image"
+              />
+            </picture>
           </div>
         </div>
 
