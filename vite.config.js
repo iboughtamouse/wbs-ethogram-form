@@ -1,26 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteCompression from 'vite-plugin-compression';
-import { imagetools } from 'vite-imagetools';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-
-    // Image optimization plugin
-    imagetools({
-      defaultDirectives: (url) => {
-        // Apply optimization to images in the public directory
-        if (url.searchParams.has('url')) {
-          return new URLSearchParams({
-            format: 'webp',
-            quality: '85',
-          });
-        }
-        return new URLSearchParams();
-      },
-    }),
 
     // Gzip compression for static assets
     viteCompression({
@@ -54,14 +39,20 @@ export default defineConfig({
       output: {
         // Manual chunk splitting for better caching
         manualChunks: (id) => {
-          // React and React-DOM in one vendor chunk
-          if (id.includes('node_modules/react')) {
-            return 'vendor-react';
-          }
+          // IMPORTANT: Check more specific paths first to avoid substring matches
 
-          // React-Select in its own chunk
+          // React-Select in its own chunk (must check before 'react')
           if (id.includes('node_modules/react-select')) {
             return 'vendor-react-select';
+          }
+
+          // React and React-DOM in one vendor chunk
+          // Use trailing slash to avoid matching react-select, react-router, etc.
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/')
+          ) {
+            return 'vendor-react';
           }
 
           // ExcelJS is code-split and prefetched in OutputPreview.jsx
@@ -107,9 +98,8 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'], // Remove specific console methods
+        drop_console: true, // Remove all console.* calls in production
+        drop_debugger: true, // Remove debugger statements
       },
       format: {
         comments: false, // Remove all comments
