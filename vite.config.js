@@ -64,8 +64,9 @@ export default defineConfig({
             return 'vendor-react-select';
           }
 
-          // ExcelJS is already code-split via dynamic import in OutputPreview.jsx
-          // It will be loaded on-demand when user clicks "Download Excel"
+          // ExcelJS is code-split and prefetched in OutputPreview.jsx
+          // It loads when OutputPreview mounts (after form completion)
+          // This provides instant downloads without bloating initial bundle
           if (id.includes('node_modules/exceljs')) {
             return 'vendor-exceljs';
           }
