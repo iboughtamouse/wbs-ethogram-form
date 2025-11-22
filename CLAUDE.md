@@ -1112,7 +1112,7 @@ if (!isNaN(perchNumber) && VALID_PERCHES.includes(perchNumber)) { ... }
 | --------------------------- | ---------------------------------------------------------------------------------------- |
 | TL;DR for AI assistants?    | [.github/copilot-instructions.md](.github/copilot-instructions.md)                       |
 | Data shapes and naming?     | [.github/copilot-instructions.md](.github/copilot-instructions.md) - Data shapes section |
-| Project-specific behaviors? | [.github/copilot-instructions.md](.github/copilot-instructions.md) - Behaviours section  |
+| Project-specific behaviors? | [.github/copilot-instructions.md](.github/copilot-instructions.md) - Behaviors section   |
 
 ### Maintenance
 
