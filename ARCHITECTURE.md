@@ -560,10 +560,11 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 Components check behavior flags to show/hide fields:
 
 ```javascript
-const behaviorDef = BEHAVIORS.find(b => b.value === observation.behavior);
-const requiresObject = behaviorDef?.requiresObject || false;
+import { requiresObject } from '../constants';
 
-{requiresObject && (
+const showObject = requiresObject(observation.behavior);
+
+{showObject && (
   <div>
     <label>Object *</label>
     <select value={observation.object} onChange={...}>

@@ -1,6 +1,12 @@
 import { useRef } from 'react';
 import PropTypes from 'prop-types';
-import { BEHAVIORS } from '../constants';
+import {
+  requiresLocation,
+  requiresObject,
+  requiresAnimal,
+  requiresInteraction,
+  requiresDescription,
+} from '../constants';
 import { formatTo12Hour } from '../utils/timeUtils';
 import { debounce } from '../utils/debounce';
 import {
@@ -43,12 +49,12 @@ const TimeSlotObservation = ({
     return null;
   }
 
-  const behaviorDef = BEHAVIORS.find((b) => b.value === observation.behavior);
-  const requiresLocation = behaviorDef?.requiresLocation || false;
-  const requiresObject = behaviorDef?.requiresObject || false;
-  const requiresAnimal = behaviorDef?.requiresAnimal || false;
-  const requiresInteraction = behaviorDef?.requiresInteraction || false;
-  const requiresDescription = behaviorDef?.requiresDescription || false;
+  // Use helper functions to check behavior requirements
+  const showLocation = requiresLocation(observation.behavior);
+  const showObject = requiresObject(observation.behavior);
+  const showAnimal = requiresAnimal(observation.behavior);
+  const showInteraction = requiresInteraction(observation.behavior);
+  const showDescription = requiresDescription(observation.behavior);
 
   // Format perch options for React Select
   const perchOptions = [
@@ -206,7 +212,7 @@ const TimeSlotObservation = ({
         error={behaviorError}
       />
 
-      {requiresLocation && (
+      {showLocation && (
         <LocationInput
           value={observation.location}
           onChange={handleLocationChange}
@@ -218,7 +224,7 @@ const TimeSlotObservation = ({
         />
       )}
 
-      {requiresObject && (
+      {showObject && (
         <ObjectSelect
           value={observation.object}
           otherValue={observation.objectOther}
@@ -230,7 +236,7 @@ const TimeSlotObservation = ({
         />
       )}
 
-      {requiresAnimal && (
+      {showAnimal && (
         <AnimalSelect
           value={observation.animal}
           otherValue={observation.animalOther}
@@ -242,7 +248,7 @@ const TimeSlotObservation = ({
         />
       )}
 
-      {requiresInteraction && (
+      {showInteraction && (
         <InteractionTypeSelect
           value={observation.interactionType}
           otherValue={observation.interactionTypeOther}
@@ -254,7 +260,7 @@ const TimeSlotObservation = ({
         />
       )}
 
-      {requiresDescription && (
+      {showDescription && (
         <DescriptionField
           value={observation.description}
           onChange={handleDescriptionChange}

@@ -318,13 +318,13 @@ const [observations, setObservations] = useState({
     behavior: '',
     location: '',
     notes: '',
+    description: '', // For behaviors requiring description
     object: '', // For "interacting_object"
     objectOther: '', // When object === "other"
     animal: '', // For "interacting_animal"
     animalOther: '', // When animal === "other"
     interactionType: '', // For "interacting_animal"
     interactionTypeOther: '', // When interactionType === "other"
-    description: '', // For behaviors requiring description
   },
   // ... one per 5-minute slot
 });
@@ -527,13 +527,13 @@ export function generateObservationsForSlots(timeSlots, existingObservations) {
       behavior: '',
       location: '',
       notes: '',
+      description: '',
       object: '',
       objectOther: '',
       animal: '',
       animalOther: '',
       interactionType: '',
       interactionTypeOther: '',
-      description: '',
     };
   });
 
@@ -710,7 +710,7 @@ npm run test:coverage
 
 ### Philosophy
 
-- **287 tests, 15 test suites, all passing**
+- **Comprehensive test suite with full coverage** - All tests passing
 - **Comprehensive E2E coverage** - Tests real user workflows
 - **Unit tests for business logic** - Services, utils, hooks
 - **Integration tests for components** - Full component rendering
@@ -745,7 +745,10 @@ test('submits valid form successfully', async () => {
   render(<App />);
 
   await fillMetadata(user);
-  await fillTimeSlot(user, '15:00', { behavior: 'perching', location: '5' });
+  await fillTimeSlot(user, '15:00', {
+    behavior: 'resting_alert',
+    location: '5',
+  });
 
   await user.click(screen.getByRole('button', { name: /validate/i }));
 
@@ -1013,7 +1016,7 @@ git commit -m "feat: add email submission"
 
 ```javascript
 // ❌ BAD
-observations['15:00'].behavior = 'perching'; // Direct mutation
+observations['15:00'].behavior = 'resting_alert'; // Direct mutation
 setObservations(observations);
 
 // ✅ GOOD
@@ -1021,7 +1024,7 @@ setObservations((prev) => ({
   ...prev,
   '15:00': {
     ...prev['15:00'],
-    behavior: 'perching',
+    behavior: 'resting_alert',
   },
 }));
 ```
