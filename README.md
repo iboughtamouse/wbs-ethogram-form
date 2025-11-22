@@ -66,8 +66,11 @@ When certain behaviors are selected, additional structured fields appear:
 4. **Validate & Preview**: Click the "Validate & Preview" button
    - The form will check for any errors
    - If valid, your data will appear in JSON format below the form
+   - You can also download as an Excel file
 
-5. **Copy & Submit**: Copy the JSON output and share it with WBS via Discord
+5. **Export & Submit**:
+   - **Excel Download**: Click "Download Excel" to save a formatted .xlsx file
+   - **JSON Copy**: Copy the JSON output and share it with WBS via Discord
 
 Your work is automatically saved as you type, so don't worry if you need to take a break!
 
@@ -131,9 +134,12 @@ Interested in contributing or setting up your own instance? Check out:
 
 ## 🗺️ Roadmap
 
+**Recently Completed:**
+
+- [x] Excel file export ✅ (Phase 6, November 2025)
+
 **Upcoming Features:**
 
-- [ ] Excel file export
 - [ ] Discord OAuth authentication
 - [ ] Email submission integration
 - [ ] Extended observation periods (24+ hours)
