@@ -25,7 +25,11 @@ export default defineConfig(({ mode }) => ({
   ],
 
   // esbuild configuration
-  // Only remove console.log in production (keeps console.error, console.warn for debugging)
+  // Mode-based console removal: only in production, preserves error tracking
+  // - pure: ['console.log'] removes console.log calls (verified working in production build)
+  // - Preserves console.error and console.warn for production error tracking
+  // - drop: ['debugger'] removes debugger statements
+  // Note: 'pure' annotation marks calls as side-effect-free, enabling safe removal during minification
   esbuild: {
     pure: mode === 'production' ? ['console.log'] : [],
     drop: mode === 'production' ? ['debugger'] : [],
@@ -57,6 +61,10 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Simplified chunking strategy for small-to-medium apps
         // Philosophy: Let Vite's auto-chunking handle most cases, manually split only when beneficial
+        //
+        // IMPORTANT: Keeping dependencies together (especially React + libraries that depend on it)
+        // prevents initialization order issues. Splitting React separately can cause "cannot access
+        // lexical declaration before initialization" errors in libraries that import React.
         manualChunks: (id) => {
           // ExcelJS is huge (930KB) and lazy-loaded via dynamic import in OutputPreview.jsx
           // Keeping it separate ensures it never blocks the initial load
@@ -65,8 +73,8 @@ export default defineConfig(({ mode }) => ({
           }
 
           // All other node_modules go into a single vendor chunk
-          // For a small app, this is simpler and avoids unnecessary HTTP requests
-          // If the vendor chunk grows >200KB, consider splitting React separately
+          // This keeps React and its dependents (react-select, emotion, etc.) together,
+          // avoiding initialization order bugs while keeping chunk splitting simple
           if (id.includes('node_modules')) {
             return 'vendor';
           }
