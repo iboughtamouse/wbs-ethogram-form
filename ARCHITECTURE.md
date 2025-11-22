@@ -985,7 +985,7 @@ Vite configuration splits vendor code for optimal caching:
 
 **Benefits**:
 
-- Smaller bundle (less polyfills)
+- Smaller bundle (fewer polyfills)
 - Native modern JS features
 - Better performance
 
