@@ -1002,12 +1002,13 @@ Pre-compression with multiple algorithms:
 
 #### 6. Minification & Tree Shaking
 
-**Terser configuration**:
+**esbuild configuration** (mode-based, production only):
 
-- Removes all `console.*` calls in production
-- Removes debugger statements
-- Strips comments
-- Dead code elimination
+- Removes `console.log()` calls (using `pure` annotation)
+- Preserves `console.error()` and `console.warn()` for production debugging
+- Removes `debugger` statements (using `drop`)
+- Tree shaking and dead code elimination (automatic)
+- Significantly faster than terser (~3x build speed improvement)
 
 ### Performance Impact Summary
 
@@ -1036,7 +1037,7 @@ Pre-compression with multiple algorithms:
 - `src/components/OutputPreview.jsx` - ExcelJS prefetch implementation
 - `src/components/PerchDiagramModal.jsx` - WebP image usage with fallback
 - `scripts/convert-images-to-webp.js` - Image conversion utility
-- `package.json` - Build dependencies (sharp, terser, vite-plugin-compression)
+- `package.json` - Build dependencies (sharp, vite-plugin-compression)
 
 ---
 
