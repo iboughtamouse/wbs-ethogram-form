@@ -117,29 +117,15 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
 
 ## Immediate Action Items
 
-### Priority 1: Documentation Updates (Est. 30 minutes)
+### Recently Completed ✅
 
-**Issue**: Minor inaccuracies in documentation
+**Documentation Updates** (Completed in this PR):
 
-**Tasks**:
+- ✅ Updated README.md - Excel export moved to "Recently Completed"
+- ✅ Updated README.md - Added Excel download instructions in usage guide
+- ✅ Updated ARCHITECTURE.md - Test count corrected (280 → 287)
 
-1. **Update README.md line 136**:
-   - Current: `- [ ] Excel file export` (marked as upcoming)
-   - Should be: `- [x] Excel file export ✅` (completed in Phase 6)
-
-2. **Update ARCHITECTURE.md line 4**:
-   - Current: `> **Test Count**: 280 passing tests`
-   - Should be: `> **Test Count**: 287 passing tests`
-
-3. **Update README.md line 81**:
-   - Current: Mentions only JSON export in "Copy & Submit" section
-   - Should include: Excel download option
-
-**Branch**: `chore/update-documentation-2025-11`
-**Risk**: None (documentation only)
-**Impact**: High (improves developer onboarding)
-
-### Priority 2: Security Vulnerability Assessment (Est. 15 minutes)
+### Priority 1: Security Vulnerability Assessment (Est. 15 minutes)
 
 **Issue**: 2 moderate vulnerabilities in dev dependencies
 
@@ -527,7 +513,7 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
    - Check for exposed secrets
    - Audit localStorage usage
 
-### Annually Tasks (1-2 days)
+### Annual Tasks (1-2 days)
 
 1. **Major Version Upgrades**:
    - Plan React, Node.js, Vite upgrades
