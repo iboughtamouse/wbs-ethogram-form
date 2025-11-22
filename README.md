@@ -143,7 +143,9 @@ Interested in contributing or setting up your own instance? Check out:
 
 **Recently Completed:**
 
+- [x] Copy-to-next validation ✅ (November 2025)
 - [x] Excel file export ✅ (Phase 6, November 2025)
+- [x] Accessible loading indicators ✅ (November 2025)
 
 **Upcoming Features:**
 

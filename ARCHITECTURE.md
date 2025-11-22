@@ -46,7 +46,7 @@ WBS Ethogram Form is a **client-side single-page application** (SPA) with no bac
 ### ASCII Tree
 
 ```
-App.jsx (232 lines) - Root coordinator component
+App.jsx (246 lines) - Root coordinator component
 │   Uses: useFormState, useAutoSave, useFormValidation hooks
 │   Delegates: Business logic to services, state to hooks
 │
@@ -57,7 +57,7 @@ App.jsx (232 lines) - Root coordinator component
 │   ├── Start time input
 │   └── End time input
 │
-├── TimeSlotObservation.jsx (311 lines) [×N instances, one per 5-min slot]
+├── TimeSlotObservation.jsx (310 lines) [×N instances, one per 5-min slot]
 │   ├── BehaviorSelect.jsx (35 lines)
 │   ├── LocationInput.jsx (79 lines) [conditional]
 │   │   ├── React Select dropdown

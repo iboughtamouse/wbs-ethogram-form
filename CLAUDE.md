@@ -696,7 +696,7 @@ chore: upgrade React to v19
 ### Running Tests
 
 ```bash
-# All tests (should see 287 passing)
+# All tests (should see all tests passing)
 npm test
 
 # Watch mode (re-runs on file changes)
@@ -899,7 +899,7 @@ test('updates metadata field', () => {
 
    ```javascript
    // services/formStateManager.js - updateObservationField function
-   // Add to the behavior change clearing section (around line 78)
+   // Add to the behavior change clearing section
    if (field === 'behavior') {
      // ... existing clearing logic
      updatedObservation.duration = ''; // Add to cleared fields
@@ -1337,7 +1337,7 @@ If you see these, investigate:
 ```bash
 npm install          # Install dependencies
 npm run dev          # Start dev server (localhost:5173)
-npm test             # Run all tests (287 passing)
+npm test             # Run all tests (all should pass)
 npm run lint         # Check code quality
 npm run build        # Build for production
 ```
