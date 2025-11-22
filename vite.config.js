@@ -24,6 +24,12 @@ export default defineConfig({
     }),
   ],
 
+  // esbuild configuration for dev and build
+  // Removes console.* and debugger statements in production
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
+
   build: {
     // Target modern browsers (ES2020+)
     // Supports: Chrome 87+, Firefox 78+, Safari 14+, Edge 88+
@@ -94,12 +100,8 @@ export default defineConfig({
     // CSS code splitting
     cssCodeSplit: true,
 
-    // Minification options
-    // Using esbuild (Vite's default) instead of terser for faster, more reliable minification
+    // Minification - using esbuild (Vite's default) for faster, more reliable minification
     minify: 'esbuild',
-    esbuild: {
-      drop: ['console', 'debugger'], // Remove console.* and debugger in production
-    },
   },
 
   // Optimize dependencies
