@@ -232,11 +232,13 @@ describe('timezoneUtils', () => {
     });
 
     it('should handle error in formatToParts gracefully', () => {
-      // Mock Intl.DateTimeFormat to throw error
+      // Mock Intl.DateTimeFormat to return object that throws on formatToParts
       const originalDateTimeFormat = global.Intl.DateTimeFormat;
-      global.Intl.DateTimeFormat = jest.fn().mockImplementation(() => {
-        throw new Error('Intl error');
-      });
+      global.Intl.DateTimeFormat = jest.fn().mockImplementation(() => ({
+        formatToParts: () => {
+          throw new Error('formatToParts error');
+        },
+      }));
 
       const result = getTimezoneAbbreviation('America/Chicago');
       expect(result).toBe('America/Chicago');

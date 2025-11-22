@@ -2,6 +2,23 @@ import { generateExcelWorkbook, downloadExcelFile } from '../excelGenerator';
 import ExcelJS from 'exceljs';
 
 describe('excelGenerator', () => {
+  // Helper function to find row index for a specific behavior
+  const findBehaviorRow = (worksheet, behaviorText) => {
+    const rows = worksheet.getRows(5, 25);
+    let foundRow = null;
+
+    rows.forEach((row, index) => {
+      if (
+        row.getCell(1).value &&
+        row.getCell(1).value.toString().includes(behaviorText)
+      ) {
+        foundRow = 5 + index;
+      }
+    });
+
+    return foundRow;
+  };
+
   describe('generateExcelWorkbook', () => {
     const mockFormData = {
       metadata: {
@@ -443,21 +460,10 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(dataWithOtherAnimal);
       const worksheet = workbook.getWorksheet(1);
 
-      // Find the interacting_animal row
-      const rows = worksheet.getRows(5, 25);
-      let animalRow = null;
-
-      rows.forEach((row, index) => {
-        if (
-          row.getCell(1).value &&
-          row
-            .getCell(1)
-            .value.toString()
-            .includes('Interacting with Other Animal')
-        ) {
-          animalRow = 5 + index;
-        }
-      });
+      const animalRow = findBehaviorRow(
+        worksheet,
+        'Interacting with Other Animal'
+      );
 
       expect(animalRow).not.toBeNull();
       if (animalRow) {
@@ -498,21 +504,10 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(dataWithOtherInteraction);
       const worksheet = workbook.getWorksheet(1);
 
-      // Find the interacting_animal row
-      const rows = worksheet.getRows(5, 25);
-      let animalRow = null;
-
-      rows.forEach((row, index) => {
-        if (
-          row.getCell(1).value &&
-          row
-            .getCell(1)
-            .value.toString()
-            .includes('Interacting with Other Animal')
-        ) {
-          animalRow = 5 + index;
-        }
-      });
+      const animalRow = findBehaviorRow(
+        worksheet,
+        'Interacting with Other Animal'
+      );
 
       expect(animalRow).not.toBeNull();
       if (animalRow) {
@@ -555,6 +550,8 @@ describe('excelGenerator', () => {
     let mockLink;
     let mockCreateObjectURL;
     let mockRevokeObjectURL;
+    let originalCreateObjectURL;
+    let originalRevokeObjectURL;
 
     beforeEach(() => {
       // Mock link element
@@ -571,7 +568,9 @@ describe('excelGenerator', () => {
       jest.spyOn(document.body, 'appendChild').mockImplementation(() => {});
       jest.spyOn(document.body, 'removeChild').mockImplementation(() => {});
 
-      // Mock window.URL methods
+      // Store original URL methods and mock them
+      originalCreateObjectURL = global.URL.createObjectURL;
+      originalRevokeObjectURL = global.URL.revokeObjectURL;
       mockCreateObjectURL = jest.fn().mockReturnValue('blob:mock-url');
       mockRevokeObjectURL = jest.fn();
       global.URL.createObjectURL = mockCreateObjectURL;
@@ -579,6 +578,9 @@ describe('excelGenerator', () => {
     });
 
     afterEach(() => {
+      // Restore original URL methods
+      global.URL.createObjectURL = originalCreateObjectURL;
+      global.URL.revokeObjectURL = originalRevokeObjectURL;
       jest.restoreAllMocks();
     });
 
