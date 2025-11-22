@@ -284,6 +284,11 @@ describe('OutputPreview', () => {
     test('hides loading overlay after download error', async () => {
       const user = userEvent.setup();
 
+      // Mock console.error to suppress expected error output
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       // Mock download error
       downloadExcelFile.mockRejectedValueOnce(new Error('Network error'));
 
@@ -303,12 +308,33 @@ describe('OutputPreview', () => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
       });
 
-      // Restore original alert
+      // Verify console.error was called with expected error
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to generate Excel file:',
+        expect.any(Error)
+      );
+
+      // Restore mocks
+      consoleErrorSpy.mockRestore();
       window.alert = originalAlert;
     });
   });
 
   describe('Error Handling', () => {
+    let consoleErrorSpy;
+
+    beforeEach(() => {
+      // Mock console.error to suppress expected error output
+      consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      // Restore console.error after each test
+      consoleErrorSpy.mockRestore();
+    });
+
     test('shows error alert when download fails', async () => {
       const user = userEvent.setup();
       const mockError = new Error('Download failed');
@@ -337,7 +363,13 @@ describe('OutputPreview', () => {
         expect.stringContaining('Download failed')
       );
 
-      // Restore original alert
+      // Verify console.error was called
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to generate Excel file:',
+        mockError
+      );
+
+      // Restore window.alert
       window.alert = originalAlert;
     });
 
@@ -362,6 +394,7 @@ describe('OutputPreview', () => {
         );
       });
 
+      // Restore window.alert
       window.alert = originalAlert;
     });
 
@@ -370,9 +403,6 @@ describe('OutputPreview', () => {
       const mockError = new Error('Test error');
       downloadExcelFile.mockRejectedValueOnce(mockError);
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
       const originalAlert = window.alert;
       window.alert = jest.fn();
 
@@ -390,7 +420,7 @@ describe('OutputPreview', () => {
         );
       });
 
-      consoleErrorSpy.mockRestore();
+      // Restore window.alert
       window.alert = originalAlert;
     });
   });
