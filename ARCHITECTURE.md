@@ -964,20 +964,26 @@ Converted perch diagram images to WebP format with PNG fallback:
 Vite configuration splits vendor code for optimal caching:
 
 ```javascript
-// vite.config.js - manualChunks
-'vendor-react':        195 KB  // React + ReactDOM
-'vendor-react-select': 57 KB   // React Select (isolated)
-'vendor-exceljs':      930 KB  // Lazy-loaded on demand
-'vendor':              30 KB   // Other dependencies
+// vite.config.js - manualChunks (simplified strategy)
+'vendor':          228 KB  // React + React-Select + other dependencies (combined)
+'vendor-exceljs':  930 KB  // Lazy-loaded on demand
 ```
 
 **Benefits**:
 
-- React updates don't invalidate react-select cache
-- Long-term caching for stable dependencies
-- Parallel chunk downloads
+- Keeps React and its dependents (react-select, emotion, etc.) together in one chunk
+- Prevents dependency initialization order issues (see troubleshooting below)
+- ExcelJS isolated for lazy loading (doesn't block initial page load)
+- Simpler chunking strategy with fewer HTTP requests
 
-**Critical Detail**: Chunk order matters! `react-select` must be checked before `react` to avoid substring matching bugs. See the `manualChunks` configuration in `vite.config.js`.
+**Why simplified chunking?** For small-to-medium apps, consolidating vendors into a single chunk (except large lazy-loaded libraries) provides better performance than granular splitting:
+
+- Fewer HTTP requests on initial load (2 vendor chunks vs 4)
+- No risk of dependency initialization order bugs
+- Simpler to maintain and reason about
+- HTTP/2 multiplexing reduces the benefit of many small chunks
+
+See `vite.config.js` for the implementation and inline comments explaining the strategy.
 
 #### 4. Modern Browser Targets (ES2020+)
 
@@ -1018,6 +1024,48 @@ Pre-compression with multiple algorithms:
 | ExcelJS chunk            | Included   | 930 KB (lazy) | Not in initial load    |
 | Perch images             | 7.3 MB PNG | 1.0 MB WebP   | 86% smaller            |
 | Time to interactive      | Slow       | Fast          | Significantly improved |
+
+### Production Build Troubleshooting
+
+#### Chunk Splitting and Dependency Initialization Order
+
+**Symptom:** Production build fails with errors like:
+
+```
+Uncaught ReferenceError: Cannot access lexical declaration 'et' before initialization
+```
+
+**Root Cause:** When using `manualChunks` to split vendor code, separating a library from its dependencies can create initialization order issues. For example:
+
+- **Bad:** React in `vendor-react.js`, emotion/styled-components in `vendor.js`
+- **Problem:** `vendor.js` tries to use React (`et.useInsertionEffect`, where `et` is the minified variable name for React in production builds) before React is initialized
+- **Result:** Temporal Dead Zone error in minified production code
+
+**Solution:** Keep dependencies together in the same chunk:
+
+```javascript
+// ✅ Good: All vendors together (React + dependents)
+manualChunks: (id) => {
+  if (id.includes('node_modules/exceljs')) return 'vendor-exceljs';
+  if (id.includes('node_modules')) return 'vendor'; // All together
+};
+
+// ❌ Bad: React separated from libraries that depend on it
+manualChunks: (id) => {
+  if (id.includes('react-select')) return 'vendor-react-select';
+  if (id.includes('react/')) return 'vendor-react';
+  if (id.includes('node_modules')) return 'vendor'; // emotion etc. here
+};
+```
+
+**Key Principles:**
+
+- For small-to-medium apps: consolidate vendors into a single chunk (fewer HTTP requests, no ordering bugs)
+- Only split truly independent large libraries (e.g., ExcelJS at 930KB)
+- If vendor chunk grows >200KB, split React separately BUT ensure all React-dependent libraries go with it
+- HTTP/2 multiplexing reduces the benefit of granular chunking
+
+**Reference:** See commit `272be5b` for detailed analysis and resolution of this issue.
 
 ### Browser Compatibility
 
