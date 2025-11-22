@@ -1,7 +1,6 @@
 # Architecture Documentation
 
 > **Last Updated**: November 22, 2025 (Post-Phase 6 + Loading Indicators)
-> **Codebase Size**: ~3,400 lines (source) + 5,600 lines (tests)
 > **Test Coverage**: Comprehensive test suite with all tests passing
 > **Components**: 13 React components (4 main + 7 form fields + 2 loading components)
 > **Services**: 4 pure function modules (formStateManager, formSubmission, draftManager, excelGenerator)
