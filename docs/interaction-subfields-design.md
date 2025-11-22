@@ -21,9 +21,11 @@ Currently, when observers record "Interacting with Inanimate Object" or "Interac
 Add structured dropdown menus that appear **only when specific behaviors are selected**:
 
 ### Behavior: "Interacting with Inanimate Object"
+
 → Shows: **Object** dropdown (required)
 
 ### Behavior: "Interacting with Other Animal"
+
 → Shows: **Animal** dropdown (required) + **Interaction Type** dropdown (required)
 
 ---
@@ -38,7 +40,7 @@ observations: {
     behavior: "interacting_object",
     location: "5",
     notes: "",
-    
+
     // New fields for object interaction
     object: "rope ball",           // Required when behavior === "interacting_object"
     objectOther: ""                // Required when object === "other"
@@ -47,7 +49,7 @@ observations: {
     behavior: "interacting_animal",
     location: "",
     notes: "",
-    
+
     // New fields for animal interaction
     animal: "adult aviary occupant",      // Required when behavior === "interacting_animal"
     animalOther: "",                      // Required when animal === "other"
@@ -58,6 +60,7 @@ observations: {
 ```
 
 **Why flat instead of nested?**
+
 - Simpler Excel export (each field becomes a column)
 - Easier validation (flat error keys)
 - Consistent with existing `location` field pattern
@@ -68,6 +71,7 @@ observations: {
 ## Dropdown Options
 
 ### Inanimate Objects
+
 Based on WBS team feedback (from RogueRedTail/Kira):
 
 ```javascript
@@ -82,26 +86,37 @@ export const INANIMATE_OBJECTS = [
   { value: 'plant', label: 'Plant' },
   { value: 'stump', label: 'Stump' },
   { value: 'perch', label: 'Perch' },
-  { value: 'other', label: 'Other (specify below)' }
+  { value: 'other', label: 'Other (specify below)' },
 ];
 ```
 
 ### Animal Types
+
 ```javascript
 export const ANIMAL_TYPES = [
   { value: '', label: 'Select animal...' },
   { value: 'adult_aviary_occupant', label: 'Adult Aviary Occupant' },
   { value: 'juvenile_aviary_occupant', label: 'Juvenile Aviary Occupant' },
   { value: 'insect_within_aviary', label: 'Insect within Aviary' },
-  { value: 'potential_prey_animal', label: 'Potential Prey Animal within Aviary' },
-  { value: 'potential_prey_outside', label: 'Potential Prey Item Outside Aviary' },
+  {
+    value: 'potential_prey_animal',
+    label: 'Potential Prey Animal within Aviary',
+  },
+  {
+    value: 'potential_prey_outside',
+    label: 'Potential Prey Item Outside Aviary',
+  },
   { value: 'same_species_outside', label: 'Same Species Outside Aviary' },
-  { value: 'potential_predator_outside', label: 'Potential Predator Outside Aviary' },
-  { value: 'other', label: 'Other (specify below)' }
+  {
+    value: 'potential_predator_outside',
+    label: 'Potential Predator Outside Aviary',
+  },
+  { value: 'other', label: 'Other (specify below)' },
 ];
 ```
 
 ### Interaction Types
+
 ```javascript
 export const INTERACTION_TYPES = [
   { value: '', label: 'Select interaction...' },
@@ -110,8 +125,11 @@ export const INTERACTION_TYPES = [
   { value: 'feeding', label: 'Feeding' },
   { value: 'playing', label: 'Playing' },
   { value: 'non_aggressive_biting', label: 'Non-Aggressive Biting' },
-  { value: 'non_aggressive_foot_grabbing', label: 'Non-Aggressive Foot Grabbing' },
-  { value: 'other', label: 'Other (specify below)' }
+  {
+    value: 'non_aggressive_foot_grabbing',
+    label: 'Non-Aggressive Foot Grabbing',
+  },
+  { value: 'other', label: 'Other (specify below)' },
 ];
 ```
 
@@ -122,15 +140,15 @@ export const INTERACTION_TYPES = [
 ### Extended BEHAVIORS configuration:
 
 ```javascript
-{ 
-  value: 'interacting_object', 
-  label: 'Interacting with Inanimate Object', 
+{
+  value: 'interacting_object',
+  label: 'Interacting with Inanimate Object',
   requiresLocation: false,
   requiresObject: true        // NEW: triggers object validation
 }
-{ 
-  value: 'interacting_animal', 
-  label: 'Interacting with Other Animal', 
+{
+  value: 'interacting_animal',
+  label: 'Interacting with Other Animal',
   requiresLocation: false,
   requiresAnimal: true,       // NEW: triggers animal validation
   requiresInteraction: true   // NEW: triggers interaction type validation
@@ -162,6 +180,7 @@ export const INTERACTION_TYPES = [
 ## UI/UX Behavior
 
 ### Conditional Rendering
+
 Sub-fields only appear when relevant behavior is selected:
 
 ```
@@ -195,6 +214,7 @@ User changes behavior to "Interacting with Other Animal"
 ```
 
 ### "Other" Text Input Pattern
+
 When user selects "other" from dropdown, show text input below:
 
 ```
@@ -212,9 +232,11 @@ When user selects "other" from dropdown, show text input below:
 ## Edge Cases & Data Integrity
 
 ### 1. Behavior Change
+
 **Scenario**: User fills object fields, then changes behavior to "Flying"
 
 **Solution**: Clear all conditional fields when behavior changes:
+
 ```javascript
 // When behavior changes
 if (field === 'behavior') {
@@ -227,15 +249,17 @@ if (field === 'behavior') {
     animal: '',
     animalOther: '',
     interactionType: '',
-    interactionTypeOther: ''
+    interactionTypeOther: '',
   };
 }
 ```
 
 ### 2. Dropdown Change (from "other" to specific)
+
 **Scenario**: User selects "other" and types text, then switches to specific option
 
 **Solution**: Clear "other" text when dropdown changes away from "other":
+
 ```javascript
 if (field === 'object' && value !== 'other') {
   newObservations[time].objectOther = '';
@@ -243,13 +267,17 @@ if (field === 'object' && value !== 'other') {
 ```
 
 ### 3. localStorage Persistence
+
 **Impact**: ✅ No changes needed - autosave serializes entire `observations` object
 
 ### 4. Timezone Conversion
+
 **Impact**: ✅ No changes needed - only touches timestamp keys, not observation content
 
 ### 5. Excel Export
+
 **Impact**: Add new columns:
+
 - `object` (blank for non-object behaviors)
 - `objectOther` (blank unless object === "other")
 - `animal` (blank for non-animal behaviors)
@@ -262,22 +290,26 @@ if (field === 'object' && value !== 'other') {
 ## Implementation Phases
 
 ### Phase 1: Data Structure (30 min)
+
 - [ ] Update `constants.js` with new arrays
 - [ ] Add feature flags to BEHAVIORS
 - [ ] Update default observation initialization
 
 ### Phase 2: UI Components (45 min)
+
 - [ ] Update `TimeSlotObservation.jsx` with conditional rendering
 - [ ] Add object dropdown (with "other" text input)
 - [ ] Add animal + interaction dropdowns (with "other" text inputs)
 - [ ] Implement field clearing logic
 
 ### Phase 3: Validation (30 min)
+
 - [ ] Update `useFormValidation.js` with new rules
 - [ ] Add error messages for new fields
 - [ ] Test validation error display
 
 ### Phase 4: Testing & Polish (30 min)
+
 - [ ] Manual testing of all transitions
 - [ ] Verify localStorage persistence
 - [ ] Verify JSON output structure
@@ -290,6 +322,7 @@ if (field === 'object' && value !== 'other') {
 ## Future Considerations
 
 ### Potential Additional Sub-fields
+
 If this pattern works well, consider adding for:
 
 1. **"Aggression or Defensive Posturing"**
@@ -299,6 +332,7 @@ If this pattern works well, consider adding for:
    - Specify behavior: [free text]
 
 ### Pattern Reusability
+
 This conditional sub-field pattern can be reused for future behaviors that need structured data:
 
 ```javascript
@@ -314,20 +348,21 @@ This conditional sub-field pattern can be reused for future behaviors that need 
 
 ## Design Decisions Rationale
 
-| Decision | Rationale |
-|----------|-----------|
-| Flat data structure | Simpler Excel export, easier validation, consistent with `location` field |
-| Required sub-fields | Ensures data completeness when behavior is selected |
-| "Other" dropdown option | Balances standardization with flexibility for edge cases |
-| Clear fields on behavior change | Prevents orphaned data from previous behavior selection |
-| Conditional rendering | Reduces visual clutter, shows only relevant fields |
-| Follow existing patterns | Reuse React-Select styling, error display, validation keys |
+| Decision                        | Rationale                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------- |
+| Flat data structure             | Simpler Excel export, easier validation, consistent with `location` field |
+| Required sub-fields             | Ensures data completeness when behavior is selected                       |
+| "Other" dropdown option         | Balances standardization with flexibility for edge cases                  |
+| Clear fields on behavior change | Prevents orphaned data from previous behavior selection                   |
+| Conditional rendering           | Reduces visual clutter, shows only relevant fields                        |
+| Follow existing patterns        | Reuse React-Select styling, error display, validation keys                |
 
 ---
 
 ## Success Metrics
 
 After implementation, we should see:
+
 1. ✅ Consistent object/animal naming across all observations
 2. ✅ Ability to aggregate data by object/animal/interaction type
 3. ✅ No regression in form submission time (should be same or faster with dropdowns)

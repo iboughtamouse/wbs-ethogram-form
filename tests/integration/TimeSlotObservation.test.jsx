@@ -10,13 +10,21 @@ jest.mock('../../src/components/form', () => ({
   ),
   DescriptionField: ({ value, onChange, error }) => (
     <div>
-      <input data-testid="description-field" value={value} onChange={onChange} />
+      <input
+        data-testid="description-field"
+        value={value}
+        onChange={onChange}
+      />
       {error && <div data-testid="description-error">{error}</div>}
     </div>
   ),
   BehaviorSelect: ({ value, onChange, error }) => (
     <div>
-      <select data-testid="behavior-select" value={value} onChange={(e) => onChange(e.target.value)}>
+      <select
+        data-testid="behavior-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
         <option value="">Select behavior</option>
         <option value="perching">Perching</option>
         <option value="jumping">Jumping</option>
@@ -29,11 +37,22 @@ jest.mock('../../src/components/form', () => ({
   ),
   LocationInput: ({ value, onChange, error }) => (
     <div>
-      <input data-testid="location-input" value={value} onChange={(e) => onChange({ value: e.target.value })} />
+      <input
+        data-testid="location-input"
+        value={value}
+        onChange={(e) => onChange({ value: e.target.value })}
+      />
       {error && <div data-testid="location-error">{error}</div>}
     </div>
   ),
-  ObjectSelect: ({ value, onChange, otherValue, onOtherChange, error, otherError }) => (
+  ObjectSelect: ({
+    value,
+    onChange,
+    otherValue,
+    onOtherChange,
+    error,
+    otherError,
+  }) => (
     <div>
       <select data-testid="object-select" value={value} onChange={onChange}>
         <option value="">Select object</option>
@@ -41,13 +60,24 @@ jest.mock('../../src/components/form', () => ({
         <option value="other">Other</option>
       </select>
       {value === 'other' && (
-        <input data-testid="object-other" value={otherValue} onChange={onOtherChange} />
+        <input
+          data-testid="object-other"
+          value={otherValue}
+          onChange={onOtherChange}
+        />
       )}
       {error && <div data-testid="object-error">{error}</div>}
       {otherError && <div data-testid="object-other-error">{otherError}</div>}
     </div>
   ),
-  AnimalSelect: ({ value, onChange, otherValue, onOtherChange, error, otherError }) => (
+  AnimalSelect: ({
+    value,
+    onChange,
+    otherValue,
+    onOtherChange,
+    error,
+    otherError,
+  }) => (
     <div>
       <select data-testid="animal-select" value={value} onChange={onChange}>
         <option value="">Select animal</option>
@@ -55,26 +85,47 @@ jest.mock('../../src/components/form', () => ({
         <option value="other">Other</option>
       </select>
       {value === 'other' && (
-        <input data-testid="animal-other" value={otherValue} onChange={onOtherChange} />
+        <input
+          data-testid="animal-other"
+          value={otherValue}
+          onChange={onOtherChange}
+        />
       )}
       {error && <div data-testid="animal-error">{error}</div>}
       {otherError && <div data-testid="animal-other-error">{otherError}</div>}
     </div>
   ),
-  InteractionTypeSelect: ({ value, onChange, otherValue, onOtherChange, error, otherError }) => (
+  InteractionTypeSelect: ({
+    value,
+    onChange,
+    otherValue,
+    onOtherChange,
+    error,
+    otherError,
+  }) => (
     <div>
-      <select data-testid="interaction-type-select" value={value} onChange={onChange}>
+      <select
+        data-testid="interaction-type-select"
+        value={value}
+        onChange={onChange}
+      >
         <option value="">Select interaction type</option>
         <option value="watching">Watching</option>
         <option value="other">Other</option>
       </select>
       {value === 'other' && (
-        <input data-testid="interaction-type-other" value={otherValue} onChange={onOtherChange} />
+        <input
+          data-testid="interaction-type-other"
+          value={otherValue}
+          onChange={onOtherChange}
+        />
       )}
       {error && <div data-testid="interaction-type-error">{error}</div>}
-      {otherError && <div data-testid="interaction-type-other-error">{otherError}</div>}
+      {otherError && (
+        <div data-testid="interaction-type-other-error">{otherError}</div>
+      )}
     </div>
-  )
+  ),
 }));
 
 describe('TimeSlotObservation', () => {
@@ -88,7 +139,7 @@ describe('TimeSlotObservation', () => {
     animalOther: '',
     interactionType: '',
     interactionTypeOther: '',
-    description: ''
+    description: '',
   };
 
   const mockOnChange = jest.fn();
@@ -203,7 +254,10 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_object' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_object',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -218,7 +272,10 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_animal' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_animal',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -262,8 +319,16 @@ describe('TimeSlotObservation', () => {
       const behaviorSelect = screen.getByTestId('behavior-select');
       fireEvent.change(behaviorSelect, { target: { value: 'perching' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'behavior', 'perching');
-      expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'behavior', 'perching');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'behavior',
+        'perching'
+      );
+      expect(mockOnValidate).toHaveBeenCalledWith(
+        '15:00',
+        'behavior',
+        'perching'
+      );
     });
   });
 
@@ -300,7 +365,9 @@ describe('TimeSlotObservation', () => {
         />
       );
 
-      expect(screen.getByTestId('location-error')).toHaveTextContent('Location is required');
+      expect(screen.getByTestId('location-error')).toHaveTextContent(
+        'Location is required'
+      );
     });
   });
 
@@ -309,7 +376,10 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_object' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_object',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -321,14 +391,22 @@ describe('TimeSlotObservation', () => {
       fireEvent.change(objectSelect, { target: { value: 'newspaper' } });
 
       expect(mockOnChange).toHaveBeenCalledWith('15:00', 'object', 'newspaper');
-      expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'object', 'newspaper');
+      expect(mockOnValidate).toHaveBeenCalledWith(
+        '15:00',
+        'object',
+        'newspaper'
+      );
     });
 
     test('shows "other" text field when object is "other"', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_object', object: 'other' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_object',
+            object: 'other',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -343,7 +421,11 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_object', object: 'other' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_object',
+            object: 'other',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -352,10 +434,16 @@ describe('TimeSlotObservation', () => {
       );
 
       const objectOtherInput = screen.getByTestId('object-other');
-      fireEvent.change(objectOtherInput, { target: { value: 'custom object' } });
+      fireEvent.change(objectOtherInput, {
+        target: { value: 'custom object' },
+      });
 
       // onChange should be called immediately
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'objectOther', 'custom object');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'objectOther',
+        'custom object'
+      );
 
       // onValidate should not be called yet
       expect(mockOnValidate).not.toHaveBeenCalled();
@@ -365,7 +453,11 @@ describe('TimeSlotObservation', () => {
 
       // Now onValidate should be called
       await waitFor(() => {
-        expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'objectOther', 'custom object');
+        expect(mockOnValidate).toHaveBeenCalledWith(
+          '15:00',
+          'objectOther',
+          'custom object'
+        );
       });
     });
   });
@@ -375,7 +467,10 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_animal' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_animal',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -386,15 +481,26 @@ describe('TimeSlotObservation', () => {
       const animalSelect = screen.getByTestId('animal-select');
       fireEvent.change(animalSelect, { target: { value: 'aviary_adult' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'animal', 'aviary_adult');
-      expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'animal', 'aviary_adult');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'animal',
+        'aviary_adult'
+      );
+      expect(mockOnValidate).toHaveBeenCalledWith(
+        '15:00',
+        'animal',
+        'aviary_adult'
+      );
     });
 
     test('calls onChange and onValidate immediately when interaction type changes', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_animal' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_animal',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -402,18 +508,34 @@ describe('TimeSlotObservation', () => {
         />
       );
 
-      const interactionTypeSelect = screen.getByTestId('interaction-type-select');
-      fireEvent.change(interactionTypeSelect, { target: { value: 'watching' } });
+      const interactionTypeSelect = screen.getByTestId(
+        'interaction-type-select'
+      );
+      fireEvent.change(interactionTypeSelect, {
+        target: { value: 'watching' },
+      });
 
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'interactionType', 'watching');
-      expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'interactionType', 'watching');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'interactionType',
+        'watching'
+      );
+      expect(mockOnValidate).toHaveBeenCalledWith(
+        '15:00',
+        'interactionType',
+        'watching'
+      );
     });
 
     test('shows "other" fields when animal is "other"', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_animal', animal: 'other' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_animal',
+            animal: 'other',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -428,7 +550,11 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'interacting_animal', interactionType: 'other' }}
+          observation={{
+            ...defaultObservation,
+            behavior: 'interacting_animal',
+            interactionType: 'other',
+          }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -454,10 +580,16 @@ describe('TimeSlotObservation', () => {
       );
 
       const descriptionField = screen.getByTestId('description-field');
-      fireEvent.change(descriptionField, { target: { value: 'Aggressive behavior' } });
+      fireEvent.change(descriptionField, {
+        target: { value: 'Aggressive behavior' },
+      });
 
       // onChange should be called immediately
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'description', 'Aggressive behavior');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'description',
+        'Aggressive behavior'
+      );
 
       // onValidate should not be called yet
       expect(mockOnValidate).not.toHaveBeenCalled();
@@ -467,7 +599,11 @@ describe('TimeSlotObservation', () => {
 
       // Now onValidate should be called
       await waitFor(() => {
-        expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'description', 'Aggressive behavior');
+        expect(mockOnValidate).toHaveBeenCalledWith(
+          '15:00',
+          'description',
+          'Aggressive behavior'
+        );
       });
     });
 
@@ -484,7 +620,9 @@ describe('TimeSlotObservation', () => {
         />
       );
 
-      expect(screen.getByTestId('description-error')).toHaveTextContent('Description is required');
+      expect(screen.getByTestId('description-error')).toHaveTextContent(
+        'Description is required'
+      );
     });
   });
 
@@ -539,7 +677,7 @@ describe('TimeSlotObservation', () => {
             behavior: 'interacting_animal',
             object: 'other',
             animal: 'other',
-            interactionType: 'other'
+            interactionType: 'other',
           }}
           behaviorError="Behavior error"
           locationError="Location error"
@@ -556,11 +694,21 @@ describe('TimeSlotObservation', () => {
         />
       );
 
-      expect(screen.getByTestId('behavior-error')).toHaveTextContent('Behavior error');
-      expect(screen.getByTestId('animal-error')).toHaveTextContent('Animal error');
-      expect(screen.getByTestId('animal-other-error')).toHaveTextContent('Animal other error');
-      expect(screen.getByTestId('interaction-type-error')).toHaveTextContent('Interaction type error');
-      expect(screen.getByTestId('interaction-type-other-error')).toHaveTextContent('Interaction type other error');
+      expect(screen.getByTestId('behavior-error')).toHaveTextContent(
+        'Behavior error'
+      );
+      expect(screen.getByTestId('animal-error')).toHaveTextContent(
+        'Animal error'
+      );
+      expect(screen.getByTestId('animal-other-error')).toHaveTextContent(
+        'Animal other error'
+      );
+      expect(screen.getByTestId('interaction-type-error')).toHaveTextContent(
+        'Interaction type error'
+      );
+      expect(
+        screen.getByTestId('interaction-type-other-error')
+      ).toHaveTextContent('Interaction type other error');
     });
   });
 });

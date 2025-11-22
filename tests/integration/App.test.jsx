@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
@@ -12,7 +18,7 @@ jest.mock('../../src/utils/localStorageUtils');
 jest.mock('../../src/utils/timezoneUtils', () => ({
   convertToWBSTime: jest.fn((date, time) => time), // No conversion in tests
   getUserTimezone: jest.fn(() => 'America/New_York'),
-  WBS_TIMEZONE: 'America/Chicago'
+  WBS_TIMEZONE: 'America/Chicago',
 }));
 
 describe('App Integration Tests', () => {
@@ -27,9 +33,11 @@ describe('App Integration Tests', () => {
 
   // Helper function to fill in metadata completely
   const fillMetadata = async (observerName = 'TestObserver') => {
-    const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+    const observerInput = screen.getByPlaceholderText(
+      /Enter your Discord username/i
+    );
     fireEvent.change(observerInput, { target: { value: observerName } });
-    
+
     // Date is pre-filled with today by default, so we're good
     // (The App component initializes it with today's date)
   };
@@ -39,7 +47,7 @@ describe('App Integration Tests', () => {
     await waitFor(() => {
       expect(screen.getByText(timeSlotText)).toBeInTheDocument();
     });
-    
+
     const slot = screen.getByText(timeSlotText).closest('.time-slot');
     const behaviorSelects = within(slot).getAllByRole('combobox');
     const behaviorSelect = behaviorSelects[0]; // First select is always behavior
@@ -51,7 +59,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in metadata to create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
 
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
@@ -70,7 +80,9 @@ describe('App Integration Tests', () => {
     test('clears time slots when time range becomes invalid', async () => {
       render(<App />);
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
 
       // First create valid slots
@@ -88,13 +100,17 @@ describe('App Integration Tests', () => {
       await waitFor(() => {
         expect(screen.queryByText('10:00 AM')).not.toBeInTheDocument();
       });
-      expect(screen.getByText(/Please select a time range above/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Please select a time range above/i)
+      ).toBeInTheDocument();
     });
 
     test('preserves observation data when time range is extended', async () => {
       render(<App />);
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
 
       // Create initial slots
@@ -121,7 +137,9 @@ describe('App Integration Tests', () => {
       });
 
       // Original data should still be present
-      const updatedFirstSlot = screen.getByText('10:00 AM').closest('.time-slot');
+      const updatedFirstSlot = screen
+        .getByText('10:00 AM')
+        .closest('.time-slot');
       const allComboboxes = within(updatedFirstSlot).getAllByRole('combobox');
       const updatedBehaviorSelect = allComboboxes[0]; // First combobox is always behavior
       expect(updatedBehaviorSelect).toHaveValue('preening');
@@ -132,7 +150,9 @@ describe('App Integration Tests', () => {
     test('updates metadata state when observer name changes', () => {
       render(<App />);
 
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const observerInput = screen.getByPlaceholderText(
+        /Enter your Discord username/i
+      );
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
       expect(observerInput).toHaveValue('TestObserver');
@@ -156,7 +176,9 @@ describe('App Integration Tests', () => {
 
       expect(vodRadio).toBeChecked();
       // VOD mode should show different help text
-      expect(screen.getByText(/Enter times exactly as shown on stream/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Enter times exactly as shown on stream/i)
+      ).toBeInTheDocument();
     });
   });
 
@@ -165,7 +187,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -187,7 +211,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -204,12 +230,18 @@ describe('App Integration Tests', () => {
 
       // Wait for description field to appear
       await waitFor(() => {
-        expect(within(firstSlot).getByPlaceholderText(/Describe the behavior/i)).toBeInTheDocument();
+        expect(
+          within(firstSlot).getByPlaceholderText(/Describe the behavior/i)
+        ).toBeInTheDocument();
       });
 
       // Fill in description
-      const descriptionInput = within(firstSlot).getByPlaceholderText(/Describe the behavior/i);
-      fireEvent.change(descriptionInput, { target: { value: 'Test description' } });
+      const descriptionInput = within(firstSlot).getByPlaceholderText(
+        /Describe the behavior/i
+      );
+      fireEvent.change(descriptionInput, {
+        target: { value: 'Test description' },
+      });
       expect(descriptionInput).toHaveValue('Test description');
 
       // Change behavior to something that doesn't require description
@@ -217,7 +249,9 @@ describe('App Integration Tests', () => {
 
       // Description field should no longer exist
       await waitFor(() => {
-        expect(within(firstSlot).queryByPlaceholderText(/Describe the behavior/i)).not.toBeInTheDocument();
+        expect(
+          within(firstSlot).queryByPlaceholderText(/Describe the behavior/i)
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -225,7 +259,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -238,7 +274,9 @@ describe('App Integration Tests', () => {
       // Select interaction behavior
       const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
       const behaviorSelect = within(firstSlot).getByRole('combobox');
-      fireEvent.change(behaviorSelect, { target: { value: 'interacting_object' } });
+      fireEvent.change(behaviorSelect, {
+        target: { value: 'interacting_object' },
+      });
 
       // Wait for conditional fields to appear
       await waitFor(() => {
@@ -253,11 +291,14 @@ describe('App Integration Tests', () => {
 
       // Wait for "other" input to appear
       await waitFor(() => {
-        expect(within(firstSlot).getByPlaceholderText(/Enter object name/i)).toBeInTheDocument();
+        expect(
+          within(firstSlot).getByPlaceholderText(/Enter object name/i)
+        ).toBeInTheDocument();
       });
 
       // Fill in "other" text
-      const otherInput = within(firstSlot).getByPlaceholderText(/Enter object name/i);
+      const otherInput =
+        within(firstSlot).getByPlaceholderText(/Enter object name/i);
       fireEvent.change(otherInput, { target: { value: 'custom object' } });
       expect(otherInput).toHaveValue('custom object');
 
@@ -266,7 +307,9 @@ describe('App Integration Tests', () => {
 
       // "Other" text should be cleared and input should disappear
       await waitFor(() => {
-        expect(within(firstSlot).queryByPlaceholderText(/Enter object name/i)).not.toBeInTheDocument();
+        expect(
+          within(firstSlot).queryByPlaceholderText(/Enter object name/i)
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -276,7 +319,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:10' } });
@@ -299,7 +344,8 @@ describe('App Integration Tests', () => {
       // Second slot should have the same behavior
       await waitFor(() => {
         const secondSlot = screen.getByText('10:05 AM').closest('.time-slot');
-        const secondBehaviorSelects = within(secondSlot).getAllByRole('combobox');
+        const secondBehaviorSelects =
+          within(secondSlot).getAllByRole('combobox');
         const secondBehaviorSelect = secondBehaviorSelects[0];
         expect(secondBehaviorSelect).toHaveValue('drinking');
       });
@@ -309,7 +355,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:10' } });
@@ -321,7 +369,9 @@ describe('App Integration Tests', () => {
 
       // Last slot should not have copy button
       const lastSlot = screen.getByText('10:10 AM').closest('.time-slot');
-      expect(within(lastSlot).queryByText(/Copy to next/i)).not.toBeInTheDocument();
+      expect(
+        within(lastSlot).queryByText(/Copy to next/i)
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -330,7 +380,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots but don't fill required fields
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -346,7 +398,9 @@ describe('App Integration Tests', () => {
 
       // Should show validation errors (check for actual error message)
       await waitFor(() => {
-        expect(screen.getByText(/Discord username is required/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Discord username is required/i)
+        ).toBeInTheDocument();
       });
 
       // Output preview should not appear
@@ -359,7 +413,9 @@ describe('App Integration Tests', () => {
       // Fill in all required metadata
       await fillMetadata('TestObserver');
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -384,7 +440,9 @@ describe('App Integration Tests', () => {
       // Fill in metadata
       await fillMetadata('TestObserver');
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -405,7 +463,9 @@ describe('App Integration Tests', () => {
 
       // Check output contains key data
       await waitFor(() => {
-        const outputPreview = screen.getByText(/Data Preview/i).closest('.output-preview');
+        const outputPreview = screen
+          .getByText(/Data Preview/i)
+          .closest('.output-preview');
         expect(outputPreview.textContent).toContain('TestObserver');
         expect(outputPreview.textContent).toContain('drinking');
         expect(outputPreview.textContent).toContain('10:00');
@@ -427,7 +487,9 @@ describe('App Integration Tests', () => {
       // Fill in metadata in live mode (default)
       await fillMetadata('TestObserver');
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -446,7 +508,9 @@ describe('App Integration Tests', () => {
       });
 
       // Output should show converted times
-      const outputPreview = screen.getByText(/Data Preview/i).closest('.output-preview');
+      const outputPreview = screen
+        .getByText(/Data Preview/i)
+        .closest('.output-preview');
       expect(outputPreview.textContent).toContain('11:00');
       expect(outputPreview.textContent).toContain('observerTimezone');
     });
@@ -463,7 +527,9 @@ describe('App Integration Tests', () => {
       // Fill in metadata
       await fillMetadata('TestObserver');
 
-      const container = screen.getByText('VOD Time Range').closest('.form-group');
+      const container = screen
+        .getByText('VOD Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -488,7 +554,9 @@ describe('App Integration Tests', () => {
     test('saves draft when metadata changes', async () => {
       render(<App />);
 
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const observerInput = screen.getByPlaceholderText(
+        /Enter your Discord username/i
+      );
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
       // Wait for autosave effect to trigger
@@ -501,7 +569,9 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Create time slots
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -533,10 +603,10 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live'
+          mode: 'live',
         },
         observations: {},
-        savedAt: '2025-11-21T10:00:00.000Z'
+        savedAt: '2025-11-21T10:00:00.000Z',
       };
 
       localStorageUtils.hasDraft.mockReturnValue(true);
@@ -558,7 +628,7 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live'
+          mode: 'live',
         },
         observations: {
           '10:00': {
@@ -571,10 +641,10 @@ describe('App Integration Tests', () => {
             animal: '',
             animalOther: '',
             interactionType: '',
-            interactionTypeOther: ''
-          }
+            interactionTypeOther: '',
+          },
         },
-        savedAt: '2025-11-21T10:00:00.000Z'
+        savedAt: '2025-11-21T10:00:00.000Z',
       };
 
       localStorageUtils.hasDraft.mockReturnValue(true);
@@ -592,7 +662,9 @@ describe('App Integration Tests', () => {
 
       // Data should be restored
       await waitFor(() => {
-        const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+        const observerInput = screen.getByPlaceholderText(
+          /Enter your Discord username/i
+        );
         expect(observerInput).toHaveValue('SavedObserver');
       });
     });
@@ -606,10 +678,10 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live'
+          mode: 'live',
         },
         observations: {},
-        savedAt: '2025-11-21T10:00:00.000Z'
+        savedAt: '2025-11-21T10:00:00.000Z',
       };
 
       localStorageUtils.hasDraft.mockReturnValue(true);
@@ -633,7 +705,9 @@ describe('App Integration Tests', () => {
       // Fill in complete valid form
       await fillMetadata('TestObserver');
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
@@ -657,10 +731,14 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in some data
-      const observerInput = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const observerInput = screen.getByPlaceholderText(
+        /Enter your Discord username/i
+      );
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
-      const container = screen.getByText('Observation Time Range').closest('.form-group');
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
       const timeInputs = container.querySelectorAll('input[type="time"]');
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
       fireEvent.change(timeInputs[1], { target: { value: '10:10' } });

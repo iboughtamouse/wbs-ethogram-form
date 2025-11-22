@@ -1,4 +1,7 @@
-import { getNextTimeSlot, copyObservationToNext } from '../src/utils/observationUtils';
+import {
+  getNextTimeSlot,
+  copyObservationToNext,
+} from '../src/utils/observationUtils';
 
 describe('getNextTimeSlot', () => {
   test('returns the next time slot in sequence', () => {
@@ -39,7 +42,7 @@ describe('copyObservationToNext', () => {
     animal: '',
     animalOther: '',
     interactionType: '',
-    interactionTypeOther: ''
+    interactionTypeOther: '',
   };
 
   test('copies all observation fields to next time slot', () => {
@@ -54,8 +57,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -78,8 +81,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -94,7 +97,7 @@ describe('copyObservationToNext', () => {
   test('returns failure when on last time slot', () => {
     const observations = {
       '15:00': sampleObservation,
-      '15:05': sampleObservation
+      '15:05': sampleObservation,
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -110,7 +113,7 @@ describe('copyObservationToNext', () => {
       ...sampleObservation,
       behavior: 'interacting_object',
       object: 'newspaper',
-      objectOther: ''
+      objectOther: '',
     };
     const observations = {
       '15:00': observationWithInteraction,
@@ -123,8 +126,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -132,7 +135,9 @@ describe('copyObservationToNext', () => {
 
     expect(result.success).toBe(true);
     expect(result.updatedObservations['15:05'].object).toBe('newspaper');
-    expect(result.updatedObservations['15:05'].behavior).toBe('interacting_object');
+    expect(result.updatedObservations['15:05'].behavior).toBe(
+      'interacting_object'
+    );
   });
 
   test('copies "other" text fields correctly', () => {
@@ -140,7 +145,7 @@ describe('copyObservationToNext', () => {
       ...sampleObservation,
       behavior: 'interacting_object',
       object: 'other',
-      objectOther: 'Custom toy'
+      objectOther: 'Custom toy',
     };
     const observations = {
       '15:00': observationWithOther,
@@ -153,8 +158,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -175,11 +180,11 @@ describe('copyObservationToNext', () => {
       animal: '',
       animalOther: '',
       interactionType: '',
-      interactionTypeOther: ''
+      interactionTypeOther: '',
     };
     const observations = {
       '15:00': emptyObservation,
-      '15:05': emptyObservation
+      '15:05': emptyObservation,
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -201,8 +206,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -224,8 +229,8 @@ describe('copyObservationToNext', () => {
         animal: '',
         animalOther: '',
         interactionType: '',
-        interactionTypeOther: ''
-      }
+        interactionTypeOther: '',
+      },
     };
     const timeSlots = ['15:00', '15:05'];
     const originalObservations = JSON.parse(JSON.stringify(observations));

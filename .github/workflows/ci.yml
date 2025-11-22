@@ -14,15 +14,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Check code formatting
+        run: npm run format:check
+
       - name: Lint
         run: npm run lint
-      - name: Run full test suite
-        run: npm test
-        # Note: CI always runs full test suite, unlike pre-commit/pre-push hooks
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Build
+        run: npm run build

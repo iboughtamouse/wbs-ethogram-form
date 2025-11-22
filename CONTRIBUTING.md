@@ -207,6 +207,7 @@ When contributing, keep these project goals in mind:
 ## 💡 Good First Issues
 
 Look for issues labeled:
+
 - `good first issue` - Great for newcomers
 - `help wanted` - We'd love contributions here
 - `documentation` - Improve our docs

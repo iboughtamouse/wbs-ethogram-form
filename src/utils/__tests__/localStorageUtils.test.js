@@ -2,7 +2,12 @@
  * Tests for localStorage utilities
  */
 
-import { saveDraft, loadDraft, clearDraft, hasDraft } from '../localStorageUtils';
+import {
+  saveDraft,
+  loadDraft,
+  clearDraft,
+  hasDraft,
+} from '../localStorageUtils';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -18,13 +23,13 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {};
-    }
+    },
   };
 })();
 
 // Replace global localStorage with mock
 Object.defineProperty(global, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 describe('localStorageUtils', () => {
@@ -48,11 +53,11 @@ describe('localStorageUtils', () => {
         endTime: '16:00',
         aviary: 'A1',
         patient: 'Sayyida',
-        mode: 'live'
+        mode: 'live',
       };
       const observations = {
         '15:00': { behavior: 'Perching', location: '5', notes: 'Test note' },
-        '15:05': { behavior: 'Flying', location: '', notes: '' }
+        '15:05': { behavior: 'Flying', location: '', notes: '' },
       };
 
       const result = saveDraft(metadata, observations);
@@ -110,7 +115,9 @@ describe('localStorageUtils', () => {
   describe('loadDraft', () => {
     it('should load saved draft from localStorage', () => {
       const metadata = { observerName: 'Test Observer' };
-      const observations = { '15:00': { behavior: 'Perching', location: '5', notes: '' } };
+      const observations = {
+        '15:00': { behavior: 'Perching', location: '5', notes: '' },
+      };
       saveDraft(metadata, observations);
 
       const loaded = loadDraft();
@@ -241,12 +248,16 @@ describe('localStorageUtils', () => {
         endTime: '16:00',
         aviary: 'A1',
         patient: 'Sayyida',
-        mode: 'live'
+        mode: 'live',
       };
       const observations = {
-        '15:00': { behavior: 'Perching', location: '5', notes: 'First observation' },
+        '15:00': {
+          behavior: 'Perching',
+          location: '5',
+          notes: 'First observation',
+        },
         '15:05': { behavior: 'Flying', location: '', notes: '' },
-        '15:10': { behavior: 'Eating', location: 'G', notes: 'On ground' }
+        '15:10': { behavior: 'Eating', location: 'G', notes: 'On ground' },
       };
 
       // Save
@@ -271,10 +282,14 @@ describe('localStorageUtils', () => {
     it('should preserve complex observation data structures', () => {
       const observations = {
         '15:00': { behavior: 'Perching', location: '1', notes: 'Top perch' },
-        '15:05': { behavior: 'Perching', location: '15', notes: 'Middle perch' },
+        '15:05': {
+          behavior: 'Perching',
+          location: '15',
+          notes: 'Middle perch',
+        },
         '15:10': { behavior: 'Flying', location: '', notes: '' },
         '15:15': { behavior: 'Eating', location: 'G', notes: 'Ground feeding' },
-        '15:20': { behavior: 'Perching', location: 'BB1', notes: 'Back box 1' }
+        '15:20': { behavior: 'Perching', location: 'BB1', notes: 'Back box 1' },
       };
 
       saveDraft({}, observations);
