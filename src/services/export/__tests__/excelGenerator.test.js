@@ -569,18 +569,18 @@ describe('excelGenerator', () => {
       jest.spyOn(document.body, 'removeChild').mockImplementation(() => {});
 
       // Store original URL methods and mock them
-      originalCreateObjectURL = global.URL.createObjectURL;
-      originalRevokeObjectURL = global.URL.revokeObjectURL;
+      originalCreateObjectURL = window.URL.createObjectURL;
+      originalRevokeObjectURL = window.URL.revokeObjectURL;
       mockCreateObjectURL = jest.fn().mockReturnValue('blob:mock-url');
       mockRevokeObjectURL = jest.fn();
-      global.URL.createObjectURL = mockCreateObjectURL;
-      global.URL.revokeObjectURL = mockRevokeObjectURL;
+      window.URL.createObjectURL = mockCreateObjectURL;
+      window.URL.revokeObjectURL = mockRevokeObjectURL;
     });
 
     afterEach(() => {
       // Restore original URL methods
-      global.URL.createObjectURL = originalCreateObjectURL;
-      global.URL.revokeObjectURL = originalRevokeObjectURL;
+      window.URL.createObjectURL = originalCreateObjectURL;
+      window.URL.revokeObjectURL = originalRevokeObjectURL;
       jest.restoreAllMocks();
     });
 
