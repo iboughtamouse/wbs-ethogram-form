@@ -1,7 +1,24 @@
-import { generateExcelWorkbook } from '../excelGenerator';
+import { generateExcelWorkbook, downloadExcelFile } from '../excelGenerator';
 import ExcelJS from 'exceljs';
 
 describe('excelGenerator', () => {
+  // Helper function to find row index for a specific behavior
+  const findBehaviorRow = (worksheet, behaviorText) => {
+    const rows = worksheet.getRows(5, 25);
+    let foundRow = null;
+
+    rows.forEach((row, index) => {
+      if (
+        row.getCell(1).value &&
+        row.getCell(1).value.toString().includes(behaviorText)
+      ) {
+        foundRow = 5 + index;
+      }
+    });
+
+    return foundRow;
+  };
+
   describe('generateExcelWorkbook', () => {
     const mockFormData = {
       metadata: {
@@ -410,6 +427,212 @@ describe('excelGenerator', () => {
       expect(worksheet.getCell('H4').value).toBe('0:30'); // 7th column (00:00)
       expect(worksheet.getCell('M4').value).toBe('0:55'); // 12th column (00:25)
       expect(worksheet.getCell('N4').value).toBe('1:00'); // 13th column (00:30)
+    });
+
+    it('should handle "other" animal value correctly', async () => {
+      const dataWithOtherAnimal = {
+        metadata: {
+          observerName: 'Observer',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:10',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': {
+            behavior: 'interacting_animal',
+            location: '',
+            notes: '',
+            object: '',
+            objectOther: '',
+            animal: 'other',
+            animalOther: 'squirrel',
+            interactionType: 'watching',
+            interactionTypeOther: '',
+            description: '',
+          },
+        },
+        submittedAt: '2025-01-15T09:15:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(dataWithOtherAnimal);
+      const worksheet = workbook.getWorksheet(1);
+
+      const animalRow = findBehaviorRow(
+        worksheet,
+        'Interacting with Other Animal'
+      );
+
+      expect(animalRow).not.toBeNull();
+      if (animalRow) {
+        const cell = worksheet.getCell(animalRow, 2); // Column B = 09:00
+        expect(cell.value).toContain('Animal: squirrel');
+        expect(cell.value).not.toContain('Animal: other');
+      }
+    });
+
+    it('should handle "other" interaction type correctly', async () => {
+      const dataWithOtherInteraction = {
+        metadata: {
+          observerName: 'Observer',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:10',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': {
+            behavior: 'interacting_animal',
+            location: '',
+            notes: '',
+            object: '',
+            objectOther: '',
+            animal: 'insect',
+            animalOther: '',
+            interactionType: 'other',
+            interactionTypeOther: 'chasing',
+            description: '',
+          },
+        },
+        submittedAt: '2025-01-15T09:15:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(dataWithOtherInteraction);
+      const worksheet = workbook.getWorksheet(1);
+
+      const animalRow = findBehaviorRow(
+        worksheet,
+        'Interacting with Other Animal'
+      );
+
+      expect(animalRow).not.toBeNull();
+      if (animalRow) {
+        const cell = worksheet.getCell(animalRow, 2); // Column B = 09:00
+        expect(cell.value).toContain('Interaction: chasing');
+        expect(cell.value).not.toContain('Interaction: other');
+      }
+    });
+  });
+
+  describe('downloadExcelFile', () => {
+    const mockFormData = {
+      metadata: {
+        observerName: 'Test User',
+        date: '2025-01-15',
+        startTime: '09:00',
+        endTime: '09:10',
+        aviary: "Sayyida's Cove",
+        patient: 'Sayyida',
+        mode: 'live',
+      },
+      observations: {
+        '09:00': {
+          behavior: 'resting_alert',
+          location: '5',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      },
+      submittedAt: '2025-01-15T09:15:00.000Z',
+    };
+
+    // Mock DOM APIs
+    let mockLink;
+    let mockCreateObjectURL;
+    let mockRevokeObjectURL;
+    let originalCreateObjectURL;
+    let originalRevokeObjectURL;
+
+    beforeEach(() => {
+      // Mock link element
+      mockLink = {
+        href: '',
+        download: '',
+        click: jest.fn(),
+      };
+
+      // Mock document.createElement
+      jest.spyOn(document, 'createElement').mockReturnValue(mockLink);
+
+      // Mock document.body methods
+      jest.spyOn(document.body, 'appendChild').mockImplementation(() => {});
+      jest.spyOn(document.body, 'removeChild').mockImplementation(() => {});
+
+      // Store original URL methods and mock them
+      originalCreateObjectURL = window.URL.createObjectURL;
+      originalRevokeObjectURL = window.URL.revokeObjectURL;
+      mockCreateObjectURL = jest.fn().mockReturnValue('blob:mock-url');
+      mockRevokeObjectURL = jest.fn();
+      window.URL.createObjectURL = mockCreateObjectURL;
+      window.URL.revokeObjectURL = mockRevokeObjectURL;
+    });
+
+    afterEach(() => {
+      // Restore original URL methods
+      window.URL.createObjectURL = originalCreateObjectURL;
+      window.URL.revokeObjectURL = originalRevokeObjectURL;
+      jest.restoreAllMocks();
+    });
+
+    it('should create and trigger download with correct filename', async () => {
+      await downloadExcelFile(mockFormData, 'test-file');
+
+      expect(document.createElement).toHaveBeenCalledWith('a');
+      expect(mockLink.download).toBe('test-file.xlsx');
+      expect(mockLink.click).toHaveBeenCalledTimes(1);
+    });
+
+    it('should use default filename if not provided', async () => {
+      await downloadExcelFile(mockFormData);
+
+      expect(mockLink.download).toBe('ethogram-data.xlsx');
+    });
+
+    it('should create blob with correct MIME type', async () => {
+      await downloadExcelFile(mockFormData);
+
+      expect(mockCreateObjectURL).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        })
+      );
+    });
+
+    it('should append and remove link from DOM', async () => {
+      await downloadExcelFile(mockFormData);
+
+      expect(document.body.appendChild).toHaveBeenCalledWith(mockLink);
+      expect(document.body.removeChild).toHaveBeenCalledWith(mockLink);
+    });
+
+    it('should revoke object URL after download', async () => {
+      await downloadExcelFile(mockFormData);
+
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+    });
+
+    it('should revoke object URL even if download fails', async () => {
+      // Mock click to throw error
+      mockLink.click.mockImplementation(() => {
+        throw new Error('Download failed');
+      });
+
+      await expect(downloadExcelFile(mockFormData)).rejects.toThrow(
+        'Download failed'
+      );
+
+      // URL should still be revoked
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
   });
 });
