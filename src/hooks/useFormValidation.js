@@ -12,6 +12,19 @@ import { validateLocation } from '../utils/validators';
 export const useFormValidation = () => {
   const [fieldErrors, setFieldErrors] = useState({});
 
+  // Fields to validate in observations (all except 'notes' which is always optional)
+  const OBSERVATION_FIELDS_TO_VALIDATE = [
+    'behavior',
+    'location',
+    'object',
+    'objectOther',
+    'animal',
+    'animalOther',
+    'interactionType',
+    'interactionTypeOther',
+    'description',
+  ];
+
   const validateMetadataField = (field, value, metadata) => {
     let error = null;
 
@@ -128,99 +141,38 @@ export const useFormValidation = () => {
     return errors;
   };
 
+  /**
+   * Helper: Validate all fields for a single observation
+   * @param {string} time - The time slot
+   * @param {Object} observation - The observation object
+   * @param {Object} observations - All observations (for context)
+   * @returns {Object} - Errors object with keys like `${time}_${field}`
+   */
+  const validateSingleObservation = (time, observation, observations) => {
+    const errors = {};
+
+    // Validate each field - validateObservationField returns null if field is not required
+    OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
+      const error = validateObservationField(
+        time,
+        field,
+        observation[field],
+        observations
+      );
+      if (error) {
+        errors[`${time}_${field}`] = error;
+      }
+    });
+
+    return errors;
+  };
+
   const validateObservations = (observations) => {
     const errors = {};
 
     Object.entries(observations).forEach(([time, obs]) => {
-      const behaviorError = validateObservationField(
-        time,
-        'behavior',
-        obs.behavior,
-        observations
-      );
-      if (behaviorError) {
-        errors[`${time}_behavior`] = behaviorError;
-      }
-
-      const locationError = validateObservationField(
-        time,
-        'location',
-        obs.location,
-        observations
-      );
-      if (locationError) {
-        errors[`${time}_location`] = locationError;
-      }
-
-      const objectError = validateObservationField(
-        time,
-        'object',
-        obs.object,
-        observations
-      );
-      if (objectError) {
-        errors[`${time}_object`] = objectError;
-      }
-
-      const objectOtherError = validateObservationField(
-        time,
-        'objectOther',
-        obs.objectOther,
-        observations
-      );
-      if (objectOtherError) {
-        errors[`${time}_objectOther`] = objectOtherError;
-      }
-
-      const animalError = validateObservationField(
-        time,
-        'animal',
-        obs.animal,
-        observations
-      );
-      if (animalError) {
-        errors[`${time}_animal`] = animalError;
-      }
-
-      const animalOtherError = validateObservationField(
-        time,
-        'animalOther',
-        obs.animalOther,
-        observations
-      );
-      if (animalOtherError) {
-        errors[`${time}_animalOther`] = animalOtherError;
-      }
-
-      const interactionTypeError = validateObservationField(
-        time,
-        'interactionType',
-        obs.interactionType,
-        observations
-      );
-      if (interactionTypeError) {
-        errors[`${time}_interactionType`] = interactionTypeError;
-      }
-
-      const interactionTypeOtherError = validateObservationField(
-        time,
-        'interactionTypeOther',
-        obs.interactionTypeOther,
-        observations
-      );
-      if (interactionTypeOtherError) {
-        errors[`${time}_interactionTypeOther`] = interactionTypeOtherError;
-      }
-
-      const descriptionError = validateObservationField(
-        time,
-        'description',
-        obs.description,
-        observations
-      );
-      if (descriptionError) {
-        errors[`${time}_description`] = descriptionError;
-      }
+      const obsErrors = validateSingleObservation(time, obs, observations);
+      Object.assign(errors, obsErrors);
     });
 
     return errors;
@@ -299,39 +251,14 @@ export const useFormValidation = () => {
    * @returns {Object} - { valid: boolean, errors: Object }
    */
   const validateObservationSlot = (time, observations) => {
-    const errors = {};
     const obs = observations[time];
 
     if (!obs) {
       return { valid: false, errors: {} };
     }
 
-    // Fields to validate (all except 'notes' which is always optional)
-    // validateObservationField handles conditional validation logic
-    const fieldsToValidate = [
-      'behavior',
-      'location',
-      'object',
-      'objectOther',
-      'animal',
-      'animalOther',
-      'interactionType',
-      'interactionTypeOther',
-      'description',
-    ];
-
-    // Validate each field - validateObservationField returns null if field is not required
-    fieldsToValidate.forEach((field) => {
-      const error = validateObservationField(
-        time,
-        field,
-        obs[field],
-        observations
-      );
-      if (error) {
-        errors[`${time}_${field}`] = error;
-      }
-    });
+    // Use shared validation helper
+    const errors = validateSingleObservation(time, obs, observations);
 
     // Update field errors state with any errors found
     if (Object.keys(errors).length > 0) {
