@@ -5,19 +5,25 @@ describe('useFormValidation', () => {
   describe('validateMetadata', () => {
     it('should validate observer name is required', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('observerName', '', { observerName: '' });
+        result.current.validateSingleMetadataField('observerName', '', {
+          observerName: '',
+        });
       });
 
-      expect(result.current.fieldErrors.observerName).toBe('Discord username is required');
+      expect(result.current.fieldErrors.observerName).toBe(
+        'Discord username is required'
+      );
     });
 
     it('should pass when observer name is provided', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('observerName', 'testuser', { observerName: 'testuser' });
+        result.current.validateSingleMetadataField('observerName', 'testuser', {
+          observerName: 'testuser',
+        });
       });
 
       expect(result.current.fieldErrors.observerName).toBeUndefined();
@@ -25,7 +31,7 @@ describe('useFormValidation', () => {
 
     it('should validate date is required', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
         result.current.validateSingleMetadataField('date', '', { date: '' });
       });
@@ -35,47 +41,56 @@ describe('useFormValidation', () => {
 
     it('should validate time range is required', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('startTime', '', { startTime: '', endTime: '' });
+        result.current.validateSingleMetadataField('startTime', '', {
+          startTime: '',
+          endTime: '',
+        });
       });
 
-      expect(result.current.fieldErrors.startTime).toBe('Time range is required');
+      expect(result.current.fieldErrors.startTime).toBe(
+        'Time range is required'
+      );
     });
 
     it('should validate time range duration (too short)', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('endTime', '09:03', { 
-          startTime: '09:00', 
-          endTime: '09:03' 
+        result.current.validateSingleMetadataField('endTime', '09:03', {
+          startTime: '09:00',
+          endTime: '09:03',
         });
       });
 
-      expect(result.current.fieldErrors.endTime).toBe('Time range must be at least 5 minutes');
+      expect(result.current.fieldErrors.endTime).toBe(
+        'Time range must be at least 5 minutes'
+      );
     });
 
     it('should validate time range duration (too long)', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('endTime', '10:05', { 
-          startTime: '09:00', 
-          endTime: '10:05' 
+        result.current.validateSingleMetadataField('endTime', '10:05', {
+          startTime: '09:00',
+          endTime: '10:05',
         });
       });
 
-      expect(result.current.fieldErrors.endTime).toBe('Time range cannot exceed 1 hour');
+      expect(result.current.fieldErrors.endTime).toBe(
+        'Time range cannot exceed 1 hour'
+      );
     });
 
     it('should pass with valid time range', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       act(() => {
-        result.current.validateSingleMetadataField('endTime', '10:00', { 
-          startTime: '09:00', 
-          endTime: '10:00' 
+        result.current.validateSingleMetadataField('endTime', '10:00', {
+          startTime: '09:00',
+          endTime: '10:00',
         });
       });
 
@@ -84,12 +99,12 @@ describe('useFormValidation', () => {
 
     it('should clear paired time error when validating start time', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       // First set an error on endTime
       act(() => {
-        result.current.validateSingleMetadataField('endTime', '09:03', { 
-          startTime: '09:00', 
-          endTime: '09:03' 
+        result.current.validateSingleMetadataField('endTime', '09:03', {
+          startTime: '09:00',
+          endTime: '09:03',
         });
       });
 
@@ -97,9 +112,9 @@ describe('useFormValidation', () => {
 
       // Now fix the time range by updating startTime
       act(() => {
-        result.current.validateSingleMetadataField('startTime', '09:00', { 
-          startTime: '09:00', 
-          endTime: '09:30' 
+        result.current.validateSingleMetadataField('startTime', '09:00', {
+          startTime: '09:00',
+          endTime: '09:30',
         });
       });
 
@@ -112,24 +127,34 @@ describe('useFormValidation', () => {
     it('should require behavior to be selected', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' }
+        '09:00': { behavior: '', location: '', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'behavior', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'behavior',
+          observations
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_behavior']).toBe('Please select a behavior');
+      expect(result.current.fieldErrors['09:00_behavior']).toBe(
+        'Please select a behavior'
+      );
     });
 
     it('should pass when behavior is selected', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' }
+        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'behavior', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'behavior',
+          observations
+        );
       });
 
       expect(result.current.fieldErrors['09:00_behavior']).toBeUndefined();
@@ -138,24 +163,34 @@ describe('useFormValidation', () => {
     it('should require location when behavior requires it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '', notes: '' }
+        '09:00': { behavior: 'walking_perch', location: '', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBe('Location is required for this behavior');
+      expect(result.current.fieldErrors['09:00_location']).toBe(
+        'Location is required for this behavior'
+      );
     });
 
     it('should accept valid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '5', notes: '' }
+        '09:00': { behavior: 'walking_perch', location: '5', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
       expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
@@ -164,11 +199,15 @@ describe('useFormValidation', () => {
     it('should accept "Ground" as location (case-insensitive)', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'preening', location: 'ground', notes: '' }
+        '09:00': { behavior: 'preening', location: 'ground', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
       expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
@@ -177,11 +216,15 @@ describe('useFormValidation', () => {
     it('should accept special perch codes (BB1, F1, etc.)', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'preening', location: 'BB1', notes: '' }
+        '09:00': { behavior: 'preening', location: 'BB1', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
       expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
@@ -190,24 +233,34 @@ describe('useFormValidation', () => {
     it('should reject invalid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '99', notes: '' }
+        '09:00': { behavior: 'walking_perch', location: '99', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBe('Invalid perch number "99"');
+      expect(result.current.fieldErrors['09:00_location']).toBe(
+        'Invalid perch number "99"'
+      );
     });
 
     it('should not require location when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' }
+        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'location', observations);
+        result.current.validateSingleObservationField(
+          '09:00',
+          'location',
+          observations
+        );
       });
 
       expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
@@ -218,37 +271,71 @@ describe('useFormValidation', () => {
     it('should require description for aggression behavior', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'aggression', location: '', notes: '', description: '' }
+        '09:00': {
+          behavior: 'aggression',
+          location: '',
+          notes: '',
+          description: '',
+        },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'description', observations, '');
+        result.current.validateSingleObservationField(
+          '09:00',
+          'description',
+          observations,
+          ''
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBe('Description is required for this behavior');
+      expect(result.current.fieldErrors['09:00_description']).toBe(
+        'Description is required for this behavior'
+      );
     });
 
     it('should require description for other behavior', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'other', location: '', notes: '', description: '' }
+        '09:00': {
+          behavior: 'other',
+          location: '',
+          notes: '',
+          description: '',
+        },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'description', observations, '');
+        result.current.validateSingleObservationField(
+          '09:00',
+          'description',
+          observations,
+          ''
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBe('Description is required for this behavior');
+      expect(result.current.fieldErrors['09:00_description']).toBe(
+        'Description is required for this behavior'
+      );
     });
 
     it('should pass when description is provided for aggression', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'aggression', location: '', notes: '', description: 'Wings spread, hissing' }
+        '09:00': {
+          behavior: 'aggression',
+          location: '',
+          notes: '',
+          description: 'Wings spread, hissing',
+        },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'description', observations, 'Wings spread, hissing');
+        result.current.validateSingleObservationField(
+          '09:00',
+          'description',
+          observations,
+          'Wings spread, hissing'
+        );
       });
 
       expect(result.current.fieldErrors['09:00_description']).toBeUndefined();
@@ -257,11 +344,21 @@ describe('useFormValidation', () => {
     it('should not require description when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '', description: '' }
+        '09:00': {
+          behavior: 'eating_food_platform',
+          location: '',
+          notes: '',
+          description: '',
+        },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'description', observations, '');
+        result.current.validateSingleObservationField(
+          '09:00',
+          'description',
+          observations,
+          ''
+        );
       });
 
       expect(result.current.fieldErrors['09:00_description']).toBeUndefined();
@@ -270,14 +367,26 @@ describe('useFormValidation', () => {
     it('should reject whitespace-only description', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'aggression', location: '', notes: '', description: '   ' }
+        '09:00': {
+          behavior: 'aggression',
+          location: '',
+          notes: '',
+          description: '   ',
+        },
       };
-      
+
       act(() => {
-        result.current.validateSingleObservationField('09:00', 'description', observations, '   ');
+        result.current.validateSingleObservationField(
+          '09:00',
+          'description',
+          observations,
+          '   '
+        );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBe('Description is required for this behavior');
+      expect(result.current.fieldErrors['09:00_description']).toBe(
+        'Description is required for this behavior'
+      );
     });
   });
 
@@ -288,12 +397,12 @@ describe('useFormValidation', () => {
         observerName: '',
         date: '2025-11-20',
         startTime: '09:00',
-        endTime: '10:00'
+        endTime: '10:00',
       };
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' }
+        '09:00': { behavior: '', location: '', notes: '' },
       };
-      
+
       let isValid;
       act(() => {
         isValid = result.current.validateForm(metadata, observations);
@@ -310,13 +419,13 @@ describe('useFormValidation', () => {
         observerName: 'testuser',
         date: '2025-11-20',
         startTime: '09:00',
-        endTime: '10:00'
+        endTime: '10:00',
       };
       const observations = {
         '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
-        '09:05': { behavior: 'walking_perch', location: '5', notes: '' }
+        '09:05': { behavior: 'walking_perch', location: '5', notes: '' },
       };
-      
+
       let isValid;
       act(() => {
         isValid = result.current.validateForm(metadata, observations);
@@ -330,12 +439,14 @@ describe('useFormValidation', () => {
   describe('clearFieldError', () => {
     it('should clear a specific field error', () => {
       const { result } = renderHook(() => useFormValidation());
-      
+
       // Set an error first
       act(() => {
-        result.current.validateSingleMetadataField('observerName', '', { observerName: '' });
+        result.current.validateSingleMetadataField('observerName', '', {
+          observerName: '',
+        });
       });
-      
+
       expect(result.current.fieldErrors.observerName).toBeDefined();
 
       // Clear it
@@ -354,12 +465,12 @@ describe('useFormValidation', () => {
         observerName: '',
         date: '',
         startTime: '',
-        endTime: ''
+        endTime: '',
       };
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' }
+        '09:00': { behavior: '', location: '', notes: '' },
       };
-      
+
       // Generate multiple errors
       act(() => {
         result.current.validateForm(metadata, observations);

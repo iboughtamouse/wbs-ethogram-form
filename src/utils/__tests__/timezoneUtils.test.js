@@ -69,8 +69,16 @@ describe('timezoneUtils', () => {
     });
 
     it('should handle edge case of 5-minute intervals', () => {
-      const times = ['00:00', '00:05', '00:10', '00:15', '00:20', '00:25', '00:30'];
-      times.forEach(time => {
+      const times = [
+        '00:00',
+        '00:05',
+        '00:10',
+        '00:15',
+        '00:20',
+        '00:25',
+        '00:30',
+      ];
+      times.forEach((time) => {
         const result = convertToWBSTime('2025-11-20', time);
         expect(result).toMatch(/^\d{2}:\d{2}$/);
       });
@@ -96,11 +104,11 @@ describe('timezoneUtils', () => {
       const [endHour, endMin] = end.split(':').map(Number);
 
       // Calculate duration (handling day rollover if needed)
-      let durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+      let durationMinutes = endHour * 60 + endMin - (startHour * 60 + startMin);
       if (durationMinutes < 0) {
         durationMinutes += 24 * 60; // Add 24 hours if it rolled over
       }
-      
+
       expect(durationMinutes).toBe(60);
     });
   });

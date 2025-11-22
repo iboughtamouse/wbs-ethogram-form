@@ -16,7 +16,7 @@ export function saveDraft(metadata, observations) {
     const draft = {
       metadata,
       observations,
-      savedAt: new Date().toISOString()
+      savedAt: new Date().toISOString(),
     };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     return true;

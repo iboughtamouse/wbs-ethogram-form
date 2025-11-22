@@ -1,6 +1,7 @@
 # Testing Checklist for Ethogram Form
 
 ## Pre-Testing Setup
+
 - [ ] Test on desktop (Chrome/Firefox/Safari)
 - [ ] Test on mobile (iOS Safari and/or Android Chrome)
 - [ ] Enable responsive design mode in devtools for desktop mobile testing
@@ -11,6 +12,7 @@
 ## 1. Basic Input Validation
 
 ### Metadata Section
+
 - [ ] Observer name: Leave blank → submit → error shows
 - [ ] Observer name: Fill in → error clears immediately
 - [ ] Date: Leave blank → submit → error shows
@@ -18,6 +20,7 @@
 - [ ] Press Enter in observer name field → validates field, doesn't submit form
 
 ### Time Range Validation
+
 - [ ] Both times blank → submit → errors show
 - [ ] Start time only → submit → error shows
 - [ ] End time only → submit → error shows
@@ -32,11 +35,13 @@
 ## 2. Observation Slots - Basic Behavior
 
 ### Behavior Selection
+
 - [ ] Leave behavior as "Select a behavior..." → submit → error shows
 - [ ] Select any behavior → error clears immediately
 - [ ] Change behavior → previous conditional fields clear (location, object, etc.)
 
 ### Location Field (Conditional)
+
 - [ ] Select "Eating - Elsewhere" → location field appears
 - [ ] Leave location blank → error shows immediately
 - [ ] Type invalid location "99" → error shows
@@ -46,6 +51,7 @@
 - [ ] Change to "Sleeping" behavior → location field disappears, no stale errors
 
 ### Mobile-Specific Location Testing
+
 - [ ] Select behavior requiring location on mobile
 - [ ] Tap location dropdown
 - [ ] Select "Ground"
@@ -58,6 +64,7 @@
 ## 3. Conditional Field Visibility
 
 ### Object Interaction
+
 - [ ] Select "Interaction with object" → object select appears
 - [ ] Leave object blank → submit → error shows
 - [ ] Select object → error clears immediately
@@ -67,6 +74,7 @@
 - [ ] Change object back to non-"other" → objectOther field disappears, no stale errors
 
 ### Animal Interaction
+
 - [ ] Select behavior requiring animal interaction → animal select appears
 - [ ] Leave animal blank → submit → error shows
 - [ ] Select animal → error clears immediately
@@ -76,6 +84,7 @@
 - [ ] Change animal back to non-"other" → animalOther field disappears, no stale errors
 
 ### Interaction Type
+
 - [ ] When animal interaction selected → interactionType select appears
 - [ ] Leave interactionType blank → submit → error shows
 - [ ] Select interactionType → error clears immediately
@@ -85,6 +94,7 @@
 - [ ] Change interactionType back to non-"other" → interactionTypeOther field disappears, no stale errors
 
 ### Description Field
+
 - [ ] Select "Aggression or Defensive Posturing" → description field appears
 - [ ] Leave description blank → error shows after ~200ms (debounced)
 - [ ] Type in description → error clears after ~200ms
@@ -96,6 +106,7 @@
 ## 4. Text Field Debouncing
 
 Test with any debounced text field (objectOther, animalOther, interactionTypeOther, description):
+
 - [ ] Type one character → wait → validation appears after ~200ms
 - [ ] Type rapidly without pausing → no validation errors appear while typing
 - [ ] Stop typing → wait 200ms → validation appears
@@ -107,6 +118,7 @@ Test with any debounced text field (objectOther, animalOther, interactionTypeOth
 ## 5. Enter Key Behavior
 
 Test with any text input (observerName, objectOther, animalOther, interactionTypeOther, description, notes):
+
 - [ ] Type invalid value and press Enter → validation error shows for that field only
 - [ ] Type valid value and press Enter → no error shows for that field
 - [ ] Press Enter does NOT submit the form
@@ -129,6 +141,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 ## 7. Perch Diagram Modal
 
 ### Opening/Closing
+
 - [ ] Click "Map" button → modal opens
 - [ ] Modal shows NE Half tab by default
 - [ ] Click SW Half tab → image switches
@@ -138,10 +151,12 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Press Escape key → modal closes
 
 ### Tab Switching
+
 - [ ] Switch between NE/SW tabs → no form validation errors appear
 - [ ] Switch tabs multiple times → modal works smoothly, no errors
 
 ### Mobile Perch Modal
+
 - [ ] Open modal on mobile device
 - [ ] Modal is responsive and readable
 - [ ] Tabs work correctly on touch
@@ -165,12 +180,14 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 ## 9. Form Submission
 
 ### Validation on Submit
+
 - [ ] Leave entire form blank → click submit → all required field errors appear
 - [ ] Fill some fields, leave others blank → submit → only blank required fields show errors
 - [ ] Fix errors one by one → verify errors clear as fields become valid
 - [ ] All fields valid → submit → no errors, output preview appears
 
 ### Output Preview
+
 - [ ] Submit valid form → JSON output appears
 - [ ] Verify all metadata fields present in output
 - [ ] Verify all observation slots present in output
@@ -182,6 +199,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 ## 10. Edge Cases & Stress Testing
 
 ### Multiple Time Slots
+
 - [ ] Create form with max time range (60 minutes = 12 slots)
 - [ ] Fill out all slots with different behaviors
 - [ ] Verify validation works independently for each slot
@@ -189,6 +207,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Verify form submission includes all slots
 
 ### Browser Back/Forward
+
 - [ ] Fill out form
 - [ ] Navigate away (if possible in SPA context)
 - [ ] Use browser back button
@@ -196,6 +215,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Verify no validation errors appear on restore
 
 ### Rapid Interaction
+
 - [ ] Rapidly switch between behaviors
 - [ ] Rapidly type and delete in text fields
 - [ ] Rapidly open/close perch modal
@@ -203,6 +223,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Verify validation eventually catches up correctly
 
 ### Mobile-Specific Edge Cases
+
 - [ ] Rotate device while form is open
 - [ ] Open modal while keyboard is visible
 - [ ] Switch apps and return
@@ -250,7 +271,7 @@ _(Document any known issues or limitations here)_
 ## Test Sign-off
 
 | Tester | Date | Device/Browser | Pass/Fail | Notes |
-|--------|------|----------------|-----------|-------|
+| ------ | ---- | -------------- | --------- | ----- |
 |        |      |                |           |       |
 |        |      |                |           |       |
 |        |      |                |           |       |

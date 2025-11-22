@@ -8,7 +8,7 @@ import {
   AnimalSelect,
   InteractionTypeSelect,
   DescriptionField,
-  NotesField
+  NotesField,
 } from '../../src/components/form';
 
 describe('Form Components', () => {
@@ -43,7 +43,13 @@ describe('Form Components', () => {
     });
 
     test('displays error when provided', () => {
-      render(<BehaviorSelect value="" onChange={mockOnChange} error="Behavior is required" />);
+      render(
+        <BehaviorSelect
+          value=""
+          onChange={mockOnChange}
+          error="Behavior is required"
+        />
+      );
 
       expect(screen.getByText('Behavior is required')).toBeInTheDocument();
     });
@@ -62,7 +68,9 @@ describe('Form Components', () => {
       expect(screen.getByText('Select a behavior...')).toBeInTheDocument();
       expect(screen.getByText('Eating - On Food Platform')).toBeInTheDocument();
       expect(screen.getByText('Preening/Grooming')).toBeInTheDocument();
-      expect(screen.getByText('Interacting with Inanimate Object')).toBeInTheDocument();
+      expect(
+        screen.getByText('Interacting with Inanimate Object')
+      ).toBeInTheDocument();
     });
   });
 
@@ -262,7 +270,9 @@ describe('Form Components', () => {
         />
       );
 
-      expect(screen.getByPlaceholderText(/Enter object name/i)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Enter object name/i)
+      ).toBeInTheDocument();
     });
 
     test('does not show "other" text field when value is not "other"', () => {
@@ -276,7 +286,9 @@ describe('Form Components', () => {
         />
       );
 
-      expect(screen.queryByPlaceholderText(/Enter object name/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText(/Enter object name/i)
+      ).not.toBeInTheDocument();
     });
 
     test('calls onOtherChange when "other" text changes', () => {
@@ -364,7 +376,9 @@ describe('Form Components', () => {
         />
       );
 
-      expect(screen.getByPlaceholderText(/Enter animal type/i)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Enter animal type/i)
+      ).toBeInTheDocument();
     });
 
     test('calls onChange when dropdown value changes', () => {
@@ -379,7 +393,9 @@ describe('Form Components', () => {
       );
 
       const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'juvenile_aviary_occupant' } });
+      fireEvent.change(select, {
+        target: { value: 'juvenile_aviary_occupant' },
+      });
 
       expect(mockOnChange).toHaveBeenCalled();
     });
@@ -422,7 +438,9 @@ describe('Form Components', () => {
         />
       );
 
-      expect(screen.getByPlaceholderText(/Enter interaction type/i)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Enter interaction type/i)
+      ).toBeInTheDocument();
     });
 
     test('calls onChange when dropdown value changes', () => {
@@ -453,11 +471,11 @@ describe('Form Components', () => {
       perchOptions: [
         {
           label: 'Common Locations',
-          options: [{ value: 'Ground', label: 'Ground' }]
-        }
+          options: [{ value: 'Ground', label: 'Ground' }],
+        },
       ],
       selectedLocationOption: null,
-      selectStyles: {}
+      selectStyles: {},
     };
 
     beforeEach(() => {
@@ -468,14 +486,18 @@ describe('Form Components', () => {
       render(<LocationInput {...defaultProps} behaviorValue="preening" />);
 
       // Use specific text to avoid matching "Starting Location"
-      expect(screen.getByText('Location (Perch # or "Ground")')).toBeInTheDocument();
+      expect(
+        screen.getByText('Location (Perch # or "Ground")')
+      ).toBeInTheDocument();
     });
 
     test('renders with "Starting Location" label for jumping behavior', () => {
       render(<LocationInput {...defaultProps} behaviorValue="jumping" />);
 
       // Use specific text for clarity
-      expect(screen.getByText('Starting Location (Perch # or "Ground")')).toBeInTheDocument();
+      expect(
+        screen.getByText('Starting Location (Perch # or "Ground")')
+      ).toBeInTheDocument();
     });
 
     test('renders map button', () => {

@@ -1,0 +1,25 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 85%
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+        threshold: 2%
+
+comment:
+  layout: "header, diff, files"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "**/__tests__/**"
+  - "**/tests/**"
+  - "**/*.test.js"
+  - "**/*.test.jsx"
+  - "**/jest.*.js"
+  - "**/vite.config.js"
+  - "**/babel.config.js"
+  - "**/commitlint.config.js"

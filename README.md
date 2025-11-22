@@ -1,5 +1,12 @@
 # WBS Ethogram Data Entry Form
 
+[![CI](https://github.com/iboughtamouse/wbs-ethogram-form/actions/workflows/ci.yml/badge.svg)](https://github.com/iboughtamouse/wbs-ethogram-form/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/iboughtamouse/wbs-ethogram-form/branch/main/graph/badge.svg)](https://codecov.io/gh/iboughtamouse/wbs-ethogram-form)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
+![npm](https://img.shields.io/badge/npm-%3E%3D9.0.0-brightgreen)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 A web-based data entry form for World Bird Sanctuary's ethogram observations. This tool helps citizen scientists record Sayyida's behaviors during live Twitch streams or when reviewing recorded videos (VODs).
 
 ## 🌐 Live Demo

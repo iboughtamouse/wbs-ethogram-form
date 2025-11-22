@@ -48,7 +48,7 @@ input:disabled {
   background-color: #e3f2fd;
 }
 
-.mode-option input[type="radio"] {
+.mode-option input[type='radio'] {
   position: absolute;
   opacity: 0;
 }
@@ -115,7 +115,8 @@ input:disabled {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -381,36 +382,35 @@ input:disabled {
     max-height: 90vh;
     width: 100%;
   }
-  
+
   .perch-modal-tabs {
     flex-direction: column;
     gap: 0;
   }
-  
+
   .perch-tab {
     border-bottom: none;
     border-left: 3px solid transparent;
   }
-  
+
   .perch-tab.active {
     border-left-color: #3498db;
     border-bottom-color: transparent;
   }
-  
+
   .perch-hotspot-text {
     font-size: 14px;
   }
-  
+
   .perch-hotspot-circle {
     r: 22;
   }
-  
+
   .perch-hotspot-group:hover .perch-hotspot-circle {
     r: 25;
   }
-  
+
   .perch-hotspot-group.selected .perch-hotspot-circle {
     r: 24;
   }
 }
-

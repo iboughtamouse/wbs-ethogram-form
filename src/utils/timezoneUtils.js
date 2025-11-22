@@ -13,7 +13,10 @@ export const getUserTimezone = () => {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   } catch (error) {
-    console.warn('Could not detect timezone, defaulting to WBS timezone', error);
+    console.warn(
+      'Could not detect timezone, defaulting to WBS timezone',
+      error
+    );
     return WBS_TIMEZONE;
   }
 };
@@ -39,12 +42,12 @@ export const convertToWBSTime = (dateString, timeString) => {
       timeZone: WBS_TIMEZONE,
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
     });
 
     const parts = formatter.formatToParts(localDateTime);
-    const hour = parts.find(p => p.type === 'hour').value;
-    const minute = parts.find(p => p.type === 'minute').value;
+    const hour = parts.find((p) => p.type === 'hour').value;
+    const minute = parts.find((p) => p.type === 'minute').value;
 
     return `${hour}:${minute}`;
   } catch (error) {
@@ -71,10 +74,10 @@ export const getTimezoneAbbreviation = (timezone) => {
     const date = new Date();
     const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: timezone,
-      timeZoneName: 'short'
+      timeZoneName: 'short',
     });
     const parts = formatter.formatToParts(date);
-    const tzName = parts.find(p => p.type === 'timeZoneName');
+    const tzName = parts.find((p) => p.type === 'timeZoneName');
     return tzName ? tzName.value : timezone;
   } catch (error) {
     return timezone;
