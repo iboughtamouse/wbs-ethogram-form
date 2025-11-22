@@ -132,7 +132,7 @@ The "Copy to next" button validates the source observation before copying:
 
 ### Testing
 
-- The repo has 287 passing tests using Jest + React Testing Library across 15 test suites
+- The repo has comprehensive test coverage using Jest + React Testing Library
 - Test coverage includes:
   - E2E integration tests (`tests/integration/App.test.jsx`, `TimeSlotObservation.test.jsx`, `FormComponents.test.jsx`, `MetadataSection.test.jsx`)
   - Feature tests (`tests/copyToNextSlot.test.js`)

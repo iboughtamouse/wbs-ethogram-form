@@ -92,10 +92,13 @@ for better organization and clarity.
 - Run existing tests: `npm test`
 - Add tests for new features when possible
 - We use Jest and React Testing Library
-- Currently have 68+ tests covering:
-  - Time utilities (rounding, validation, slot generation)
-  - Form validation logic
-  - localStorage autosave functionality
+- Comprehensive test coverage including:
+  - E2E integration tests (full app workflows)
+  - Unit tests for hooks (useFormState, useFormValidation, useAutoSave)
+  - Service tests (formStateManager, formSubmission, draftManager, excelGenerator)
+  - Utility tests (timeUtils, timezoneUtils, localStorageUtils)
+  - Component tests (LoadingOverlay, LoadingSpinner, OutputPreview)
+  - Feature tests (copy-to-next validation)
 
 ## 📝 Code Style
 
