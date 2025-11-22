@@ -21,6 +21,8 @@
 
 ## Executive Summary
 
+> **Note**: This document focuses on **dependency maintenance and security updates**. For quality improvements (testing gaps, accessibility, governance), see [quality-improvements.md](./quality-improvements.md).
+
 **Overall Health**: ⭐⭐⭐⭐½ (4.5/5) - **Excellent**
 
 The WBS Ethogram Form codebase is in outstanding condition following the completion of Phase 6 refactoring. The architecture is clean, test coverage is comprehensive (287 passing tests), and there are no critical technical debt issues. However, some maintenance work is recommended to keep the codebase modern and secure.
