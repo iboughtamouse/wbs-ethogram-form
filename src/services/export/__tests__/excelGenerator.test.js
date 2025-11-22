@@ -300,5 +300,116 @@ describe('excelGenerator', () => {
       expect(worksheet.getCell('B4').value).toBe('0:00');
       expect(worksheet.getCell('M4').value).toBe('0:55'); // 12th column (B + 11)
     });
+
+    it('should handle midnight crossing observations (23:55 to 00:00)', async () => {
+      const midnightData = {
+        metadata: {
+          observerName: 'Night Observer',
+          date: '2025-01-15',
+          startTime: '23:55',
+          endTime: '00:00',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: {
+          '23:55': {
+            behavior: 'resting_alert',
+            location: '1',
+            notes: 'Before midnight',
+            object: '',
+            objectOther: '',
+            animal: '',
+            animalOther: '',
+            interactionType: '',
+            interactionTypeOther: '',
+            description: '',
+          },
+          '00:00': {
+            behavior: 'vocalizing',
+            location: '',
+            notes: 'After midnight',
+            object: '',
+            objectOther: '',
+            animal: '',
+            animalOther: '',
+            interactionType: '',
+            interactionTypeOther: '',
+            description: '',
+          },
+        },
+        submittedAt: '2025-01-16T00:05:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(midnightData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Time window should show actual times
+      expect(worksheet.getCell('K1').value).toBe('23:55 - 00:00');
+
+      // Relative time headers should show 0:00 and 0:05
+      expect(worksheet.getCell('B4').value).toBe('0:00');
+      expect(worksheet.getCell('C4').value).toBe('0:05');
+
+      // Both observations should be marked
+      const rows = worksheet.getRows(5, 25);
+      let restingRow = null;
+      let vocalizingRow = null;
+
+      rows.forEach((row, index) => {
+        const cellValue = row.getCell(1).value;
+        if (cellValue) {
+          if (
+            cellValue.toString().includes('Resting on Perch/Ground - Alert')
+          ) {
+            restingRow = 5 + index;
+          }
+          if (cellValue.toString().includes('Vocalizing')) {
+            vocalizingRow = 5 + index;
+          }
+        }
+      });
+
+      expect(restingRow).not.toBeNull();
+      expect(vocalizingRow).not.toBeNull();
+
+      // Check that observations are in the right columns
+      if (restingRow) {
+        const cell = worksheet.getCell(restingRow, 2); // Column B = 23:55 = 0:00
+        expect(cell.value).toBeTruthy();
+        expect(cell.value).toContain('Loc: 1');
+      }
+
+      if (vocalizingRow) {
+        const cell = worksheet.getCell(vocalizingRow, 3); // Column C = 00:00 = 0:05
+        expect(cell.value).toBeTruthy();
+      }
+    });
+
+    it('should handle midnight crossing with full hour (23:30 to 00:30)', async () => {
+      const fullHourData = {
+        metadata: {
+          observerName: 'Night Observer',
+          date: '2025-01-15',
+          startTime: '23:30',
+          endTime: '00:30',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: {},
+        submittedAt: '2025-01-16T00:35:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(fullHourData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Should have 13 time slots (0:00, 0:05, ..., 1:00)
+      expect(worksheet.getCell('B4').value).toBe('0:00');
+      expect(worksheet.getCell('G4').value).toBe('0:25'); // 6th column (23:55)
+      expect(worksheet.getCell('H4').value).toBe('0:30'); // 7th column (00:00)
+      expect(worksheet.getCell('M4').value).toBe('0:55'); // 12th column (00:25)
+      expect(worksheet.getCell('N4').value).toBe('1:00'); // 13th column (00:30)
+    });
   });
 });

@@ -43,14 +43,20 @@ const BEHAVIOR_ROW_MAPPING = {
  * @param {string} time - Time in HH:MM format
  * @param {string} startTime - Start time in HH:MM format
  * @returns {string} Relative time in H:MM format (e.g., "0:00", "0:05", "1:30")
- * @note Does not handle times crossing midnight. Observation periods are limited to 60 minutes max.
+ * @note Handles times crossing midnight (e.g., start: 23:55, time: 00:00 → "0:05")
  */
 const convertToRelativeTime = (time, startTime) => {
   const [timeHours, timeMinutes] = time.split(':').map(Number);
   const [startHours, startMinutes] = startTime.split(':').map(Number);
 
-  const totalTimeMinutes = timeHours * 60 + timeMinutes;
+  let totalTimeMinutes = timeHours * 60 + timeMinutes;
   const totalStartMinutes = startHours * 60 + startMinutes;
+
+  // Handle midnight crossing: if time is less than start time, add 24 hours
+  if (totalTimeMinutes < totalStartMinutes) {
+    totalTimeMinutes += 24 * 60; // Add 1440 minutes (24 hours)
+  }
+
   const diffMinutes = totalTimeMinutes - totalStartMinutes;
 
   const hours = Math.floor(diffMinutes / 60);

@@ -92,6 +92,24 @@ describe('timeUtils', () => {
       expect(slots[10]).toBe('15:35');
       expect(slots).toContain('15:35');
     });
+
+    it('should handle midnight crossing (23:55 to 00:00)', () => {
+      const slots = generateTimeSlots('23:55', '00:00');
+      expect(slots).toEqual(['23:55', '00:00']);
+    });
+
+    it('should handle midnight crossing (23:50 to 00:10)', () => {
+      const slots = generateTimeSlots('23:50', '00:10');
+      expect(slots).toEqual(['23:50', '23:55', '00:00', '00:05', '00:10']);
+    });
+
+    it('should handle midnight crossing with full hour (23:30 to 00:30)', () => {
+      const slots = generateTimeSlots('23:30', '00:30');
+      expect(slots).toHaveLength(13); // 60 minutes / 5 + 1 = 13 slots
+      expect(slots[0]).toBe('23:30');
+      expect(slots[6]).toBe('00:00'); // Midnight at index 6
+      expect(slots[12]).toBe('00:30');
+    });
   });
 
   describe('validateTimeRange', () => {
@@ -143,10 +161,22 @@ describe('timeUtils', () => {
       expect(result.error).toBe('Both start and end times are required');
     });
 
-    it('should handle negative duration (end before start)', () => {
-      const result = validateTimeRange('10:00', '09:00');
+    it('should accept midnight crossing (23:55 to 00:00)', () => {
+      const result = validateTimeRange('23:55', '00:00');
+      expect(result.valid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should accept midnight crossing (23:30 to 00:30)', () => {
+      const result = validateTimeRange('23:30', '00:30');
+      expect(result.valid).toBe(true);
+      expect(result.error).toBeNull();
+    });
+
+    it('should reject midnight crossing exceeding 1 hour (23:00 to 00:05)', () => {
+      const result = validateTimeRange('23:00', '00:05');
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('Time range must be at least 5 minutes');
+      expect(result.error).toBe('Time range cannot exceed 1 hour');
     });
   });
 
