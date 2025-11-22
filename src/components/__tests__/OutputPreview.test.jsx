@@ -284,6 +284,11 @@ describe('OutputPreview', () => {
     test('hides loading overlay after download error', async () => {
       const user = userEvent.setup();
 
+      // Mock console.error to suppress expected error output
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       // Mock download error
       downloadExcelFile.mockRejectedValueOnce(new Error('Network error'));
 
@@ -303,7 +308,14 @@ describe('OutputPreview', () => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
       });
 
-      // Restore original alert
+      // Verify console.error was called with expected error
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to generate Excel file:',
+        expect.any(Error)
+      );
+
+      // Restore mocks
+      consoleErrorSpy.mockRestore();
       window.alert = originalAlert;
     });
   });
@@ -313,6 +325,11 @@ describe('OutputPreview', () => {
       const user = userEvent.setup();
       const mockError = new Error('Download failed');
       downloadExcelFile.mockRejectedValueOnce(mockError);
+
+      // Mock console.error to suppress expected error output
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       // Mock window.alert
       const alertMock = jest.fn();
@@ -337,13 +354,25 @@ describe('OutputPreview', () => {
         expect.stringContaining('Download failed')
       );
 
-      // Restore original alert
+      // Verify console.error was called
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to generate Excel file:',
+        mockError
+      );
+
+      // Restore mocks
+      consoleErrorSpy.mockRestore();
       window.alert = originalAlert;
     });
 
     test('handles error without message gracefully', async () => {
       const user = userEvent.setup();
       downloadExcelFile.mockRejectedValueOnce(new Error());
+
+      // Mock console.error to suppress expected error output
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       const alertMock = jest.fn();
       const originalAlert = window.alert;
@@ -362,6 +391,8 @@ describe('OutputPreview', () => {
         );
       });
 
+      // Restore mocks
+      consoleErrorSpy.mockRestore();
       window.alert = originalAlert;
     });
 
