@@ -76,7 +76,7 @@ describe('LoadingSpinner', () => {
     });
 
     test('spinner has no conflicting roles', () => {
-      const { container } = render(<LoadingSpinner />);
+      render(<LoadingSpinner />);
       const spinner = screen.getByRole('status');
       // Should only have status role, not multiple conflicting roles
       const roles = spinner.getAttribute('role');

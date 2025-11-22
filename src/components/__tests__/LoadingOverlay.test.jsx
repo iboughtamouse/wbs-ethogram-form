@@ -31,7 +31,7 @@ describe('LoadingOverlay', () => {
 
     test('renders LoadingSpinner component', () => {
       render(<LoadingOverlay isVisible={true} message="Please wait..." />);
-      // LoadingSpinner has role="status", but overlay should be the parent status
+      // LoadingSpinner is in presentation mode (no role="status"), overlay provides the status role
       const spinner = screen.getByText('Please wait...');
       expect(spinner).toBeInTheDocument();
     });
@@ -255,8 +255,6 @@ describe('LoadingOverlay', () => {
     });
 
     test('prevents focus from leaving overlay when visible', async () => {
-      const user = userEvent.setup();
-
       render(
         <div>
           <button>Before</button>
