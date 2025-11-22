@@ -759,7 +759,7 @@ Consider adding a backend if:
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Developer setup and workflow
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
 - **[docs/interaction-subfields-design.md](docs/interaction-subfields-design.md)** - Design decisions for interaction fields
-- **[docs/refactoring-strategy.md](docs/refactoring-strategy.md)** - Refactoring plan (historical)
+- **[docs/refactoring-history.md](docs/refactoring-history.md)** - Completed refactoring phases (historical reference)
 - **[docs/maintenance-strategy.md](docs/maintenance-strategy.md)** - Dependency and security maintenance
 - **[docs/quality-improvements.md](docs/quality-improvements.md)** - Testing, accessibility, and governance improvements
 - **[docs/testing-checklist.md](docs/testing-checklist.md)** - QA checklist

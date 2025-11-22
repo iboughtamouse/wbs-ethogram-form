@@ -72,7 +72,7 @@ ethogram-form/
 │   └── main.jsx                      # React entry point
 ├── docs/
 │   ├── interaction-subfields-design.md  # Design decisions for sub-fields
-│   ├── refactoring-strategy.md          # Refactoring plan and phases
+│   ├── refactoring-history.md           # Completed refactoring phases (historical)
 │   └── testing-checklist.md             # Comprehensive QA checklist
 ├── .github/
 │   └── copilot-instructions.md       # AI coding assistant guidance
@@ -528,7 +528,7 @@ useEffect(() => {
 - Updated `copilot-instructions.md` with current patterns
 - Fixed README accuracy for perch diagram feature
 - Created comprehensive `testing-checklist.md`
-- Added `refactoring-strategy.md` documenting phased approach
+- Added `refactoring-history.md` documenting phased approach (now complete)
 
 **Phase 1 - PropTypes & Type Safety:**
 

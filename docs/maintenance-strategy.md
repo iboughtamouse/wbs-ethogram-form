@@ -477,7 +477,7 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
 2. **Documentation Review**:
    - Check README accuracy
    - Update ARCHITECTURE.md if changes made
-   - Review TODO lists in refactoring-strategy.md
+   - Review TODO lists in refactoring-history.md (all phases now complete)
 
 3. **Performance Check**:
    - Run Lighthouse audit
@@ -499,7 +499,7 @@ The WBS Ethogram Form codebase is in outstanding condition following the complet
    - Create PR with detailed changelog
 
 2. **Architecture Review**:
-   - Review refactoring-strategy.md
+   - Review refactoring-history.md
    - Assess if any phases need work
    - Document new architectural decisions
 

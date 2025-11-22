@@ -35,7 +35,7 @@ This document outlines quality improvements that go beyond routine maintenance. 
 | ---------------------------------------------------- | ------------------------------------ | -------------------- | ----------------- |
 | [maintenance-strategy.md](./maintenance-strategy.md) | Dependency updates, security patches | All developers       | Immediate (weeks) |
 | **quality-improvements.md** (this doc)               | Testing, accessibility, governance   | Quality-focused work | Ongoing (months)  |
-| [refactoring-strategy.md](./refactoring-strategy.md) | Historical refactoring phases        | Reference only       | Completed         |
+| [refactoring-history.md](./refactoring-history.md)   | Completed refactoring phases         | Reference only       | ✅ Complete       |
 
 ---
 
