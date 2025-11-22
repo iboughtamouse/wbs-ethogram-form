@@ -43,6 +43,7 @@ const BEHAVIOR_ROW_MAPPING = {
  * @param {string} time - Time in HH:MM format
  * @param {string} startTime - Start time in HH:MM format
  * @returns {string} Relative time in H:MM format (e.g., "0:00", "0:05", "1:30")
+ * @note Does not handle times crossing midnight. Observation periods are limited to 60 minutes max.
  */
 const convertToRelativeTime = (time, startTime) => {
   const [timeHours, timeMinutes] = time.split(':').map(Number);
@@ -62,7 +63,8 @@ const convertToRelativeTime = (time, startTime) => {
 /**
  * Formats observation details for a cell
  * @param {Object} observation - Observation data
- * @returns {string} Formatted cell content
+ * @returns {string} Formatted cell content with newline-separated details
+ * @note Cells using this format require wrapText: true alignment for proper display
  */
 const formatCellContent = (observation) => {
   const parts = ['x'];
@@ -159,7 +161,10 @@ export const generateExcelWorkbook = async (formData) => {
       if (observation && observation.behavior === behaviorValue) {
         const columnIndex = timeIndex + 2; // Column B is index 2
         const cellContent = formatCellContent(observation);
-        worksheet.getCell(rowIndex, columnIndex).value = cellContent;
+        const cell = worksheet.getCell(rowIndex, columnIndex);
+        cell.value = cellContent;
+        // Enable text wrapping for cells with newline-separated content
+        cell.alignment = { wrapText: true, vertical: 'top' };
       }
     });
   });
@@ -192,12 +197,19 @@ export const downloadExcelFile = async (
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
 
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${filename}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  let url = null;
+  try {
+    url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } finally {
+    // Ensure URL is revoked even if download fails
+    if (url) {
+      window.URL.revokeObjectURL(url);
+    }
+  }
 };

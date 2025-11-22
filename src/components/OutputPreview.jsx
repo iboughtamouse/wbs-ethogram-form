@@ -17,7 +17,15 @@ const OutputPreview = ({ data }) => {
       await downloadExcelFile(data, filename);
     } catch (error) {
       console.error('Failed to generate Excel file:', error);
-      alert('Failed to generate Excel file. Please try again.');
+      const errorMessage = error.message || 'Unknown error occurred';
+      alert(
+        `Failed to generate Excel file: ${errorMessage}\n\n` +
+          'Please try the following:\n' +
+          '1. Check that your browser allows downloads\n' +
+          '2. Ensure you have sufficient disk space\n' +
+          '3. Try again in a few moments\n\n' +
+          'If the problem persists, please contact support.'
+      );
     } finally {
       setIsDownloading(false);
     }
