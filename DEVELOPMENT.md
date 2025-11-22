@@ -6,6 +6,17 @@ Technical documentation for developers working on the WBS Ethogram Form.
 >
 > This document covers practical development workflows. For in-depth architectural decisions, component hierarchy, and design patterns, refer to the architecture documentation.
 
+## ⚙️ Prerequisites
+
+- **Node.js**: >= 18.0.0 (recommended: 24.11.1)
+- **npm**: >= 9.0.0 (recommended: 11.6.2)
+
+> **💡 Tip**: Use [nvm](https://github.com/nvm-sh/nvm) to manage Node versions. This project includes an `.nvmrc` file:
+>
+> ```bash
+> nvm use
+> ```
+
 ## 🏗️ Architecture Overview
 
 This is a client-side single-page application (SPA) built with React and Vite. There is no backend - all data processing happens in the browser, and output is provided as JSON for manual submission.
