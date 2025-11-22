@@ -35,23 +35,26 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 - **Data output**: JSON and Excel file downloads (manual submission to WBS)
 - **Autosave**: Browser localStorage prevents data loss
 - **Mobile-first**: Responsive design for desktop and mobile observers
-- **Well-tested**: 353 passing tests across 18 test suites
+- **Well-tested**: Comprehensive test suite with all tests passing
 - **Clean architecture**: Result of 6 refactoring phases (Phase 0-6 complete)
 - **Accessibility-first**: WCAG-compliant loading indicators with screen reader support
 
 ### Tech Stack
 
-| Category         | Technology          | Version        | Purpose                      |
-| ---------------- | ------------------- | -------------- | ---------------------------- |
-| **Framework**    | React               | 18.2.0         | UI rendering                 |
-| **Build Tool**   | Vite                | 5.0.8          | Dev server & bundler         |
-| **Testing**      | Jest + RTL          | 30.x + 16.x    | Unit & integration tests     |
-| **Validation**   | Custom hook         | N/A            | Form validation logic        |
-| **Styling**      | Plain CSS           | N/A            | Minimal styling              |
-| **Dropdowns**    | react-select        | 5.8.0          | Location autocomplete        |
-| **Excel Export** | exceljs             | 4.4.0          | Client-side .xlsx generation |
-| **Linting**      | ESLint + Prettier   | 8.57.0 + 3.2.5 | Code quality                 |
-| **Git Hooks**    | Husky + lint-staged | 9.x + 15.x     | Pre-commit checks            |
+| Category              | Technology              | Version        | Purpose                      |
+| --------------------- | ----------------------- | -------------- | ---------------------------- |
+| **Framework**         | React                   | 18.2.0         | UI rendering                 |
+| **Build Tool**        | Vite                    | 5.0.8          | Dev server & bundler         |
+| **Testing**           | Jest + RTL              | 30.x + 16.x    | Unit & integration tests     |
+| **Validation**        | Custom hook             | N/A            | Form validation logic        |
+| **Styling**           | Plain CSS               | N/A            | Minimal styling              |
+| **Dropdowns**         | react-select            | 5.8.0          | Location autocomplete        |
+| **Excel Export**      | exceljs                 | 4.4.0          | Client-side .xlsx generation |
+| **Linting**           | ESLint + Prettier       | 8.57.0 + 3.2.5 | Code quality                 |
+| **Git Hooks**         | Husky + lint-staged     | 9.x + 15.x     | Pre-commit checks            |
+| **Build Compression** | vite-plugin-compression | 0.5.1 (dev)    | Gzip/Brotli compression      |
+| **Minification**      | terser                  | 5.44.1 (dev)   | Advanced JS minification     |
+| **Image Processing**  | sharp                   | 0.34.5 (dev)   | WebP conversion for images   |
 
 ---
 
@@ -83,7 +86,7 @@ npm install
 # Start dev server (localhost:5173)
 npm run dev
 
-# Run all tests (should see 287 passing)
+# Run all tests (all should pass)
 npm test
 
 # Run tests in watch mode

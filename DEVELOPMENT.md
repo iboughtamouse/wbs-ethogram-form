@@ -34,7 +34,8 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 - **React 18.2.0** - UI framework with hooks
 - **Vite 5.0.8** - Build tool and dev server
 - **React Select 5.8.0** - Autocomplete dropdown for locations
-- **Jest + React Testing Library** - Testing (208 tests, 9 test suites)
+- **ExcelJS 4.4.0** - Excel file generation (dynamically imported)
+- **Jest + React Testing Library** - Comprehensive test suite (all passing)
 - **Native Browser APIs**:
   - `Intl.DateTimeFormat` - Timezone conversion
   - `localStorage` - Autosave functionality
@@ -87,11 +88,13 @@ ethogram-form/
 │   └── testing-checklist.md             # Comprehensive QA checklist
 ├── .github/
 │   └── copilot-instructions.md       # AI coding assistant guidance
-├── tests/                            # Jest test suites (9 suites, 208 tests)
+├── tests/                            # Jest test suites (comprehensive coverage)
 │   ├── integration/                  # E2E integration tests
 │   └── copyToNextSlot.test.js
+├── scripts/                      # Build and utility scripts
+│   └── convert-images-to-webp.js # PNG to WebP conversion
 ├── index.html                        # HTML entry point
-├── vite.config.js                    # Vite configuration
+├── vite.config.js                    # Vite configuration (with chunk splitting & compression)
 ├── jest.config.js                    # Jest configuration
 ├── package.json                      # Dependencies and scripts
 ├── README.md                         # User-facing documentation
@@ -356,17 +359,31 @@ INTERACTION_TYPES = [
 
 ### Vite Configuration
 
-```javascript
-// vite.config.js
-export default defineConfig({
-  plugins: [react()],
-  base: '/', // Adjust if deploying to subdirectory
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
-});
-```
+The Vite configuration (`vite.config.js`) includes sophisticated optimizations for production builds:
+
+**Key Features**:
+
+- **Compression plugins**: Gzip + Brotli pre-compression
+- **Manual chunk splitting**: Separate vendor chunks for optimal caching
+  - `vendor-react`: React + ReactDOM (195 KB)
+  - `vendor-react-select`: React Select (57 KB, isolated)
+  - `vendor-exceljs`: ExcelJS (930 KB, lazy-loaded)
+  - `vendor`: Other dependencies (30 KB)
+- **Modern browser targets**: ES2020+ (Chrome 87+, Firefox 78+, Safari 14+)
+- **Terser minification**: Removes console.log, debugger, comments
+- **Hidden source maps**: For production debugging without exposing to users
+- **Asset organization**: Organized folder structure for images, CSS, JS
+
+**ExcelJS Dynamic Import**:
+
+- Not included in initial bundle
+- Prefetched when OutputPreview mounts (after form completion)
+- Provides instant download experience without bloating initial load
+- See `src/components/OutputPreview.jsx` for implementation
+
+**Bundle Size**: 84 KB gzipped initial load (76.5% reduction from 358 KB)
+
+For full configuration details and comments, see `vite.config.js`
 
 ### Jest Configuration
 
@@ -397,9 +414,23 @@ npm run dev
 ```bash
 npm run build
 # Creates optimized bundle in dist/
-# Minifies JS/CSS
-# Tree-shakes unused code
-# Generates source maps
+# - Minifies JS/CSS with Terser (removes console.log)
+# - Tree-shakes unused code
+# - Generates hidden source maps
+# - Manual chunk splitting for optimal caching
+# - Gzip + Brotli pre-compression
+# - Outputs: 84 KB gzipped initial bundle
+```
+
+### Image Conversion (Development Only)
+
+If you need to add or update perch diagram images:
+
+```bash
+node scripts/convert-images-to-webp.js
+# Converts PNG images in public/images/ to WebP format
+# Requires: sharp package (already in devDependencies)
+# Output: Optimized .webp files with ~86% size reduction
 ```
 
 ### Preview Production Build

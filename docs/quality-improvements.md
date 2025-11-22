@@ -874,7 +874,7 @@ export default Toast;
 
 #### Problem
 
-All 287 tests run in jsdom (simulated browser):
+All tests run in jsdom (simulated browser):
 
 - No real device testing
 - Touch interactions not tested
@@ -1099,7 +1099,7 @@ CSS changes could break UI without detection:
 - Button styling changes go unnoticed
 - Layout shifts on mobile not caught
 - Color/spacing regressions possible
-- 287 tests but no visual testing
+- Comprehensive test suite but no visual testing
 
 #### Recommended Solution
 
@@ -1341,7 +1341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autosave and draft recovery
 - Form validation with inline errors
 - PropTypes for type safety
-- Comprehensive test suite (287 tests)
+- Comprehensive test suite (all passing)
 ```
 
 **Branch**: `docs/add-governance-files`
