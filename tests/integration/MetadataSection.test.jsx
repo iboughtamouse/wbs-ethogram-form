@@ -11,7 +11,7 @@ describe('MetadataSection', () => {
     endTime: '',
     aviary: "Sayyida's Cove",
     patient: 'Sayyida',
-    mode: 'live'
+    mode: 'live',
   };
 
   const defaultFieldErrors = {};
@@ -31,8 +31,12 @@ describe('MetadataSection', () => {
         />
       );
 
-      expect(screen.getByPlaceholderText(/Enter your Discord username/i)).toBeInTheDocument();
-      expect(screen.getByDisplayValue(defaultMetadata.date)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Enter your Discord username/i)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(defaultMetadata.date)
+      ).toBeInTheDocument();
       expect(screen.getByDisplayValue("Sayyida's Cove")).toBeInTheDocument();
       expect(screen.getByDisplayValue('Sayyida')).toBeInTheDocument();
     });
@@ -93,7 +97,9 @@ describe('MetadataSection', () => {
         />
       );
 
-      expect(screen.getByText(/Enter times in YOUR local time/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Enter times in YOUR local time/i)
+      ).toBeInTheDocument();
     });
 
     test('shows VOD mode help text when mode is vod', () => {
@@ -105,7 +111,9 @@ describe('MetadataSection', () => {
         />
       );
 
-      expect(screen.getByText(/Enter times exactly as shown on stream/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Enter times exactly as shown on stream/i)
+      ).toBeInTheDocument();
     });
   });
 
@@ -166,7 +174,11 @@ describe('MetadataSection', () => {
       const input = screen.getByPlaceholderText(/Enter your Discord username/i);
       fireEvent.change(input, { target: { value: 'TestUser' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('observerName', 'TestUser', true);
+      expect(mockOnChange).toHaveBeenCalledWith(
+        'observerName',
+        'TestUser',
+        true
+      );
     });
 
     test('prevents Enter key from submitting and triggers validation', () => {
@@ -257,7 +269,11 @@ describe('MetadataSection', () => {
     test('displays start and end time values', () => {
       render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, startTime: '15:00', endTime: '15:30' }}
+          metadata={{
+            ...defaultMetadata,
+            startTime: '15:00',
+            endTime: '15:30',
+          }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
@@ -277,7 +293,8 @@ describe('MetadataSection', () => {
       );
 
       // Get time inputs by type
-      const container = screen.getByText('Observation Time Range').parentElement.parentElement;
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
       const timeInputs = container.querySelectorAll('input[type="time"]');
       const startTimeInput = timeInputs[0];
       fireEvent.change(startTimeInput, { target: { value: '15:03' } });
@@ -296,7 +313,8 @@ describe('MetadataSection', () => {
       );
 
       // Get time inputs by type
-      const container = screen.getByText('Observation Time Range').parentElement.parentElement;
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
       const timeInputs = container.querySelectorAll('input[type="time"]');
       const endTimeInput = timeInputs[1];
       fireEvent.change(endTimeInput, { target: { value: '15:28' } });
@@ -305,42 +323,60 @@ describe('MetadataSection', () => {
       expect(mockOnChange).toHaveBeenCalledWith('endTime', '15:30', true);
     });
 
-    test('displays time range validation error when start >= end', () => {
+    test('displays time range validation error when midnight crossing exceeds 1 hour', () => {
       render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, startTime: '15:30', endTime: '15:00' }}
+          metadata={{
+            ...defaultMetadata,
+            startTime: '15:30',
+            endTime: '15:00',
+          }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
-      // When end is before start, duration is negative, which is < 5 minutes
-      expect(screen.getByText('Time range must be at least 5 minutes')).toBeInTheDocument();
+      // When end is before start, it's treated as midnight crossing (15:30 → next day 15:00)
+      // This would be ~23.5 hours, which exceeds the 1-hour maximum
+      expect(
+        screen.getByText('Time range cannot exceed 1 hour')
+      ).toBeInTheDocument();
     });
 
     test('displays time range validation error when range > 60 minutes', () => {
       render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, startTime: '15:00', endTime: '16:30' }}
+          metadata={{
+            ...defaultMetadata,
+            startTime: '15:00',
+            endTime: '16:30',
+          }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
       // Actual error message from timeUtils.js
-      expect(screen.getByText('Time range cannot exceed 1 hour')).toBeInTheDocument();
+      expect(
+        screen.getByText('Time range cannot exceed 1 hour')
+      ).toBeInTheDocument();
     });
 
     test('adds error class to time inputs when time range is invalid', () => {
       render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, startTime: '15:30', endTime: '15:00' }}
+          metadata={{
+            ...defaultMetadata,
+            startTime: '15:30',
+            endTime: '15:00',
+          }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
-      const container = screen.getByText('Observation Time Range').parentElement.parentElement;
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
       const timeInputs = container.querySelectorAll('input[type="time"]');
       const startTimeInput = timeInputs[0];
       const endTimeInput = timeInputs[1];
@@ -357,7 +393,8 @@ describe('MetadataSection', () => {
         />
       );
 
-      const container = screen.getByText('Observation Time Range').parentElement.parentElement;
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
       const timeInputs = container.querySelectorAll('input[type="time"]');
       const startTimeInput = timeInputs[0];
       const endTimeInput = timeInputs[1];
