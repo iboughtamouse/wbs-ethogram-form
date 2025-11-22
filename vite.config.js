@@ -95,15 +95,10 @@ export default defineConfig({
     cssCodeSplit: true,
 
     // Minification options
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove all console.* calls in production
-        drop_debugger: true, // Remove debugger statements
-      },
-      format: {
-        comments: false, // Remove all comments
-      },
+    // Using esbuild (Vite's default) instead of terser for faster, more reliable minification
+    minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'], // Remove console.* and debugger in production
     },
   },
 
