@@ -142,13 +142,13 @@ export const useFormValidation = () => {
   };
 
   /**
-   * Helper: Validate all fields for a single observation
+   * Helper: Validate all fields for an observation
    * @param {string} time - The time slot
    * @param {Object} observation - The observation object
    * @param {Object} observations - All observations (for context)
    * @returns {Object} - Errors object with keys like `${time}_${field}`
    */
-  const validateSingleObservation = (time, observation, observations) => {
+  const validateObservation = (time, observation, observations) => {
     const errors = {};
 
     // Validate each field - validateObservationField returns null if field is not required
@@ -171,7 +171,7 @@ export const useFormValidation = () => {
     const errors = {};
 
     Object.entries(observations).forEach(([time, obs]) => {
-      const obsErrors = validateSingleObservation(time, obs, observations);
+      const obsErrors = validateObservation(time, obs, observations);
       Object.assign(errors, obsErrors);
     });
 
@@ -258,7 +258,7 @@ export const useFormValidation = () => {
     }
 
     // Use shared validation helper
-    const errors = validateSingleObservation(time, obs, observations);
+    const errors = validateObservation(time, obs, observations);
 
     // Update field errors state with any errors found
     if (Object.keys(errors).length > 0) {
