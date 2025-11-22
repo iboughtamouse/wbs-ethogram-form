@@ -46,7 +46,7 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 | **Build Tool**   | Vite                | 5.0.8          | Dev server & bundler         |
 | **Testing**      | Jest + RTL          | 30.x + 16.x    | Unit & integration tests     |
 | **Validation**   | Custom hook         | N/A            | Form validation logic        |
-| **Styling**      | Plain CSS           | N/A            | ~150 lines total             |
+| **Styling**      | Plain CSS           | N/A            | Minimal styling              |
 | **Dropdowns**    | react-select        | 5.8.0          | Location autocomplete        |
 | **Excel Export** | exceljs             | 4.4.0          | Client-side .xlsx generation |
 | **Linting**      | ESLint + Prettier   | 8.57.0 + 3.2.5 | Code quality                 |
@@ -114,26 +114,26 @@ npm run preview
 ### Component Hierarchy
 
 ```
-App.jsx (232 lines)
+App.jsx
 ├── Uses hooks:
 │   ├── useFormState (state + operations)
 │   ├── useAutoSave (draft management)
 │   └── useFormValidation (validation rules)
 │
-├── MetadataSection (175 lines)
+├── MetadataSection
 │   └── Observer info, date, mode selector, time range
 │
-├── TimeSlotObservation (304 lines) [×N instances per time slot]
+├── TimeSlotObservation [×N instances per time slot]
 │   ├── Imports from components/form/:
-│   ├── BehaviorSelect (35 lines)
-│   ├── LocationInput (79 lines) + PerchDiagramModal
-│   ├── ObjectSelect (68 lines) [conditional]
-│   ├── AnimalSelect (68 lines) [conditional]
-│   ├── InteractionTypeSelect (68 lines) [conditional]
-│   ├── DescriptionField (32 lines) [conditional]
-│   └── NotesField (25 lines)
+│   ├── BehaviorSelect
+│   ├── LocationInput + PerchDiagramModal
+│   ├── ObjectSelect [conditional]
+│   ├── AnimalSelect [conditional]
+│   ├── InteractionTypeSelect [conditional]
+│   ├── DescriptionField [conditional]
+│   └── NotesField
 │
-└── OutputPreview (45 lines)
+└── OutputPreview
     ├── Excel download button (with loading state)
     └── JSON display with copy button
 ```
@@ -195,17 +195,17 @@ Submit → validateForm → prepareOutputData → generateExcel/JSON
 ```
 wbs-ethogram-form/
 ├── src/
-│   ├── App.jsx                      # Root orchestrator (232 lines)
+│   ├── App.jsx                      # Root orchestrator
 │   ├── App.css                      # Component styles
 │   ├── index.css                    # Global styles
 │   ├── main.jsx                     # React entry point
 │   │
-│   ├── components/                  # React components (11 files)
+│   ├── components/                  # React components
 │   │   ├── MetadataSection.jsx
 │   │   ├── TimeSlotObservation.jsx
 │   │   ├── PerchDiagramModal.jsx
 │   │   ├── OutputPreview.jsx
-│   │   └── form/                    # Extracted form fields (8 files)
+│   │   └── form/                    # Extracted form fields
 │   │       ├── BehaviorSelect.jsx
 │   │       ├── LocationInput.jsx
 │   │       ├── ObjectSelect.jsx
@@ -215,44 +215,44 @@ wbs-ethogram-form/
 │   │       ├── NotesField.jsx
 │   │       └── index.js             # Barrel export
 │   │
-│   ├── hooks/                       # Custom React hooks (3 files)
-│   │   ├── useFormState.js          # State management (123 lines)
-│   │   ├── useAutoSave.js           # Draft persistence (66 lines)
-│   │   ├── useFormValidation.js     # Validation logic (302 lines)
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useFormState.js          # State management
+│   │   ├── useAutoSave.js           # Draft persistence
+│   │   ├── useFormValidation.js     # Validation logic
 │   │   └── __tests__/               # Hook unit tests
 │   │
-│   ├── services/                    # Business logic (4 files)
-│   │   ├── formStateManager.js      # Observation operations (90 lines)
-│   │   ├── formSubmission.js        # Output prep (50 lines)
-│   │   ├── draftManager.js          # Autosave logic (31 lines)
+│   ├── services/                    # Business logic
+│   │   ├── formStateManager.js      # Observation operations
+│   │   ├── formSubmission.js        # Output prep
+│   │   ├── draftManager.js          # Autosave logic
 │   │   ├── export/
-│   │   │   └── excelGenerator.js    # Excel generation (212 lines)
+│   │   │   └── excelGenerator.js    # Excel generation
 │   │   └── __tests__/               # Service unit tests
 │   │
-│   ├── utils/                       # Utility functions (7 files)
-│   │   ├── timeUtils.js             # Time operations (95 lines)
-│   │   ├── timezoneUtils.js         # Timezone conversion (82 lines)
-│   │   ├── localStorageUtils.js     # Storage operations (73 lines)
-│   │   ├── observationUtils.js      # Observation helpers (47 lines)
-│   │   ├── debounce.js              # Debounce utility (21 lines)
+│   ├── utils/                       # Utility functions
+│   │   ├── timeUtils.js             # Time operations
+│   │   ├── timezoneUtils.js         # Timezone conversion
+│   │   ├── localStorageUtils.js     # Storage operations
+│   │   ├── observationUtils.js      # Observation helpers
+│   │   ├── debounce.js              # Debounce utility
 │   │   ├── validators/              # Pure validator functions
-│   │   │   ├── locationValidator.js # Location validation (29 lines)
+│   │   │   ├── locationValidator.js # Location validation
 │   │   │   └── index.js             # Barrel export
 │   │   └── __tests__/               # Utility unit tests
 │   │
-│   └── constants/                   # Domain data (4 files)
-│       ├── behaviors.js             # BEHAVIORS + helpers (136 lines)
-│       ├── locations.js             # VALID_PERCHES, TIME_SLOTS (46 lines)
-│       ├── interactions.js          # Objects, animals, interactions (51 lines)
+│   └── constants/                   # Domain data
+│       ├── behaviors.js             # BEHAVIORS + helpers
+│       ├── locations.js             # VALID_PERCHES, TIME_SLOTS
+│       ├── interactions.js          # Objects, animals, interactions
 │       └── index.js                 # Barrel export
 │
 ├── tests/                           # Integration & E2E tests
 │   ├── integration/
-│   │   ├── App.test.jsx             # Full app E2E (23 tests)
-│   │   ├── TimeSlotObservation.test.jsx # Time slot tests (37 tests)
-│   │   ├── FormComponents.test.jsx  # Form field tests (42 tests)
-│   │   └── MetadataSection.test.jsx # Metadata tests (26 tests)
-│   └── copyToNextSlot.test.js       # Feature tests (14 tests)
+│   │   ├── App.test.jsx             # Full app E2E
+│   │   ├── TimeSlotObservation.test.jsx # Time slot tests
+│   │   ├── FormComponents.test.jsx  # Form field tests
+│   │   └── MetadataSection.test.jsx # Metadata tests
+│   └── copyToNextSlot.test.js       # Feature tests
 │
 ├── docs/                            # Documentation
 │   ├── interaction-subfields-design.md  # Design decisions
@@ -567,7 +567,7 @@ import { BEHAVIORS } from '../constants/behaviors';
 
 - "Ground" is NOT in `VALID_PERCHES` constant
 - It's added dynamically in TimeSlotObservation.jsx's perchOptions
-- Validated separately in locationValidator.js (line 21)
+- Validated separately in locationValidator.js
 - This separates numbered perches/codes from common "Ground" location
 
 ---
@@ -1215,7 +1215,7 @@ npm run build        # Build for production
 
 **Key Files to Know:**
 
-- `src/App.jsx` - Root component (232 lines)
+- `src/App.jsx` - Root component
 - `src/constants/behaviors.js` - Behavior definitions + helpers
 - `src/hooks/useFormValidation.js` - All validation rules
 - `src/services/formStateManager.js` - State operations
