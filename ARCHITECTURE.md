@@ -264,23 +264,23 @@ graph TD
 
 > **Note**: Test counts are not maintained in documentation as they change frequently. Run `npm test` to see current test count.
 
-| Test Suite                                          | Coverage                   |
-| --------------------------------------------------- | -------------------------- |
-| `tests/integration/App.test.jsx`                    | Full app integration & E2E |
-| `tests/integration/TimeSlotObservation.test.jsx`    | Time slot component        |
-| `tests/integration/FormComponents.test.jsx`         | Form field components      |
-| `tests/integration/MetadataSection.test.jsx`        | Metadata section           |
-| `hooks/__tests__/useFormState.test.js`              | Form state hook            |
-| `hooks/__tests__/useAutoSave.test.js`               | Autosave hook              |
-| `hooks/__tests__/useFormValidation.test.js`         | Validation rules           |
-| `services/__tests__/formStateManager.test.js`       | State management service   |
-| `services/__tests__/formSubmission.test.js`         | Output preparation service |
-| `services/__tests__/draftManager.test.js`           | Draft logic service        |
-| `services/export/__tests__/excelGenerator.test.js`  | Excel generation service   |
-| `utils/__tests__/localStorageUtils.test.js`         | localStorage               |
-| `utils/__tests__/timeUtils.test.js`                 | Time operations            |
-| `utils/__tests__/timezoneUtils.test.js`             | Timezone logic             |
-| `tests/copyToNextSlot.test.js`                      | Copy to next feature       |
+| Test Suite                                         | Coverage                   |
+| -------------------------------------------------- | -------------------------- |
+| `tests/integration/App.test.jsx`                   | Full app integration & E2E |
+| `tests/integration/TimeSlotObservation.test.jsx`   | Time slot component        |
+| `tests/integration/FormComponents.test.jsx`        | Form field components      |
+| `tests/integration/MetadataSection.test.jsx`       | Metadata section           |
+| `hooks/__tests__/useFormState.test.js`             | Form state hook            |
+| `hooks/__tests__/useAutoSave.test.js`              | Autosave hook              |
+| `hooks/__tests__/useFormValidation.test.js`        | Validation rules           |
+| `services/__tests__/formStateManager.test.js`      | State management service   |
+| `services/__tests__/formSubmission.test.js`        | Output preparation service |
+| `services/__tests__/draftManager.test.js`          | Draft logic service        |
+| `services/export/__tests__/excelGenerator.test.js` | Excel generation service   |
+| `utils/__tests__/localStorageUtils.test.js`        | localStorage               |
+| `utils/__tests__/timeUtils.test.js`                | Time operations            |
+| `utils/__tests__/timezoneUtils.test.js`            | Timezone logic             |
+| `tests/copyToNextSlot.test.js`                     | Copy to next feature       |
 
 **All tests passing** - Run `npm test` for current count
 
@@ -939,6 +939,7 @@ const { downloadExcelFile } = await import('../services/export/excelGenerator');
 ```
 
 **Benefits**:
+
 - Initial bundle excludes ExcelJS (76.5% size reduction)
 - Loads in background after form completion
 - Instant download experience (no loading delay)
@@ -954,6 +955,7 @@ Converted perch diagram images to WebP format with PNG fallback:
 - `perches-sw.png`: 3.5MB → 498KB (86% reduction)
 
 **Implementation**:
+
 - WebP files: `public/images/*.webp`
 - Conversion script: `scripts/convert-images-to-webp.js`
 - Browser support: `<picture>` element with PNG fallback
@@ -971,6 +973,7 @@ Vite configuration splits vendor code for optimal caching:
 ```
 
 **Benefits**:
+
 - React updates don't invalidate react-select cache
 - Long-term caching for stable dependencies
 - Parallel chunk downloads
@@ -982,6 +985,7 @@ Vite configuration splits vendor code for optimal caching:
 **Target**: Chrome 87+, Firefox 78+, Safari 14+, Edge 88+ (November 2020+)
 
 **Benefits**:
+
 - Smaller bundle (less polyfills)
 - Native modern JS features
 - Better performance
@@ -1000,6 +1004,7 @@ Pre-compression with multiple algorithms:
 #### 6. Minification & Tree Shaking
 
 **Terser configuration**:
+
 - Removes all `console.*` calls in production
 - Removes debugger statements
 - Strips comments
@@ -1007,12 +1012,12 @@ Pre-compression with multiple algorithms:
 
 ### Performance Impact Summary
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Initial bundle (gzipped) | 358 KB | 84 KB | 76.5% smaller |
-| ExcelJS chunk | Included | 930 KB (lazy) | Not in initial load |
-| Perch images | 7.3 MB PNG | 1.0 MB WebP | 86% smaller |
-| Time to interactive | Slow | Fast | Significantly improved |
+| Metric                   | Before     | After         | Improvement            |
+| ------------------------ | ---------- | ------------- | ---------------------- |
+| Initial bundle (gzipped) | 358 KB     | 84 KB         | 76.5% smaller          |
+| ExcelJS chunk            | Included   | 930 KB (lazy) | Not in initial load    |
+| Perch images             | 7.3 MB PNG | 1.0 MB WebP   | 86% smaller            |
+| Time to interactive      | Slow       | Fast          | Significantly improved |
 
 ### Browser Compatibility
 

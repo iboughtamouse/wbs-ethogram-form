@@ -362,6 +362,7 @@ INTERACTION_TYPES = [
 The Vite configuration (`vite.config.js`) includes sophisticated optimizations for production builds:
 
 **Key Features**:
+
 - **Compression plugins**: Gzip + Brotli pre-compression
 - **Manual chunk splitting**: Separate vendor chunks for optimal caching
   - `vendor-react`: React + ReactDOM (195 KB)
@@ -374,6 +375,7 @@ The Vite configuration (`vite.config.js`) includes sophisticated optimizations f
 - **Asset organization**: Organized folder structure for images, CSS, JS
 
 **ExcelJS Dynamic Import**:
+
 - Not included in initial bundle
 - Prefetched when OutputPreview mounts (after form completion)
 - Provides instant download experience without bloating initial load
