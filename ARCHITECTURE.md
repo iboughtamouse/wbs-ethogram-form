@@ -1060,7 +1060,7 @@ manualChunks: (id) => {
 
 **Key Principles:**
 
-- For small-medium apps: consolidate vendors into a single chunk (fewer HTTP requests, no ordering bugs)
+- For small-to-medium apps: consolidate vendors into a single chunk (fewer HTTP requests, no ordering bugs)
 - Only split truly independent large libraries (e.g., ExcelJS at 930KB)
 - If vendor chunk grows >200KB, split React separately BUT ensure all React-dependent libraries go with it
 - HTTP/2 multiplexing reduces the benefit of granular chunking
