@@ -321,15 +321,24 @@ describe('OutputPreview', () => {
   });
 
   describe('Error Handling', () => {
+    let consoleErrorSpy;
+
+    beforeEach(() => {
+      // Mock console.error to suppress expected error output
+      consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      // Restore console.error after each test
+      consoleErrorSpy.mockRestore();
+    });
+
     test('shows error alert when download fails', async () => {
       const user = userEvent.setup();
       const mockError = new Error('Download failed');
       downloadExcelFile.mockRejectedValueOnce(mockError);
-
-      // Mock console.error to suppress expected error output
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
 
       // Mock window.alert
       const alertMock = jest.fn();
@@ -360,19 +369,13 @@ describe('OutputPreview', () => {
         mockError
       );
 
-      // Restore mocks
-      consoleErrorSpy.mockRestore();
+      // Restore window.alert
       window.alert = originalAlert;
     });
 
     test('handles error without message gracefully', async () => {
       const user = userEvent.setup();
       downloadExcelFile.mockRejectedValueOnce(new Error());
-
-      // Mock console.error to suppress expected error output
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
 
       const alertMock = jest.fn();
       const originalAlert = window.alert;
@@ -391,8 +394,7 @@ describe('OutputPreview', () => {
         );
       });
 
-      // Restore mocks
-      consoleErrorSpy.mockRestore();
+      // Restore window.alert
       window.alert = originalAlert;
     });
 
@@ -401,9 +403,6 @@ describe('OutputPreview', () => {
       const mockError = new Error('Test error');
       downloadExcelFile.mockRejectedValueOnce(mockError);
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
       const originalAlert = window.alert;
       window.alert = jest.fn();
 
@@ -421,7 +420,7 @@ describe('OutputPreview', () => {
         );
       });
 
-      consoleErrorSpy.mockRestore();
+      // Restore window.alert
       window.alert = originalAlert;
     });
   });
