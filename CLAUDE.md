@@ -396,25 +396,24 @@ const handleKeyDown = (e) => {
   requiresDescription: false
 }
 
-// In TimeSlotObservation.jsx
-const behaviorDef = getBehaviorByValue(observation.behavior);
-const showObject = behaviorDef?.requiresObject || false;
+// In TimeSlotObservation.jsx - use helper functions
+import { requiresObject } from '../constants';
+
+const showObject = requiresObject(observation.behavior);
 
 {showObject && <ObjectSelect ... />}
 
-// When behavior changes, clear all conditional fields
+// In services/formStateManager.js - updateObservationField function
+// When behavior changes, clear all conditional fields automatically
 if (field === 'behavior') {
-  newObservations[time] = {
-    ...prev[time],
-    behavior: value,
-    object: '',
-    objectOther: '',
-    animal: '',
-    animalOther: '',
-    interactionType: '',
-    interactionTypeOther: '',
-    description: ''
-  };
+  // Always clear interaction-specific sub-fields when behavior changes
+  updatedObservation.description = '';
+  updatedObservation.object = '';
+  updatedObservation.objectOther = '';
+  updatedObservation.animal = '';
+  updatedObservation.animalOther = '';
+  updatedObservation.interactionType = '';
+  updatedObservation.interactionTypeOther = '';
 }
 ```
 
@@ -884,8 +883,12 @@ test('updates metadata field', () => {
 6. Clear on behavior change:
 
    ```javascript
-   // TimeSlotObservation.jsx handleBehaviorChange
-   duration: ''; // Add to cleared fields
+   // services/formStateManager.js - updateObservationField function
+   // Add to the behavior change clearing section (around line 78)
+   if (field === 'behavior') {
+     // ... existing clearing logic
+     updatedObservation.duration = ''; // Add to cleared fields
+   }
    ```
 
 7. Update Excel export:
