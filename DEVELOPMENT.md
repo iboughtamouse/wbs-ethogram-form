@@ -370,7 +370,7 @@ The Vite configuration (`vite.config.js`) includes sophisticated optimizations f
   - `vendor-exceljs`: ExcelJS (930 KB, lazy-loaded)
   - `vendor`: Other dependencies (30 KB)
 - **Modern browser targets**: ES2020+ (Chrome 87+, Firefox 78+, Safari 14+)
-- **Terser minification**: Removes console.log, debugger, comments
+- **esbuild minification**: Removes console.log, debugger; faster than terser
 - **Hidden source maps**: For production debugging without exposing to users
 - **Asset organization**: Organized folder structure for images, CSS, JS
 
@@ -414,7 +414,7 @@ npm run dev
 ```bash
 npm run build
 # Creates optimized bundle in dist/
-# - Minifies JS/CSS with Terser (removes console.log)
+# - Minifies JS/CSS with esbuild (removes console.log)
 # - Tree-shakes unused code
 # - Generates hidden source maps
 # - Manual chunk splitting for optimal caching

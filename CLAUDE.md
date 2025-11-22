@@ -41,20 +41,20 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 
 ### Tech Stack
 
-| Category              | Technology              | Version        | Purpose                      |
-| --------------------- | ----------------------- | -------------- | ---------------------------- |
-| **Framework**         | React                   | 18.2.0         | UI rendering                 |
-| **Build Tool**        | Vite                    | 5.0.8          | Dev server & bundler         |
-| **Testing**           | Jest + RTL              | 30.x + 16.x    | Unit & integration tests     |
-| **Validation**        | Custom hook             | N/A            | Form validation logic        |
-| **Styling**           | Plain CSS               | N/A            | Minimal styling              |
-| **Dropdowns**         | react-select            | 5.8.0          | Location autocomplete        |
-| **Excel Export**      | exceljs                 | 4.4.0          | Client-side .xlsx generation |
-| **Linting**           | ESLint + Prettier       | 8.57.0 + 3.2.5 | Code quality                 |
-| **Git Hooks**         | Husky + lint-staged     | 9.x + 15.x     | Pre-commit checks            |
-| **Build Compression** | vite-plugin-compression | 0.5.1 (dev)    | Gzip/Brotli compression      |
-| **Minification**      | terser                  | 5.44.1 (dev)   | Advanced JS minification     |
-| **Image Processing**  | sharp                   | 0.34.5 (dev)   | WebP conversion for images   |
+| Category              | Technology              | Version        | Purpose                        |
+| --------------------- | ----------------------- | -------------- | ------------------------------ |
+| **Framework**         | React                   | 18.2.0         | UI rendering                   |
+| **Build Tool**        | Vite                    | 5.0.8          | Dev server & bundler           |
+| **Testing**           | Jest + RTL              | 30.x + 16.x    | Unit & integration tests       |
+| **Validation**        | Custom hook             | N/A            | Form validation logic          |
+| **Styling**           | Plain CSS               | N/A            | Minimal styling                |
+| **Dropdowns**         | react-select            | 5.8.0          | Location autocomplete          |
+| **Excel Export**      | exceljs                 | 4.4.0          | Client-side .xlsx generation   |
+| **Linting**           | ESLint + Prettier       | 8.57.0 + 3.2.5 | Code quality                   |
+| **Git Hooks**         | Husky + lint-staged     | 9.x + 15.x     | Pre-commit checks              |
+| **Build Compression** | vite-plugin-compression | 0.5.1 (dev)    | Gzip/Brotli compression        |
+| **Minification**      | esbuild                 | (built-in)     | Fast, reliable JS minification |
+| **Image Processing**  | sharp                   | 0.34.5 (dev)   | WebP conversion for images     |
 
 ---
 

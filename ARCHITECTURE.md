@@ -1036,7 +1036,7 @@ Pre-compression with multiple algorithms:
 - `src/components/OutputPreview.jsx` - ExcelJS prefetch implementation
 - `src/components/PerchDiagramModal.jsx` - WebP image usage with fallback
 - `scripts/convert-images-to-webp.js` - Image conversion utility
-- `package.json` - Build dependencies (sharp, terser, vite-plugin-compression)
+- `package.json` - Build dependencies (sharp, vite-plugin-compression)
 
 ---
 
