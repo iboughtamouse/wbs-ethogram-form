@@ -513,35 +513,37 @@ metadata: PropTypes.object.isRequired;
 ```javascript
 // src/services/formStateManager.js
 /**
- * Generate observation objects for time slots
+ * Generate observation objects for time slots, preserving existing data
  * @param {string[]} timeSlots - Array of time strings
+ * @param {Object} existingObservations - Existing observations to preserve
  * @returns {Object} - Observations keyed by time
  */
-export function generateObservationsForSlots(timeSlots) {
-  return timeSlots.reduce(
-    (acc, time) => ({
-      ...acc,
-      [time]: {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-        description: '',
-      },
-    }),
-    {}
-  );
+export function generateObservationsForSlots(timeSlots, existingObservations) {
+  const newObservations = {};
+
+  timeSlots.forEach((time) => {
+    // Keep existing observation if it exists, otherwise create new
+    newObservations[time] = existingObservations[time] || {
+      behavior: '',
+      location: '',
+      notes: '',
+      object: '',
+      objectOther: '',
+      animal: '',
+      animalOther: '',
+      interactionType: '',
+      interactionTypeOther: '',
+      description: '',
+    };
+  });
+
+  return newObservations;
 }
 
 // Easy to test!
 test('generates empty observations for slots', () => {
   const slots = ['15:00', '15:05'];
-  const obs = generateObservationsForSlots(slots);
+  const obs = generateObservationsForSlots(slots, {});
   expect(obs['15:00'].behavior).toBe('');
 });
 ```
@@ -758,7 +760,7 @@ import { generateObservationsForSlots } from '../formStateManager';
 
 test('generates empty observations for time slots', () => {
   const slots = ['15:00', '15:05', '15:10'];
-  const observations = generateObservationsForSlots(slots);
+  const observations = generateObservationsForSlots(slots, {});
 
   expect(Object.keys(observations)).toHaveLength(3);
   expect(observations['15:00'].behavior).toBe('');
