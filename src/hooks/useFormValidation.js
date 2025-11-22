@@ -291,11 +291,137 @@ export const useFormValidation = () => {
     setFieldErrors({});
   };
 
+  /**
+   * Validate all required fields for a single observation slot
+   * Used before copying to next slot to ensure valid data
+   * @param {string} time - The time slot to validate
+   * @param {Object} observations - All observations
+   * @returns {Object} - { valid: boolean, errors: Object }
+   */
+  const validateObservationSlot = (time, observations) => {
+    const errors = {};
+    const obs = observations[time];
+
+    if (!obs) {
+      return { valid: false, errors: {} };
+    }
+
+    // Validate behavior (always required)
+    const behaviorError = validateObservationField(
+      time,
+      'behavior',
+      obs.behavior,
+      observations
+    );
+    if (behaviorError) {
+      errors[`${time}_behavior`] = behaviorError;
+    }
+
+    // Validate location (if required by behavior)
+    const locationError = validateObservationField(
+      time,
+      'location',
+      obs.location,
+      observations
+    );
+    if (locationError) {
+      errors[`${time}_location`] = locationError;
+    }
+
+    // Validate object (if required by behavior)
+    const objectError = validateObservationField(
+      time,
+      'object',
+      obs.object,
+      observations
+    );
+    if (objectError) {
+      errors[`${time}_object`] = objectError;
+    }
+
+    // Validate objectOther (if object === 'other')
+    const objectOtherError = validateObservationField(
+      time,
+      'objectOther',
+      obs.objectOther,
+      observations
+    );
+    if (objectOtherError) {
+      errors[`${time}_objectOther`] = objectOtherError;
+    }
+
+    // Validate animal (if required by behavior)
+    const animalError = validateObservationField(
+      time,
+      'animal',
+      obs.animal,
+      observations
+    );
+    if (animalError) {
+      errors[`${time}_animal`] = animalError;
+    }
+
+    // Validate animalOther (if animal === 'other')
+    const animalOtherError = validateObservationField(
+      time,
+      'animalOther',
+      obs.animalOther,
+      observations
+    );
+    if (animalOtherError) {
+      errors[`${time}_animalOther`] = animalOtherError;
+    }
+
+    // Validate interactionType (if required by behavior)
+    const interactionTypeError = validateObservationField(
+      time,
+      'interactionType',
+      obs.interactionType,
+      observations
+    );
+    if (interactionTypeError) {
+      errors[`${time}_interactionType`] = interactionTypeError;
+    }
+
+    // Validate interactionTypeOther (if interactionType === 'other')
+    const interactionTypeOtherError = validateObservationField(
+      time,
+      'interactionTypeOther',
+      obs.interactionTypeOther,
+      observations
+    );
+    if (interactionTypeOtherError) {
+      errors[`${time}_interactionTypeOther`] = interactionTypeOtherError;
+    }
+
+    // Validate description (if required by behavior)
+    const descriptionError = validateObservationField(
+      time,
+      'description',
+      obs.description,
+      observations
+    );
+    if (descriptionError) {
+      errors[`${time}_description`] = descriptionError;
+    }
+
+    // Update field errors state with any errors found
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+    }
+
+    return {
+      valid: Object.keys(errors).length === 0,
+      errors,
+    };
+  };
+
   return {
     fieldErrors,
     validateForm,
     validateSingleMetadataField,
     validateSingleObservationField,
+    validateObservationSlot,
     clearFieldError,
     clearAllErrors,
   };

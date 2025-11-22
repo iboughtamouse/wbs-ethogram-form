@@ -486,4 +486,260 @@ describe('useFormValidation', () => {
       expect(Object.keys(result.current.fieldErrors)).toHaveLength(0);
     });
   });
+
+  describe('validateObservationSlot', () => {
+    it('should return invalid when behavior is empty', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: '',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_behavior']).toBe(
+        'Please select a behavior'
+      );
+    });
+
+    it('should return invalid when required location is missing', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'walking_perch',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_location']).toBeDefined();
+    });
+
+    it('should return valid when all required fields are filled', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'walking_perch',
+          location: '5',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(true);
+      expect(Object.keys(validation.errors)).toHaveLength(0);
+    });
+
+    it('should return invalid when object is required but not filled', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'interacting_object',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_object']).toBe('Object is required');
+    });
+
+    it('should return invalid when objectOther is required but not filled', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'interacting_object',
+          location: '',
+          notes: '',
+          object: 'other',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_objectOther']).toBe(
+        'Please specify the object'
+      );
+    });
+
+    it('should return invalid when description is required but not filled', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'other',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_description']).toBe(
+        'Description is required for this behavior'
+      );
+    });
+
+    it('should return invalid when animal and interaction type are required but not filled', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: 'interacting_animal',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_animal']).toBe('Animal is required');
+      expect(validation.errors['09:00_interactionType']).toBe(
+        'Interaction type is required'
+      );
+    });
+
+    it('should update fieldErrors state when validation fails', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': {
+          behavior: '',
+          location: '',
+          notes: '',
+          object: '',
+          objectOther: '',
+          animal: '',
+          animalOther: '',
+          interactionType: '',
+          interactionTypeOther: '',
+          description: '',
+        },
+      };
+
+      act(() => {
+        result.current.validateObservationSlot('09:00', observations);
+      });
+
+      expect(result.current.fieldErrors['09:00_behavior']).toBe(
+        'Please select a behavior'
+      );
+    });
+
+    it('should return invalid for non-existent observation slot', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {};
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(Object.keys(validation.errors)).toHaveLength(0);
+    });
+  });
 });

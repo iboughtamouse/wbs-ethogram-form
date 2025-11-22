@@ -30,6 +30,7 @@ function App() {
     validateForm,
     validateSingleMetadataField,
     validateSingleObservationField,
+    validateObservationSlot,
     clearFieldError,
     clearAllErrors,
   } = useFormValidation();
@@ -77,6 +78,25 @@ function App() {
   // Observation validation handler
   const onObservationValidate = (time, field, currentValue = null) => {
     validateSingleObservationField(time, field, observations, currentValue);
+  };
+
+  // Copy to next handler with validation
+  const onCopyToNext = (time) => {
+    // Validate the current observation slot before copying
+    const validation = validateObservationSlot(time, observations);
+
+    if (!validation.valid) {
+      // Validation failed - errors are already set in state
+      // Scroll to first error in this time slot (if scrollIntoView is available)
+      const firstError = document.querySelector(`[data-time="${time}"] .error`);
+      if (firstError && firstError.scrollIntoView) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return false;
+    }
+
+    // Validation passed - proceed with copy
+    return handleCopyToNext(time);
   };
 
   // Form submission
@@ -192,7 +212,7 @@ function App() {
                       descriptionError={fieldErrors[`${time}_description`]}
                       onChange={onObservationChange}
                       onValidate={onObservationValidate}
-                      onCopyToNext={handleCopyToNext}
+                      onCopyToNext={onCopyToNext}
                       isLastSlot={index === timeSlots.length - 1}
                     />
                   );
