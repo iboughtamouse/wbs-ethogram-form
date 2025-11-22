@@ -275,8 +275,8 @@ graph TD
 
 ```
 src/
-├── components/          # React components (11 files, ~1,000 lines)
-│   ├── form/           # Form field components (8 files, ~490 lines)
+├── components/          # React components
+│   ├── form/           # Form field components
 │   │   ├── BehaviorSelect.jsx
 │   │   ├── LocationInput.jsx
 │   │   ├── ObjectSelect.jsx
@@ -289,12 +289,12 @@ src/
 │   ├── TimeSlotObservation.jsx
 │   ├── PerchDiagramModal.jsx
 │   └── OutputPreview.jsx
-├── hooks/              # Custom hooks (3 files, ~490 lines)
+├── hooks/              # Custom hooks
 │   ├── useFormState.js
 │   ├── useAutoSave.js
 │   ├── useFormValidation.js
 │   └── __tests__/
-├── services/           # Business logic services (4 files, ~400 lines)
+├── services/           # Business logic services
 │   ├── formStateManager.js
 │   ├── formSubmission.js
 │   ├── draftManager.js
@@ -302,7 +302,7 @@ src/
 │   │   ├── excelGenerator.js
 │   │   └── __tests__/
 │   └── __tests__/
-├── utils/              # Utilities (7 files, ~450 lines)
+├── utils/              # Utilities
 │   ├── timeUtils.js
 │   ├── timezoneUtils.js
 │   ├── localStorageUtils.js
@@ -312,7 +312,7 @@ src/
 │   │   ├── locationValidator.js
 │   │   └── index.js
 │   └── __tests__/
-├── constants/          # Domain data modules (4 files, 251 lines)
+├── constants/          # Domain data modules
 │   ├── behaviors.js    # BEHAVIORS array + helper functions
 │   ├── locations.js    # VALID_PERCHES, TIME_SLOTS
 │   ├── interactions.js # Objects, animals, interaction types
@@ -770,7 +770,7 @@ const { downloadExcelFile } = await import('../services/export/excelGenerator');
 - Instant download experience (no loading delay)
 - Only downloads if user completes form
 
-**Implementation**: See `src/components/OutputPreview.jsx` lines 24-29 and 37-39
+**Implementation**: See ExcelJS prefetch logic in `src/components/OutputPreview.jsx`
 
 #### 2. Image Optimization (PNG → WebP)
 
@@ -801,7 +801,7 @@ Vite configuration splits vendor code for optimal caching:
 - Long-term caching for stable dependencies
 - Parallel chunk downloads
 
-**Critical Detail**: Chunk order matters! `react-select` must be checked before `react` to avoid substring matching bugs. See `vite.config.js` lines 42-56.
+**Critical Detail**: Chunk order matters! `react-select` must be checked before `react` to avoid substring matching bugs. See the `manualChunks` configuration in `vite.config.js`.
 
 #### 4. Modern Browser Targets (ES2020+)
 

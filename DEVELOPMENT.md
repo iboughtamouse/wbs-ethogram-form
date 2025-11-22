@@ -381,7 +381,7 @@ The Vite configuration (`vite.config.js`) includes sophisticated optimizations f
 
 **Bundle Size**: 84 KB gzipped initial load (76.5% reduction from 358 KB)
 
-For full configuration, see `vite.config.js` (121 lines with detailed comments)
+For full configuration details and comments, see `vite.config.js`
 
 ### Jest Configuration
 
