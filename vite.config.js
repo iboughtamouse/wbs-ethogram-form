@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import viteCompression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
 
@@ -24,10 +24,11 @@ export default defineConfig({
     }),
   ],
 
-  // esbuild configuration for dev and build
-  // Removes console.* and debugger statements in production
+  // esbuild configuration
+  // Only remove console.log in production (keeps console.error, console.warn for debugging)
   esbuild: {
-    drop: ['console', 'debugger'],
+    pure: mode === 'production' ? ['console.log'] : [],
+    drop: mode === 'production' ? ['debugger'] : [],
   },
 
   build: {
@@ -114,4 +115,4 @@ export default defineConfig({
       // Note: exceljs excluded since it's dynamically imported
     ],
   },
-});
+}));
