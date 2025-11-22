@@ -1038,7 +1038,7 @@ Uncaught ReferenceError: Cannot access lexical declaration 'et' before initializ
 **Root Cause:** When using `manualChunks` to split vendor code, separating a library from its dependencies can create initialization order issues. For example:
 
 - **Bad:** React in `vendor-react.js`, emotion/styled-components in `vendor.js`
-- **Problem:** `vendor.js` tries to use React (`et.useInsertionEffect`) before React is initialized
+- **Problem:** `vendor.js` tries to use React (`et.useInsertionEffect`, where `et` is the minified variable name for React in production builds) before React is initialized
 - **Result:** Temporal Dead Zone error in minified production code
 
 **Solution:** Keep dependencies together in the same chunk:
