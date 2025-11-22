@@ -1046,7 +1046,7 @@ console.log({
 **Steps:**
 
 1. **Read error message carefully** - Jest errors are detailed
-2. **Check if all 287 pass** - Or just one suite?
+2. **Check if all tests pass** - Or just one suite?
 3. **Run single test**: `npm test -- -t "test name"`
 4. **Check for timing issues**: Use `waitFor` for async
 5. **Mock console if needed**: Tests mock localStorage, may need console
@@ -1327,6 +1327,19 @@ If you see these, investigate:
 4. Remove outdated information
 5. Update "Last Updated" timestamp
 6. Commit with message: `docs: update CLAUDE.md with [changes]`
+
+**Avoid Brittle Data:**
+
+Documentation should avoid data that becomes outdated quickly:
+
+- ❌ Specific test counts (e.g., "287 tests") → Use "all tests passing"
+- ❌ Line numbers (e.g., "line 78") → Use descriptive locations
+- ❌ Line counts (e.g., "App.jsx (246 lines)") → Omit entirely
+- ❌ Test suite counts → Use "comprehensive test coverage"
+- ✅ File paths, function names, architectural patterns → These are stable
+- ✅ General descriptions → Describe what, not how many
+
+These numbers change with every commit and create maintenance burden.
 
 ---
 

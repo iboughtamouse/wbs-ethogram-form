@@ -1,11 +1,10 @@
 # Architecture Documentation
 
-> **Last Updated**: November 22, 2025 (Post-Vite optimization, documentation comprehensive update)
+> **Last Updated**: November 22, 2025 (Documentation audit and cleanup)
 > **Test Coverage**: Comprehensive test suite with all tests passing
-> **Components**: 13 React components (4 main + 7 form fields + 2 loading components)
-> **Services**: 4 pure function modules (formStateManager, formSubmission, draftManager, excelGenerator)
-> **Hooks**: 3 custom hooks (useFormValidation, useFormState, useAutoSave)
-> **Recent Changes**: Added accessible loading indicators for async operations
+> **Architecture**: Component-based React app with custom hooks and pure function services
+> **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
+> **Recent Changes**: Copy-to-next validation, accessible loading indicators, Excel export
 
 ---
 
@@ -46,52 +45,52 @@ WBS Ethogram Form is a **client-side single-page application** (SPA) with no bac
 ### ASCII Tree
 
 ```
-App.jsx (246 lines) - Root coordinator component
+App.jsx - Root coordinator component
 │   Uses: useFormState, useAutoSave, useFormValidation hooks
 │   Delegates: Business logic to services, state to hooks
 │
-├── MetadataSection.jsx (175 lines)
+├── MetadataSection.jsx
 │   ├── Observer name input
 │   ├── Date picker
 │   ├── Mode selector (live/VOD)
 │   ├── Start time input
 │   └── End time input
 │
-├── TimeSlotObservation.jsx (310 lines) [×N instances, one per 5-min slot]
-│   ├── BehaviorSelect.jsx (35 lines)
-│   ├── LocationInput.jsx (79 lines) [conditional]
+├── TimeSlotObservation.jsx [×N instances, one per 5-min slot]
+│   ├── BehaviorSelect.jsx
+│   ├── LocationInput.jsx [conditional]
 │   │   ├── React Select dropdown
 │   │   ├── Map button
 │   │   └── PerchDiagramModal (owned state)
-│   ├── ObjectSelect.jsx (68 lines) [conditional]
+│   ├── ObjectSelect.jsx [conditional]
 │   │   ├── Object dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── AnimalSelect.jsx (68 lines) [conditional]
+│   ├── AnimalSelect.jsx [conditional]
 │   │   ├── Animal dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── InteractionTypeSelect.jsx (68 lines) [conditional]
+│   ├── InteractionTypeSelect.jsx [conditional]
 │   │   ├── Interaction Type dropdown
 │   │   └── "Other" text input (conditional)
-│   ├── DescriptionField.jsx (32 lines) [conditional]
-│   ├── NotesField.jsx (25 lines)
+│   ├── DescriptionField.jsx [conditional]
+│   ├── NotesField.jsx
 │   └── "Copy to next" button
 │
-├── PerchDiagramModal.jsx (83 lines)
+├── PerchDiagramModal.jsx
 │   ├── NE Half tab + image
 │   ├── SW Half tab + image
 │   └── Close button
 │
-├── OutputPreview.jsx (118 lines)
+├── OutputPreview.jsx
 │   ├── LoadingOverlay (during Excel generation)
 │   ├── Excel download button with loading state
 │   └── JSON display with copy button
 │
-├── LoadingOverlay.jsx (81 lines) [Modal overlay component]
+├── LoadingOverlay.jsx [Modal overlay component]
 │   ├── Full-screen backdrop (blocks interaction)
 │   ├── LoadingSpinner (presentation mode)
 │   └── Body scroll management
 │
-└── LoadingSpinner.jsx (65 lines) [Reusable spinner component]
+└── LoadingSpinner.jsx [Reusable spinner component]
     ├── Animated spinner
     ├── Loading message
     └── Accessibility attributes (ARIA)
@@ -889,7 +888,7 @@ Domain data lives in modular `constants/` directory (Phase 4/5 refactoring):
 - `VALID_PERCHES` - Valid location codes (1-31 as integers, plus 'BB1', 'BB2', 'F1', 'F2', 'G', 'W' as strings)
 - `TIME_SLOTS` - Time slot intervals
 
-**Note on Ground Location:** The "Ground" location is **not** in `VALID_PERCHES`. It's added dynamically in `TimeSlotObservation.jsx`'s `perchOptions` array and validated separately in `locationValidator.js` (line 21). This separates the numbered perches/special codes from the common "Ground" location in the UI.
+**Note on Ground Location:** The "Ground" location is **not** in `VALID_PERCHES`. It's added dynamically in `TimeSlotObservation.jsx`'s `perchOptions` array and validated separately in `locationValidator.js`. This separates the numbered perches/special codes from the common "Ground" location in the UI.
 
 **`constants/interactions.js`:**
 
