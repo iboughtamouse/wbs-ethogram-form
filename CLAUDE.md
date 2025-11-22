@@ -3,7 +3,7 @@
 > **Purpose**: This document provides AI coding assistants (like Claude) with essential context about the WBS Ethogram Form codebase, its architecture, conventions, and development workflows.
 >
 > **Last Updated**: November 22, 2025
-> **Codebase Version**: Post-Phase 6 (Excel Export Complete)
+> **Codebase Version**: Post-Phase 6 + Loading Indicators
 > **Status**: Production-ready, actively maintained
 
 ---
@@ -35,8 +35,9 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 - **Data output**: JSON and Excel file downloads (manual submission to WBS)
 - **Autosave**: Browser localStorage prevents data loss
 - **Mobile-first**: Responsive design for desktop and mobile observers
-- **Well-tested**: 287 passing tests across 15 test suites
+- **Well-tested**: 353 passing tests across 18 test suites
 - **Clean architecture**: Result of 6 refactoring phases (Phase 0-6 complete)
+- **Accessibility-first**: WCAG-compliant loading indicators with screen reader support
 
 ### Tech Stack
 
@@ -133,9 +134,20 @@ App.jsx
 │   ├── DescriptionField [conditional]
 │   └── NotesField
 │
-└── OutputPreview
-    ├── Excel download button (with loading state)
-    └── JSON display with copy button
+├── OutputPreview
+│   ├── LoadingOverlay [conditional - during Excel generation]
+│   ├── Excel download button (with loading state)
+│   └── JSON display with copy button
+│
+├── LoadingOverlay [Reusable component]
+│   ├── Full-screen backdrop
+│   ├── LoadingSpinner (in presentation mode)
+│   └── Body scroll management
+│
+└── LoadingSpinner [Reusable component]
+    ├── Animated spinner
+    ├── Loading message
+    └── ARIA attributes (role, aria-live, aria-busy)
 ```
 
 ### Services & Utilities

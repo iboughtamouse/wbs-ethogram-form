@@ -10,6 +10,7 @@ import '@testing-library/jest-dom';
 import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
 import * as timezoneUtils from '../../src/utils/timezoneUtils';
+import { downloadExcelFile } from '../../src/services/export/excelGenerator';
 
 // Mock localStorage utilities
 jest.mock('../../src/utils/localStorageUtils');
@@ -19,6 +20,11 @@ jest.mock('../../src/utils/timezoneUtils', () => ({
   convertToWBSTime: jest.fn((date, time) => time), // No conversion in tests
   getUserTimezone: jest.fn(() => 'America/New_York'),
   WBS_TIMEZONE: 'America/Chicago',
+}));
+
+// Mock Excel generator for download tests
+jest.mock('../../src/services/export/excelGenerator', () => ({
+  downloadExcelFile: jest.fn(),
 }));
 
 describe('App Integration Tests', () => {
@@ -470,6 +476,79 @@ describe('App Integration Tests', () => {
         expect(outputPreview.textContent).toContain('drinking');
         expect(outputPreview.textContent).toContain('10:00');
       });
+    });
+
+    test('shows loading overlay during Excel download', async () => {
+      // Mock a slow Excel download
+      downloadExcelFile.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          })
+      );
+
+      render(<App />);
+
+      // Fill in all required metadata
+      await fillMetadata('TestObserver');
+
+      const container = screen
+        .getByText('Observation Time Range')
+        .closest('.form-group');
+      const timeInputs = container.querySelectorAll('input[type="time"]');
+      fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
+      fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
+
+      // Fill in ALL observation slots
+      await fillTimeSlot('10:00 AM', 'drinking');
+      await fillTimeSlot('10:05 AM', 'drinking');
+
+      // Submit form to show output preview
+      const submitButton = screen.getByText(/Validate & Preview/i);
+      fireEvent.click(submitButton);
+
+      // Wait for output preview
+      await waitFor(() => {
+        expect(screen.getByText(/Data Preview/i)).toBeInTheDocument();
+      });
+
+      // No loading overlay initially
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+      // Click download button
+      const downloadButton = screen.getByRole('button', {
+        name: /download excel file/i,
+      });
+      fireEvent.click(downloadButton);
+
+      // Loading overlay should appear with proper message
+      await waitFor(() => {
+        const overlay = screen.getByRole('status');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveAttribute('aria-live', 'assertive');
+        expect(overlay).toHaveAttribute('aria-busy', 'true');
+        expect(overlay).toHaveAttribute('aria-modal', 'true');
+      });
+
+      expect(screen.getByText(/generating excel file.../i)).toBeInTheDocument();
+
+      // Download button should be disabled
+      expect(
+        screen.getByRole('button', { name: /generating.../i })
+      ).toBeDisabled();
+
+      // Wait for download to complete and overlay to disappear
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        },
+        { timeout: 2000 }
+      );
+
+      // Button should be re-enabled
+      expect(
+        screen.getByRole('button', { name: /download excel file/i })
+      ).not.toBeDisabled();
     });
   });
 
