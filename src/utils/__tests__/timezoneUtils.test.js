@@ -1,6 +1,8 @@
 import {
   getUserTimezone,
   convertToWBSTime,
+  isUserInDifferentTimezone,
+  getTimezoneAbbreviation,
   WBS_TIMEZONE,
 } from '../timezoneUtils';
 
@@ -15,6 +17,31 @@ describe('timezoneUtils', () => {
       expect(
         timezone === 'UTC' || timezone.match(/^[A-Za-z_]+\/[A-Za-z_]+/)
       ).toBeTruthy();
+    });
+
+    it('should fallback to WBS_TIMEZONE if Intl API fails', () => {
+      // Suppress console.warn for this test
+      const consoleWarnSpy = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+
+      // Mock Intl.DateTimeFormat to throw error
+      const originalDateTimeFormat = global.Intl.DateTimeFormat;
+      global.Intl.DateTimeFormat = jest.fn(() => {
+        throw new Error('Intl API not available');
+      });
+
+      const timezone = getUserTimezone();
+
+      expect(timezone).toBe(WBS_TIMEZONE);
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Could not detect timezone, defaulting to WBS timezone',
+        expect.any(Error)
+      );
+
+      // Restore mocks
+      global.Intl.DateTimeFormat = originalDateTimeFormat;
+      consoleWarnSpy.mockRestore();
     });
   });
 
@@ -147,6 +174,74 @@ describe('timezoneUtils', () => {
       const result = convertToWBSTime('2025-11-20', 'invalid-time');
       expect(result).toBe('invalid-time');
       expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  describe('isUserInDifferentTimezone', () => {
+    it('should return boolean value', () => {
+      const result = isUserInDifferentTimezone();
+      expect(typeof result).toBe('boolean');
+    });
+
+    it('should return false when user is in WBS timezone', () => {
+      // Mock getUserTimezone to return WBS timezone
+      const originalDateTimeFormat = global.Intl.DateTimeFormat;
+      global.Intl.DateTimeFormat = jest.fn().mockImplementation(() => ({
+        resolvedOptions: () => ({ timeZone: 'America/Chicago' }),
+      }));
+
+      const result = isUserInDifferentTimezone();
+      expect(result).toBe(false);
+
+      global.Intl.DateTimeFormat = originalDateTimeFormat;
+    });
+
+    it('should return true when user is in different timezone', () => {
+      // Mock getUserTimezone to return different timezone
+      const originalDateTimeFormat = global.Intl.DateTimeFormat;
+      global.Intl.DateTimeFormat = jest.fn().mockImplementation(() => ({
+        resolvedOptions: () => ({ timeZone: 'America/New_York' }),
+      }));
+
+      const result = isUserInDifferentTimezone();
+      expect(result).toBe(true);
+
+      global.Intl.DateTimeFormat = originalDateTimeFormat;
+    });
+  });
+
+  describe('getTimezoneAbbreviation', () => {
+    it('should return timezone abbreviation for valid timezone', () => {
+      const abbrev = getTimezoneAbbreviation('America/Chicago');
+      expect(typeof abbrev).toBe('string');
+      expect(abbrev.length).toBeGreaterThan(0);
+      // Should be CST or CDT depending on date
+      expect(['CST', 'CDT'].includes(abbrev)).toBe(true);
+    });
+
+    it('should return timezone abbreviation for New York', () => {
+      const abbrev = getTimezoneAbbreviation('America/New_York');
+      expect(typeof abbrev).toBe('string');
+      expect(['EST', 'EDT'].includes(abbrev)).toBe(true);
+    });
+
+    it('should return input timezone on error', () => {
+      const result = getTimezoneAbbreviation('Invalid/Timezone');
+      // When invalid timezone is provided, it should return the input
+      expect(result).toBe('Invalid/Timezone');
+    });
+
+    it('should handle error in formatToParts gracefully', () => {
+      // Mock Intl.DateTimeFormat to throw error
+      const originalDateTimeFormat = global.Intl.DateTimeFormat;
+      global.Intl.DateTimeFormat = jest.fn().mockImplementation(() => {
+        throw new Error('Intl error');
+      });
+
+      const result = getTimezoneAbbreviation('America/Chicago');
+      expect(result).toBe('America/Chicago');
+
+      global.Intl.DateTimeFormat = originalDateTimeFormat;
     });
   });
 });
