@@ -281,7 +281,7 @@ if (field === 'object' && value !== 'other') {
 
 ### 5. Excel Export
 
-**Implementation**: Added new fields to cell content formatting (see `excelGenerator.js:75-104`):
+**Implementation**: Added new fields to cell content formatting (see `excelGenerator.js`):
 
 - `object` (blank for non-object behaviors)
 - `objectOther` (blank unless object === "other")
@@ -311,12 +311,12 @@ All interaction data is included in the formatted cell content with proper "othe
 - ✅ Created `AnimalSelect.jsx` component with "other" text input
 - ✅ Created `InteractionTypeSelect.jsx` component with "other" text input
 - ✅ Updated `TimeSlotObservation.jsx` with conditional rendering using helper functions
-- ✅ Implemented field clearing logic in `formStateManager.js:75-96`
+- ✅ Implemented field clearing logic in `formStateManager.js`
 - **Commits**: `32f1ae5`, `ae7701d` - Component extraction and refactoring
 
 ### Phase 3: Validation ✅ (~30 min)
 
-- ✅ Updated `useFormValidation.js` with object/animal/interaction validation rules (lines 68-103)
+- ✅ Updated `useFormValidation.js` with object/animal/interaction validation rules
 - ✅ Added error messages for all new fields (object, objectOther, animal, animalOther, interactionType, interactionTypeOther)
 - ✅ Tested validation error display for all scenarios
 - **Commit**: `a56393a` - refactor: split validation and organize constants into modular structure
