@@ -9,21 +9,21 @@ import {
 import { validateTimeRange } from '../utils/timeUtils';
 import { validateLocation } from '../utils/validators';
 
+// Fields to validate in observations (all except 'notes' which is always optional)
+const OBSERVATION_FIELDS_TO_VALIDATE = [
+  'behavior',
+  'location',
+  'object',
+  'objectOther',
+  'animal',
+  'animalOther',
+  'interactionType',
+  'interactionTypeOther',
+  'description',
+];
+
 export const useFormValidation = () => {
   const [fieldErrors, setFieldErrors] = useState({});
-
-  // Fields to validate in observations (all except 'notes' which is always optional)
-  const OBSERVATION_FIELDS_TO_VALIDATE = [
-    'behavior',
-    'location',
-    'object',
-    'objectOther',
-    'animal',
-    'animalOther',
-    'interactionType',
-    'interactionTypeOther',
-    'description',
-  ];
 
   const validateMetadataField = (field, value, metadata) => {
     let error = null;
