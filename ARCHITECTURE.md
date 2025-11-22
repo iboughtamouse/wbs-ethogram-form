@@ -1,12 +1,12 @@
 # Architecture Documentation
 
-> **Last Updated**: November 22, 2025 (Post-Phase 6 implementation)
-> **Codebase Size**: ~2,700 lines (source) + 4,100 lines (tests)
+> **Last Updated**: November 22, 2025 (Post-Phase 6 + Loading Indicators)
+> **Codebase Size**: ~3,400 lines (source) + 5,600 lines (tests)
 > **Test Coverage**: Comprehensive test suite with all tests passing
-> **Components**: 11 React components (4 main + 7 form fields)
+> **Components**: 13 React components (4 main + 7 form fields + 2 loading components)
 > **Services**: 4 pure function modules (formStateManager, formSubmission, draftManager, excelGenerator)
 > **Hooks**: 3 custom hooks (useFormValidation, useFormState, useAutoSave)
-> **Recent Changes**: Added Excel export functionality with download (Phase 6)
+> **Recent Changes**: Added accessible loading indicators for async operations
 
 ---
 
@@ -82,9 +82,20 @@ App.jsx (232 lines) - Root coordinator component
 │   ├── SW Half tab + image
 │   └── Close button
 │
-└── OutputPreview.jsx (45 lines)
-    ├── Excel download button with loading state
-    └── JSON display with copy button
+├── OutputPreview.jsx (118 lines)
+│   ├── LoadingOverlay (during Excel generation)
+│   ├── Excel download button with loading state
+│   └── JSON display with copy button
+│
+├── LoadingOverlay.jsx (81 lines) [Modal overlay component]
+│   ├── Full-screen backdrop (blocks interaction)
+│   ├── LoadingSpinner (presentation mode)
+│   └── Body scroll management
+│
+└── LoadingSpinner.jsx (65 lines) [Reusable spinner component]
+    ├── Animated spinner
+    ├── Loading message
+    └── Accessibility attributes (ARIA)
 ```
 
 ### Component Responsibilities
@@ -103,6 +114,8 @@ App.jsx (232 lines) - Root coordinator component
 | **NotesField**            | Notes textarea        | None (controlled) | value                                     | onChange                             |
 | **PerchDiagramModal**     | Perch map viewer      | Active tab        | isOpen                                    | onClose                              |
 | **OutputPreview**         | Excel + JSON export   | Loading state     | data                                      | None                                 |
+| **LoadingOverlay**        | Blocking overlay      | None (controlled) | isVisible, message                        | None                                 |
+| **LoadingSpinner**        | Spinner animation     | None (controlled) | message, size, presentationOnly           | None                                 |
 
 ---
 
@@ -471,6 +484,167 @@ if (observation.object === 'other' && !observation.objectOther.trim()) {
 6. If `object === "other"`, validates `objectOther` field
 7. Errors set/cleared in `fieldErrors` state
 8. Component rerenders with error messages
+
+---
+
+## Loading Indicators & Async Operation Feedback
+
+### Architecture Overview
+
+The application provides accessible, user-friendly loading feedback during asynchronous operations using two reusable components:
+
+1. **LoadingSpinner** - Visual spinner with ARIA support
+2. **LoadingOverlay** - Full-screen modal overlay that blocks interaction
+
+### LoadingSpinner Component
+
+**Purpose**: Reusable loading spinner with comprehensive accessibility support
+
+**Features**:
+
+- ARIA attributes (role="status", aria-live="polite", aria-busy="true")
+- Customizable size (small, medium, large)
+- Presentation mode for use inside other status containers
+- Reduced motion support (slower animation for users with motion sensitivity)
+- High contrast mode support
+- Dark mode support
+
+**Props**:
+
+```javascript
+{
+  message: string,              // Loading message (default: "Loading...")
+  size: 'small' | 'medium' | 'large', // Spinner size
+  presentationOnly: boolean,    // Removes ARIA status role when inside other status containers
+  className: string             // Additional CSS classes
+}
+```
+
+**Usage Example**:
+
+```javascript
+// Standalone with full ARIA
+<LoadingSpinner message="Processing data..." size="medium" />
+
+// Inside another status container (presentation only)
+<LoadingSpinner message="Generating..." size="large" presentationOnly={true} />
+```
+
+### LoadingOverlay Component
+
+**Purpose**: Full-screen blocking overlay for long-running async operations
+
+**Features**:
+
+- Blocks user interaction during async operations
+- Prevents body scroll
+- Full accessibility (role="status", aria-live="assertive", aria-modal="true")
+- Click-through prevention
+- Automatic cleanup on unmount
+- Responsive design with mobile support
+
+**Props**:
+
+```javascript
+{
+  isVisible: boolean,    // Controls overlay visibility
+  message: string        // Loading message to display
+}
+```
+
+**When to Use LoadingOverlay**:
+
+- Operations that take >500ms (e.g., Excel file generation)
+- Operations that could fail if user interacts during processing
+- Downloads on slow connections (satellite internet, 3G, etc.)
+- File generation that blocks the main thread
+
+**Usage Example**:
+
+```javascript
+const [isGenerating, setIsGenerating] = useState(false);
+
+const handleGenerate = async () => {
+  setIsGenerating(true);
+  try {
+    await generateLargeFile();
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
+return (
+  <>
+    <LoadingOverlay isVisible={isGenerating} message="Generating file..." />
+    <button onClick={handleGenerate}>Generate</button>
+  </>
+);
+```
+
+### Current Implementation: Excel Download
+
+**Location**: OutputPreview component
+
+**Flow**:
+
+1. User clicks "Download Excel File" button
+2. Button text changes to "Generating..." and becomes disabled
+3. LoadingOverlay appears with "Generating Excel file..." message
+4. Excel file is generated asynchronously (could take time on slow connections)
+5. File downloads automatically
+6. Overlay disappears and button re-enables
+
+**Why This Matters**:
+
+- Prevents double-clicks during slow operations
+- Provides clear feedback on slow connections (satellite, 3G)
+- Accessible to screen reader users (assertive announcements)
+- Professional UX that matches native apps
+
+### Accessibility Design Decisions
+
+**1. Different aria-live Levels**:
+
+- LoadingSpinner: `aria-live="polite"` (non-intrusive for inline spinners)
+- LoadingOverlay: `aria-live="assertive"` (immediate announcement for blocking operations)
+
+**2. Presentation Mode**:
+
+- LoadingSpinner can disable ARIA attributes when inside LoadingOverlay
+- Prevents duplicate role="status" (causes accessibility issues)
+- Overlay handles screen reader announcements, spinner is purely visual
+
+**3. Body Scroll Management**:
+
+- Overlay sets `document.body.style.overflow = 'hidden'` when visible
+- Prevents background scrolling while overlay is active
+- Restores original overflow value on cleanup
+- Handles rapid show/hide toggles gracefully
+
+**4. Keyboard & Focus**:
+
+- Overlay is modal (aria-modal="true")
+- Focus management handled by browser (backdrop prevents focus escape)
+- No keyboard trap needed (operation is temporary)
+
+### Testing Strategy
+
+**Component Tests** (46 tests):
+
+- LoadingSpinner: ARIA attributes, visual presentation, size variants
+- LoadingOverlay: Body scroll management, click blocking, ARIA attributes
+
+**Integration Tests** (19 tests):
+
+- OutputPreview: Download flow, loading states, error handling
+- App: End-to-end Excel download with overlay
+
+**Accessibility Tests**:
+
+- Screen reader announcements (role, aria-live, aria-label)
+- Keyboard navigation (button states, disabled handling)
+- High contrast mode compatibility
+- Reduced motion support
 
 ---
 

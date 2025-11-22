@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import LoadingOverlay from './LoadingOverlay';
 
 /**
  * NOTE: ExcelJS is loaded dynamically (deferred) to reduce initial bundle size.
@@ -62,26 +63,35 @@ const OutputPreview = ({ data }) => {
   };
 
   return (
-    <div className="output-preview">
-      <h3>Data Preview</h3>
-      <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
-        Review your data below, then download the Excel file to submit.
-      </p>
+    <>
+      <LoadingOverlay
+        isVisible={isDownloading}
+        message="Generating Excel file..."
+      />
 
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={handleDownloadExcel}
-          disabled={isDownloading}
-          className="btn-primary"
-          style={{ marginRight: '10px' }}
-        >
-          {isDownloading ? 'Generating...' : 'Download Excel File'}
-        </button>
+      <div className="output-preview">
+        <h3>Data Preview</h3>
+        <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
+          Review your data below, then download the Excel file to submit.
+        </p>
+
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={handleDownloadExcel}
+            disabled={isDownloading}
+            className="btn-primary"
+            style={{ marginRight: '10px' }}
+          >
+            {isDownloading ? 'Generating...' : 'Download Excel File'}
+          </button>
+        </div>
+
+        <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>
+          JSON Preview
+        </h4>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>
-
-      <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>JSON Preview</h4>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+    </>
   );
 };
 

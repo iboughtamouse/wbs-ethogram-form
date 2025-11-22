@@ -1,0 +1,144 @@
+/**
+ * LoadingOverlay Styles
+ *
+ * Full-screen modal overlay that blocks interaction during async operations.
+ * Designed to prevent accidental user interaction while ensuring accessibility.
+ */
+
+/* Backdrop - covers entire viewport */
+.loading-overlay-backdrop {
+  /* Positioning */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999; /* Ensure it's on top of everything */
+
+  /* Visual */
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+  backdrop-filter: blur(2px); /* Subtle blur effect (modern browsers) */
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Prevent interaction with background */
+  cursor: wait;
+
+  /* Animation */
+  animation: overlay-fade-in 0.2s ease-out;
+}
+
+/* Content container - centers the spinner */
+.loading-overlay-content {
+  /* Visual */
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 40px 60px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  /* Sizing */
+  min-width: 280px;
+  max-width: 90vw;
+
+  /* Animation */
+  animation: content-scale-in 0.3s ease-out;
+}
+
+/* Fade-in animation for backdrop */
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scale-in animation for content */
+@keyframes content-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .loading-overlay-content {
+    padding: 32px 40px;
+    min-width: 240px;
+  }
+}
+
+/* Reduced motion support - accessibility for motion-sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  .loading-overlay-backdrop,
+  .loading-overlay-content {
+    animation: none;
+  }
+
+  .loading-overlay-backdrop {
+    /* Instant appearance instead of fade */
+    opacity: 1;
+  }
+
+  .loading-overlay-content {
+    /* Instant appearance instead of scale */
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* High contrast mode support - accessibility for low vision users */
+@media (prefers-contrast: high) {
+  .loading-overlay-backdrop {
+    background-color: rgba(
+      0,
+      0,
+      0,
+      0.85
+    ); /* Darker backdrop for better contrast */
+  }
+
+  .loading-overlay-content {
+    border: 2px solid #000;
+    box-shadow: none; /* Remove shadows in high contrast mode */
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .loading-overlay-backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .loading-overlay-content {
+    background-color: #2c3e50; /* Dark background */
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.6),
+      0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Print styles - hide overlay when printing */
+@media print {
+  .loading-overlay-backdrop {
+    display: none;
+  }
+}

@@ -1,0 +1,110 @@
+/**
+ * LoadingSpinner Styles
+ *
+ * Accessible loading spinner with smooth animations and proper contrast ratios.
+ * Supports multiple sizes and works well on various backgrounds.
+ */
+
+/* Container */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Spinner Animation */
+.loading-spinner {
+  display: inline-block;
+  position: relative;
+}
+
+/* Size variants */
+.loading-spinner-small {
+  width: 24px;
+  height: 24px;
+}
+
+.loading-spinner-medium {
+  width: 40px;
+  height: 40px;
+}
+
+.loading-spinner-large {
+  width: 60px;
+  height: 60px;
+}
+
+/* Spinner circle */
+.spinner-circle {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(52, 152, 219, 0.2); /* Light blue background */
+  border-top-color: #3498db; /* Primary blue */
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+/* Smaller border for small spinner */
+.loading-spinner-small .spinner-circle {
+  border-width: 2px;
+}
+
+/* Larger border for large spinner */
+.loading-spinner-large .spinner-circle {
+  border-width: 4px;
+}
+
+/* Rotation animation */
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading message */
+.loading-message {
+  color: #2c3e50; /* Dark gray for good contrast */
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Reduced motion support - accessibility for users with motion sensitivity */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-circle {
+    /* Use a slower, gentler animation */
+    animation-duration: 1.5s;
+  }
+}
+
+/* High contrast mode support - accessibility for users with low vision */
+@media (prefers-contrast: high) {
+  .spinner-circle {
+    border-color: rgba(0, 0, 0, 0.3);
+    border-top-color: #000;
+  }
+
+  .loading-message {
+    color: #000;
+    font-weight: 600;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .spinner-circle {
+    border-color: rgba(100, 181, 246, 0.3);
+    border-top-color: #64b5f6;
+  }
+
+  .loading-message {
+    color: #ecf0f1;
+  }
+}
