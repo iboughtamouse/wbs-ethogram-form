@@ -92,7 +92,7 @@ for better organization and clarity.
 - Run existing tests: `npm test`
 - Add tests for new features when possible
 - We use Jest and React Testing Library
-- Currently have 367 tests across 19 test suites covering:
+- Comprehensive test coverage including:
   - E2E integration tests (full app workflows)
   - Unit tests for hooks (useFormState, useFormValidation, useAutoSave)
   - Service tests (formStateManager, formSubmission, draftManager, excelGenerator)

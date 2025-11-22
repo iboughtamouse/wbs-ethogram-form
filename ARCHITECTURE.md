@@ -547,8 +547,8 @@ All conditionally required fields based on selected behavior:
 
 **Test Coverage:**
 
-- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` (9 tests for `validateObservationSlot`)
-- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` (5 tests covering full user flow)
+- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` (tests for `validateObservationSlot`)
+- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` (full user flow coverage)
 
 ---
 
@@ -694,12 +694,12 @@ return (
 
 ### Testing Strategy
 
-**Component Tests** (46 tests):
+**Component Tests**:
 
 - LoadingSpinner: ARIA attributes, visual presentation, size variants
 - LoadingOverlay: Body scroll management, click blocking, ARIA attributes
 
-**Integration Tests** (19 tests):
+**Integration Tests**:
 
 - OutputPreview: Download flow, loading states, error handling
 - App: End-to-end Excel download with overlay

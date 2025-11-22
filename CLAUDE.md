@@ -1018,8 +1018,8 @@ All conditionally required fields based on the selected behavior:
 
 **Test coverage:**
 
-- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` - 9 tests for `validateObservationSlot`
-- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` - 5 tests covering full user flow
+- Unit tests: `src/hooks/__tests__/useFormValidation.test.js` - tests for `validateObservationSlot`
+- Integration tests: `tests/integration/CopyToNextWithValidation.test.jsx` - full user flow coverage
 
 ### Task 4: Fix Timezone Conversion Bug
 
