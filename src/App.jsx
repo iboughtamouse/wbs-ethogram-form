@@ -4,13 +4,33 @@ import { useFormValidation } from './hooks/useFormValidation';
 import { useFormState } from './hooks/useFormState';
 import { useAutoSave } from './hooks/useAutoSave';
 import { prepareOutputData } from './services/formSubmission';
+import {
+  submitObservation,
+  isRetryableError,
+  getErrorMessage,
+} from './services/emailService';
+import { validateEmailInput } from './utils/validators';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
+import SubmissionModal, {
+  SUBMISSION_STATES,
+} from './components/SubmissionModal';
 import './App.css';
 
 function App() {
   const [showOutput, setShowOutput] = useState(false);
+
+  // Submission modal state
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [submissionState, setSubmissionState] = useState(
+    SUBMISSION_STATES.GENERATING
+  );
+  const [submissionEmail, setSubmissionEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [submissionError, setSubmissionError] = useState('');
+  const [isTransientError, setIsTransientError] = useState(false);
+  const [excelBlob, setExcelBlob] = useState(null);
 
   // Form state management
   const {
@@ -99,23 +119,6 @@ function App() {
     return handleCopyToNext(time);
   };
 
-  // Form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validateForm(metadata, observations)) {
-      setShowOutput(true);
-      // Clear draft from localStorage after successful submission
-      clearDraft();
-    } else {
-      setShowOutput(false);
-      // Scroll to first error
-      const firstError = document.querySelector('.error');
-      if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  };
-
   // Form reset
   const handleReset = () => {
     resetForm();
@@ -127,6 +130,153 @@ function App() {
   // Get output data with timezone conversion
   const getOutputData = () => {
     return prepareOutputData(metadata, observations);
+  };
+
+  // Handle Excel generation and modal opening
+  const handleGenerateExcel = async () => {
+    // Set modal to generating state
+    setSubmissionState(SUBMISSION_STATES.GENERATING);
+    setShowSubmissionModal(true);
+
+    // Simulate Excel generation (in real app, this would use excelGenerator)
+    // For now, we'll use a short delay to show the loading state
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // In production, you would generate the actual Excel blob here:
+    // const blob = await generateExcelBlob(getOutputData());
+    // setExcelBlob(blob);
+
+    // For now, set a placeholder
+    setExcelBlob(
+      new Blob(['placeholder'], { type: 'application/vnd.ms-excel' })
+    );
+
+    // Transition to ready state
+    setSubmissionState(SUBMISSION_STATES.READY);
+  };
+
+  // Handle email input change with validation
+  const handleEmailChange = (value) => {
+    setSubmissionEmail(value);
+
+    // Validate email
+    const error = validateEmailInput(value);
+    setEmailError(error);
+  };
+
+  // Handle email submission
+  const handleEmailSubmit = async () => {
+    // Validate email before submitting
+    const error = validateEmailInput(submissionEmail);
+    if (error) {
+      setEmailError(error);
+      return;
+    }
+
+    // Parse email(s) into array
+    const emails = submissionEmail
+      .split(',')
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0);
+
+    // Set submitting state
+    setSubmissionState(SUBMISSION_STATES.SUBMITTING);
+
+    // Prepare form data for submission
+    const formData = getOutputData();
+
+    try {
+      // Submit observation
+      const result = await submitObservation(formData, emails);
+
+      if (result.success) {
+        // Success - show success state
+        setSubmissionState(SUBMISSION_STATES.SUCCESS);
+        setSubmissionError('');
+        setIsTransientError(false);
+
+        // Clear draft after successful submission
+        clearDraft();
+      } else {
+        // Error - show error state
+        setSubmissionState(SUBMISSION_STATES.ERROR);
+        setSubmissionError(getErrorMessage(result));
+        setIsTransientError(isRetryableError(result));
+      }
+    } catch (error) {
+      // Unexpected error
+      setSubmissionState(SUBMISSION_STATES.ERROR);
+      setSubmissionError('An unexpected error occurred. Please try again.');
+      setIsTransientError(true);
+    }
+  };
+
+  // Handle retry after error
+  const handleRetry = () => {
+    // Reset to ready state so user can try again
+    setSubmissionState(SUBMISSION_STATES.READY);
+    setSubmissionError('');
+  };
+
+  // Handle Excel download from modal
+  const handleDownloadExcel = async () => {
+    try {
+      // Dynamically import the Excel generator
+      const { downloadExcelFile } = await import(
+        './services/export/excelGenerator'
+      );
+
+      // Prepare the data
+      const data = getOutputData();
+
+      // Sanitize patient name for filename
+      const sanitizedPatient = data.metadata.patient.replace(
+        /[/\\:*?"<>|]/g,
+        '_'
+      );
+      const filename = `ethogram-${sanitizedPatient}-${data.metadata.date}`;
+
+      // Download the file
+      await downloadExcelFile(data, filename);
+    } catch (error) {
+      console.error('Failed to generate Excel file:', error);
+      alert('Failed to generate Excel file. Please try again.');
+    }
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    // If closing after successful submission, reset the form
+    if (submissionState === SUBMISSION_STATES.SUCCESS) {
+      resetForm();
+      clearAllErrors();
+      setShowOutput(false);
+    }
+
+    // Reset modal state for next time
+    setShowSubmissionModal(false);
+    setSubmissionState(SUBMISSION_STATES.GENERATING);
+    setSubmissionEmail('');
+    setEmailError('');
+    setSubmissionError('');
+    setIsTransientError(false);
+  };
+
+  // Form submission - now opens modal instead of just showing output
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm(metadata, observations)) {
+      // Show output preview AND generate Excel for submission
+      setShowOutput(true);
+      handleGenerateExcel();
+    } else {
+      setShowOutput(false);
+      // Scroll to first error
+      const firstError = document.querySelector('.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   };
 
   return (
@@ -223,7 +373,7 @@ function App() {
 
           <div className="button-group">
             <button type="submit" className="btn-primary">
-              Validate & Preview
+              Submit Observation
             </button>
             <button
               type="button"
@@ -239,6 +389,21 @@ function App() {
           <OutputPreview data={getOutputData()} />
         )}
       </main>
+
+      {/* Submission Modal */}
+      <SubmissionModal
+        isOpen={showSubmissionModal}
+        onClose={handleCloseModal}
+        submissionState={submissionState}
+        errorMessage={submissionError}
+        isTransientError={isTransientError}
+        email={submissionEmail}
+        emailError={emailError}
+        onEmailChange={handleEmailChange}
+        onEmailSubmit={handleEmailSubmit}
+        onDownload={handleDownloadExcel}
+        onRetry={handleRetry}
+      />
     </div>
   );
 }

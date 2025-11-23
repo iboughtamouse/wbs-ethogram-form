@@ -72,24 +72,25 @@ const OutputPreview = ({ data }) => {
       <div className="output-preview">
         <h3>Data Preview</h3>
         <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
-          Review your data below, then download the Excel file to submit.
+          Your observation data is ready for submission. Use the submission
+          modal to send via email or download the Excel file.
         </p>
 
-        <div style={{ marginBottom: '20px' }}>
-          <button
-            onClick={handleDownloadExcel}
-            disabled={isDownloading}
-            className="btn-primary"
-            style={{ marginRight: '10px' }}
+        <details style={{ marginTop: '20px' }}>
+          <summary
+            style={{
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              marginBottom: '10px',
+              color: '#2c3e50',
+            }}
           >
-            {isDownloading ? 'Generating...' : 'Download Excel File'}
-          </button>
-        </div>
-
-        <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>
-          JSON Preview
-        </h4>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
+            Show JSON Preview (for debugging)
+          </summary>
+          <pre style={{ marginTop: '10px' }}>
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </details>
       </div>
     </>
   );

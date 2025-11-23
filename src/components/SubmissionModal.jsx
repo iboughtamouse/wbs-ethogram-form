@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import './SubmissionModal.css';
 
 /**
  * Submission states for the modal
