@@ -12,12 +12,16 @@ import {
   generateObservationsForSlots,
   updateObservationField,
 } from '../services/formStateManager';
+import { loadObserverName, saveObserverName } from '../utils/localStorageUtils';
 
 export const useFormState = () => {
   const today = new Date().toISOString().split('T')[0];
 
+  // Load saved observer name from localStorage on initial mount
+  const savedObserverName = loadObserverName() || '';
+
   const [metadata, setMetadata] = useState({
-    observerName: '',
+    observerName: savedObserverName,
     date: today,
     startTime: '',
     endTime: '',
@@ -28,6 +32,13 @@ export const useFormState = () => {
 
   const [timeSlots, setTimeSlots] = useState([]);
   const [observations, setObservations] = useState({});
+
+  // Save observer name to localStorage whenever it changes
+  useEffect(() => {
+    if (metadata.observerName) {
+      saveObserverName(metadata.observerName);
+    }
+  }, [metadata.observerName]);
 
   // Generate time slots when start/end time changes
   useEffect(() => {
@@ -88,8 +99,11 @@ export const useFormState = () => {
   );
 
   const resetForm = useCallback(() => {
+    // Keep the observer name from localStorage when resetting
+    const savedName = loadObserverName() || '';
+
     setMetadata({
-      observerName: '',
+      observerName: savedName,
       date: new Date().toISOString().split('T')[0],
       startTime: '',
       endTime: '',

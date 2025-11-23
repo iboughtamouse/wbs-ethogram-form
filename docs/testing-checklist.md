@@ -122,7 +122,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Type invalid value and press Enter → validation error shows for that field only
 - [ ] Type valid value and press Enter → no error shows for that field
 - [ ] Press Enter does NOT submit the form
-- [ ] Form only submits via "Validate & Preview" button
+- [ ] Form only submits via "Submit Observation" button
 
 ---
 
