@@ -1,98 +1,35 @@
-import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import LoadingOverlay from './LoadingOverlay';
 
 /**
- * NOTE: ExcelJS is loaded dynamically (deferred) to reduce initial bundle size.
+ * OutputPreview displays a read-only JSON preview of the observation data.
  *
- * ExcelJS is a large library (~22MB in node_modules, ~930KB minified) that's only
- * needed for Excel file generation. By using dynamic import() with prefetching:
- * - Initial page load is 76.5% smaller (84 KB vs 358 KB gzipped)
- * - ExcelJS prefetches when this component mounts (user has completed form)
- * - By the time user clicks download, ExcelJS is already loaded (no delay)
- * - Users who don't complete the form don't download ExcelJS
- *
- * This is a performance optimization pattern called "deferred loading".
- * Use this pattern when a dependency is:
- * 1. Large in size (significantly impacts bundle)
- * 2. Only needed after specific user actions (form completion)
- * 3. Highly likely to be used once conditions are met
+ * Note: In Phase 1, the download functionality was moved to SubmissionModal.
+ * This component now serves purely as a data preview for debugging/verification.
  */
 
 const OutputPreview = ({ data }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  // Prefetch ExcelJS when output preview is shown
-  // User has completed the form, so they're very likely to download
-  useEffect(() => {
-    // Start loading ExcelJS in the background
-    // By the time user clicks download, it will be ready
-    import('../services/export/excelGenerator');
-  }, []);
-
-  const handleDownloadExcel = async () => {
-    try {
-      setIsDownloading(true);
-
-      // Load the Excel generator module (likely already loaded by prefetch)
-      const { downloadExcelFile } = await import(
-        '../services/export/excelGenerator'
-      );
-
-      // Sanitize patient name to remove invalid filename characters
-      const sanitizedPatient = data.metadata.patient.replace(
-        /[/\\:*?"<>|]/g,
-        '_'
-      );
-      const filename = `ethogram-${sanitizedPatient}-${data.metadata.date}`;
-      await downloadExcelFile(data, filename);
-    } catch (error) {
-      console.error('Failed to generate Excel file:', error);
-      const errorMessage = error.message || 'Unknown error occurred';
-      alert(
-        `Failed to generate Excel file: ${errorMessage}\n\n` +
-          'Please try the following:\n' +
-          '1. Check that your browser allows downloads\n' +
-          '2. Ensure you have sufficient disk space\n' +
-          '3. Try again in a few moments\n\n' +
-          'If the problem persists, please contact support.'
-      );
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   return (
-    <>
-      <LoadingOverlay
-        isVisible={isDownloading}
-        message="Generating Excel file..."
-      />
+    <div className="output-preview">
+      <h3>Data Preview</h3>
+      <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
+        Your observation data is ready for submission. Use the submission modal
+        to send via email or download the Excel file.
+      </p>
 
-      <div className="output-preview">
-        <h3>Data Preview</h3>
-        <p style={{ marginBottom: '15px', color: '#7f8c8d' }}>
-          Your observation data is ready for submission. Use the submission
-          modal to send via email or download the Excel file.
-        </p>
-
-        <details style={{ marginTop: '20px' }}>
-          <summary
-            style={{
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              marginBottom: '10px',
-              color: '#2c3e50',
-            }}
-          >
-            Show JSON Preview (for debugging)
-          </summary>
-          <pre style={{ marginTop: '10px' }}>
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        </details>
-      </div>
-    </>
+      <details style={{ marginTop: '20px' }}>
+        <summary
+          style={{
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            marginBottom: '10px',
+            color: '#2c3e50',
+          }}
+        >
+          Show JSON Preview (for debugging)
+        </summary>
+        <pre style={{ marginTop: '10px' }}>{JSON.stringify(data, null, 2)}</pre>
+      </details>
+    </div>
   );
 };
 

@@ -525,7 +525,8 @@ describe('App Integration Tests', () => {
         expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
       });
 
-      // Click download button from modal (not OutputPreview - it doesn't have one anymore)
+      // Click download button from SubmissionModal
+      // Note: OutputPreview still exists for JSON preview, but download functionality moved to modal
       const downloadButton = screen.getByRole('button', {
         name: /download excel/i,
       });
