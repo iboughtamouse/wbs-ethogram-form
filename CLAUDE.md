@@ -3,8 +3,8 @@
 > **Purpose**: This document provides AI coding assistants (like Claude) with essential context about the WBS Ethogram Form codebase, its architecture, conventions, and development workflows.
 >
 > **Last Updated**: November 22, 2025
-> **Codebase Version**: Post-Phase 6 + Loading Indicators
-> **Status**: Production-ready, actively maintained
+> **Codebase Version**: Post-Phase 6 + Email Submission (Phase 1 Complete)
+> **Status**: Production-ready, email submission ready for Phase 2 backend integration
 
 ---
 
@@ -73,8 +73,10 @@ If you're working on this codebase for the first time:
 
 ```
 User fills form → Data stored in React state → Validates on change →
-Autosaves to localStorage → On submit: generates Excel + JSON →
-User downloads file and submits to WBS manually
+Autosaves to localStorage → On submit: opens submission modal →
+User chooses email delivery OR direct download →
+Email: Mock submission (Phase 1) or Real API (Phase 2) →
+Download: Generates Excel file locally
 ```
 
 ### Development Commands
@@ -138,9 +140,15 @@ App.jsx
 │   └── NotesField
 │
 ├── OutputPreview
-│   ├── LoadingOverlay [conditional - during Excel generation]
-│   ├── Excel download button (with loading state)
-│   └── JSON display with copy button
+│   ├── JSON display with copy button
+│   └── Submit Observation button (opens SubmissionModal)
+│
+├── SubmissionModal
+│   ├── States: GENERATING, READY, SUBMITTING, SUCCESS, ERROR
+│   ├── Email input with validation
+│   ├── LoadingOverlay [conditional - during Excel generation/submission]
+│   ├── Submit via Email / Direct Download buttons
+│   └── Error handling with retry capability
 │
 ├── LoadingOverlay [Reusable component]
 │   ├── Full-screen backdrop
@@ -160,17 +168,20 @@ src/services/
 ├── formStateManager.js - Observation state operations
 ├── formSubmission.js - Output data preparation
 ├── draftManager.js - Autosave decision logic
+├── emailService.js - Email submission (Phase 1: mock, Phase 2: real API)
 └── export/
     └── excelGenerator.js - Excel workbook generation
 
 src/utils/
 ├── timeUtils.js - Time rounding, slot generation, formatting
 ├── timezoneUtils.js - Timezone conversion (America/Chicago)
-├── localStorageUtils.js - Draft save/load/clear
+├── localStorageUtils.js - Draft save/load/clear + observer name persistence
 ├── observationUtils.js - Observation helpers
 ├── debounce.js - Debounce utility (200ms for text inputs)
 └── validators/
-    └── locationValidator.js - Pure location validation
+    ├── locationValidator.js - Pure location validation
+    ├── observerNameValidator.js - Discord/Twitch username + full name support
+    └── emailValidator.js - Email format validation
 
 src/constants/
 ├── behaviors.js - BEHAVIORS array + helper functions
@@ -1058,6 +1069,65 @@ console.log({
 - Missing mocks (localStorage, Date)
 - PropTypes errors (fix the prop mismatch)
 - Snapshot mismatch (update with `-u` flag)
+
+### Task 6: Working with Submission Modal
+
+**Feature**: Email submission modal with states: GENERATING → READY → SUBMITTING → SUCCESS/ERROR
+
+**How it works:**
+
+1. **User clicks "Submit Observation"** in OutputPreview
+2. **Modal opens** in GENERATING state while Excel file is generated
+3. **Transitions to READY** state with email input and two buttons
+4. **User chooses**:
+   - "Submit via Email" → SUBMITTING state → emailService.submitObservation()
+   - "Direct Download" → triggers browser download immediately
+5. **Email submission** results in SUCCESS or ERROR state
+
+**State transitions** (`src/components/SubmissionModal.jsx`):
+
+```javascript
+const MODAL_STATES = {
+  GENERATING: 'generating', // Creating Excel file
+  READY: 'ready', // Awaiting user action
+  SUBMITTING: 'submitting', // Sending email
+  SUCCESS: 'success', // Email sent
+  ERROR: 'error', // Submission failed
+};
+```
+
+**Key props:**
+
+- `isOpen` - Controls modal visibility
+- `onClose` - Callback to close modal
+- `formState` - Full form state (metadata + observations)
+- `excelData` - Optional pre-generated Excel file
+
+**Email validation:**
+
+Observer name and email are validated using dedicated validators:
+
+```javascript
+// utils/validators/observerNameValidator.js
+// Supports Discord usernames, Twitch usernames, and full names
+validateObserverName(name); // Returns { valid, message }
+
+// utils/validators/emailValidator.js
+validateEmail(email); // Returns { valid, message }
+```
+
+**Error handling:**
+
+```javascript
+// emailService.js checks for retryable errors
+isRetryableError(error); // Network/timeout errors → true
+getErrorMessage(error); // User-friendly error message
+```
+
+**Testing:**
+
+- Unit tests: `src/components/__tests__/SubmissionModal.test.jsx`
+- Integration tests: Tests modal states, validation, email submission flow
 
 ---
 
