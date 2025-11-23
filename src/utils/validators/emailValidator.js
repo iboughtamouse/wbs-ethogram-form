@@ -61,6 +61,7 @@ export const isValidEmail = (email) => {
 
 /**
  * Parse and validate a comma-separated list of emails
+ * Note: Phase 1 supports comma separation only. Semicolon support planned for Phase 2.
  *
  * @param {string} emailString - Comma-separated email addresses
  * @returns {object} - { valid: boolean, emails: string[], invalidEmails: string[], error: string }
@@ -148,11 +149,16 @@ export const parseEmailList = (emailString) => {
  * Validate email input for the submission form
  * This is the main validation function used by the UI
  *
+ * Note: This function treats email as optional (returns '' for empty input),
+ * while parseEmailList treats it as required. This separation of concerns is intentional:
+ * - parseEmailList: parses required email lists (used when emails are provided)
+ * - validateEmailInput: validates optional UI input (handles empty case first)
+ *
  * @param {string} emailInput - User's email input (can be empty, single, or comma-separated)
  * @returns {string} - Error message if invalid, empty string if valid
  */
 export const validateEmailInput = (emailInput) => {
-  // Allow empty input (email is optional)
+  // Allow empty input (email is optional for direct download path)
   if (!emailInput || emailInput.trim().length === 0) {
     return '';
   }

@@ -136,10 +136,15 @@ async function mockSubmitObservation(formData, emails) {
  * Real backend implementation for Phase 2
  * Makes actual HTTP request to backend API
  *
+ * NOTE: This function is intentionally defined but not used in Phase 1.
+ * It will be activated in Phase 2 when the backend API is ready.
+ * See line 86 where mockSubmitObservation is used instead.
+ *
  * @param {FormData} formData - Complete form data
  * @param {string[]} emails - Email addresses
  * @returns {Promise<SubmissionResult>} Submission result
  */
+// eslint-disable-next-line no-unused-vars
 async function realSubmitObservation(formData, emails) {
   try {
     const response = await fetch('/api/observations/submit', {

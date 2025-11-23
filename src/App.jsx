@@ -30,7 +30,6 @@ function App() {
   const [emailError, setEmailError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const [isTransientError, setIsTransientError] = useState(false);
-  const [excelBlob, setExcelBlob] = useState(null);
 
   // Form state management
   const {
@@ -138,18 +137,9 @@ function App() {
     setSubmissionState(SUBMISSION_STATES.GENERATING);
     setShowSubmissionModal(true);
 
-    // Simulate Excel generation (in real app, this would use excelGenerator)
-    // For now, we'll use a short delay to show the loading state
+    // Show loading state briefly to demonstrate the generating phase
+    // In production, the actual Excel generation happens on-demand during download
     await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // In production, you would generate the actual Excel blob here:
-    // const blob = await generateExcelBlob(getOutputData());
-    // setExcelBlob(blob);
-
-    // For now, set a placeholder
-    setExcelBlob(
-      new Blob(['placeholder'], { type: 'application/vnd.ms-excel' })
-    );
 
     // Transition to ready state
     setSubmissionState(SUBMISSION_STATES.READY);
