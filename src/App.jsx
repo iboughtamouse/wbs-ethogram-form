@@ -9,7 +9,7 @@ import {
   isRetryableError,
   getErrorMessage,
 } from './services/emailService';
-import { validateEmailInput } from './utils/validators';
+import { validateEmailInput, parseEmailList } from './utils/validators';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
@@ -163,11 +163,8 @@ function App() {
       return;
     }
 
-    // Parse email(s) into array
-    const emails = submissionEmail
-      .split(',')
-      .map((email) => email.trim())
-      .filter((email) => email.length > 0);
+    // Parse email(s) into array using shared utility
+    const { emails } = parseEmailList(submissionEmail);
 
     // Set submitting state
     setSubmissionState(SUBMISSION_STATES.SUBMITTING);
