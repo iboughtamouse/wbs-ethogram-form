@@ -175,7 +175,7 @@ src/services/
 src/utils/
 ├── timeUtils.js - Time rounding, slot generation, formatting
 ├── timezoneUtils.js - Timezone conversion (America/Chicago)
-├── localStorageUtils.js - Draft save/load/clear + observer name persistence
+├── localStorageUtils.js - Draft save/load/clear
 ├── observationUtils.js - Observation helpers
 ├── debounce.js - Debounce utility (200ms for text inputs)
 └── validators/

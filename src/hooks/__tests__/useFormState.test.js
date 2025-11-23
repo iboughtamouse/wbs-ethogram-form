@@ -311,8 +311,7 @@ describe('useFormState', () => {
         result.current.resetForm();
       });
 
-      // Observer name is now preserved from localStorage (in this case 'John Doe')
-      expect(result.current.metadata.observerName).toBe('John Doe');
+      expect(result.current.metadata.observerName).toBe('');
       expect(result.current.metadata.mode).toBe('live'); // Back to default
       expect(result.current.metadata.startTime).toBe('');
       expect(result.current.metadata.endTime).toBe('');
