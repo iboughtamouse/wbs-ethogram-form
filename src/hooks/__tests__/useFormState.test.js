@@ -311,7 +311,6 @@ describe('useFormState', () => {
         result.current.resetForm();
       });
 
-      // All fields reset to defaults, including observer name
       expect(result.current.metadata.observerName).toBe('');
       expect(result.current.metadata.mode).toBe('live'); // Back to default
       expect(result.current.metadata.startTime).toBe('');

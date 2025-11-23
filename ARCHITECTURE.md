@@ -1,7 +1,7 @@
 # Architecture Documentation
 
 > **Last Updated**: November 23, 2025 (Phase 1: Email submission feature complete)
-> **Test Coverage**: 534 tests passing, comprehensive coverage
+> **Test Coverage**: Comprehensive coverage (run `npm test` for current count)
 > **Architecture**: Component-based React app with custom hooks and pure function services
 > **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
 > **Recent Changes**: Email submission modal, observer name validation (Discord/Twitch)
