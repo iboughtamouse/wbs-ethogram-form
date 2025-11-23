@@ -5,3 +5,8 @@ export {
   parseEmailList,
   validateEmailInput,
 } from './emailValidator';
+export {
+  validateObserverName,
+  looksLikeDiscordUsername,
+  looksLikeTwitchUsername,
+} from './observerNameValidator';
