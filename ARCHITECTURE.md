@@ -1,10 +1,10 @@
 # Architecture Documentation
 
-> **Last Updated**: November 22, 2025 (Phase 1: Email submission feature complete)
-> **Test Coverage**: 543 tests passing, comprehensive coverage
+> **Last Updated**: November 23, 2025 (Phase 1: Email submission feature complete)
+> **Test Coverage**: 534 tests passing, comprehensive coverage
 > **Architecture**: Component-based React app with custom hooks and pure function services
 > **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
-> **Recent Changes**: Email submission modal, observer name validation (Discord/Twitch), localStorage persistence
+> **Recent Changes**: Email submission modal, observer name validation (Discord/Twitch)
 
 ---
 
@@ -275,7 +275,7 @@ graph TD
 | `utils/validators/index.js`                       | Export    | Barrel export for validators              |
 | `services/export/excelGenerator.js`               | Service   | Excel workbook generation                 |
 | `services/emailService.js` [NEW]                  | Service   | Email submission (Phase 1: mock)          |
-| `utils/localStorageUtils.js`                      | Utility   | Draft + observer name persistence         |
+| `utils/localStorageUtils.js`                      | Utility   | Draft persistence to localStorage         |
 | `scripts/convert-images-to-webp.js`               | Script    | PNG to WebP conversion utility            |
 
 ### Test Files

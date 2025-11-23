@@ -51,7 +51,6 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
   - **Direct download**: Download Excel file to submit manually
   - **Status tracking**: Real-time feedback during submission (generating, sending, success)
   - **Error recovery**: Retry button for temporary failures, download fallback for permanent errors
-  - Observer name saved for convenience in future sessions
 
 ### Interaction Sub-fields
 
