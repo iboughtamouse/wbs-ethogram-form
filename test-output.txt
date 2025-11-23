@@ -1,0 +1,324 @@
+
+> ethogram-form@0.1.0 test
+> jest --passWithNoTests
+
+FAIL src/utils/__tests__/localStorageUtils.test.js
+  ● localStorageUtils › saveObserverName › should save observer name to localStorage
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      305 |   describe('saveObserverName', () => {
+      306 |     it('should save observer name to localStorage', () => {
+    > 307 |       const result = saveObserverName('TestObserver123');
+          |                                      ^
+      308 |
+      309 |       expect(result).toBe(true);
+      310 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:307:38)
+
+  ● localStorageUtils › saveObserverName › should trim whitespace when saving
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      314 |
+      315 |     it('should trim whitespace when saving', () => {
+    > 316 |       saveObserverName('  TestObserver  ');
+          |                       ^
+      317 |
+      318 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+      319 |         'TestObserver'
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:316:23)
+
+  ● localStorageUtils › saveObserverName › should return false for empty string
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      322 |
+      323 |     it('should return false for empty string', () => {
+    > 324 |       const result = saveObserverName('');
+          |                                      ^
+      325 |
+      326 |       expect(result).toBe(false);
+      327 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:324:38)
+
+  ● localStorageUtils › saveObserverName › should return false for whitespace-only string
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      328 |
+      329 |     it('should return false for whitespace-only string', () => {
+    > 330 |       const result = saveObserverName('   ');
+          |                                      ^
+      331 |
+      332 |       expect(result).toBe(false);
+      333 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:330:38)
+
+  ● localStorageUtils › saveObserverName › should return false for non-string values
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      334 |
+      335 |     it('should return false for non-string values', () => {
+    > 336 |       expect(saveObserverName(null)).toBe(false);
+          |                              ^
+      337 |       expect(saveObserverName(undefined)).toBe(false);
+      338 |       expect(saveObserverName(123)).toBe(false);
+      339 |       expect(saveObserverName({})).toBe(false);
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:336:30)
+
+  ● localStorageUtils › saveObserverName › should overwrite existing observer name
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      341 |
+      342 |     it('should overwrite existing observer name', () => {
+    > 343 |       saveObserverName('FirstName');
+          |                       ^
+      344 |       saveObserverName('SecondName');
+      345 |
+      346 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:343:23)
+
+  ● localStorageUtils › loadObserverName › should load observer name from localStorage
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      354 |       localStorage.setItem('wbs-ethogram-observer-name', 'TestObserver');
+      355 |
+    > 356 |       const result = loadObserverName();
+          |                                      ^
+      357 |
+      358 |       expect(result).toBe('TestObserver');
+      359 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:356:38)
+
+  ● localStorageUtils › loadObserverName › should return null if no observer name is saved
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      360 |
+      361 |     it('should return null if no observer name is saved', () => {
+    > 362 |       const result = loadObserverName();
+          |                                      ^
+      363 |
+      364 |       expect(result).toBeNull();
+      365 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:362:38)
+
+  ● localStorageUtils › loadObserverName › should return null if observer name is empty string
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      368 |       localStorage.setItem('wbs-ethogram-observer-name', '');
+      369 |
+    > 370 |       const result = loadObserverName();
+          |                                      ^
+      371 |
+      372 |       expect(result).toBeNull();
+      373 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:370:38)
+
+FAIL src/hooks/__tests__/useFormState.test.js
+  ● useFormState › resetForm › should reset all form state
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "John Doe"
+    Received: ""
+
+      313 |
+      314 |       // Observer name is now preserved from localStorage (in this case 'John Doe')
+    > 315 |       expect(result.current.metadata.observerName).toBe('John Doe');
+          |                                                    ^
+      316 |       expect(result.current.metadata.mode).toBe('live'); // Back to default
+      317 |       expect(result.current.metadata.startTime).toBe('');
+      318 |       expect(result.current.metadata.endTime).toBe('');
+
+      at Object.toBe (src/hooks/__tests__/useFormState.test.js:315:52)
+
+PASS tests/integration/TimeSlotObservation.test.jsx
+PASS src/services/export/__tests__/excelGenerator.test.js
+PASS src/components/__tests__/SubmissionModal.test.jsx
+PASS tests/integration/MetadataSection.test.jsx
+PASS src/components/__tests__/LoadingOverlay.test.jsx
+PASS tests/integration/App.test.jsx (5.504 s)
+PASS src/hooks/__tests__/useFormValidation.test.js
+PASS tests/integration/FormComponents.test.jsx
+PASS src/components/__tests__/PerchDiagramModal.test.jsx
+PASS tests/integration/CopyToNextWithValidation.test.jsx
+PASS src/utils/validators/__tests__/emailValidator.test.js
+PASS src/utils/__tests__/timezoneUtils.test.js
+PASS src/hooks/__tests__/useAutoSave.test.js
+PASS src/utils/validators/__tests__/observerNameValidator.test.js
+PASS src/services/__tests__/formStateManager.test.js
+PASS tests/copyToNextSlot.test.js
+PASS src/components/__tests__/OutputPreview.test.jsx
+PASS src/components/__tests__/LoadingSpinner.test.jsx
+PASS src/utils/__tests__/timeUtils.test.js
+PASS src/services/__tests__/draftManager.test.js
+PASS src/services/__tests__/formSubmission.test.js
+PASS src/services/__tests__/emailService.test.js (21.62 s)
+
+Summary of all failing tests
+FAIL src/utils/__tests__/localStorageUtils.test.js
+  ● localStorageUtils › saveObserverName › should save observer name to localStorage
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      305 |   describe('saveObserverName', () => {
+      306 |     it('should save observer name to localStorage', () => {
+    > 307 |       const result = saveObserverName('TestObserver123');
+          |                                      ^
+      308 |
+      309 |       expect(result).toBe(true);
+      310 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:307:38)
+
+  ● localStorageUtils › saveObserverName › should trim whitespace when saving
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      314 |
+      315 |     it('should trim whitespace when saving', () => {
+    > 316 |       saveObserverName('  TestObserver  ');
+          |                       ^
+      317 |
+      318 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+      319 |         'TestObserver'
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:316:23)
+
+  ● localStorageUtils › saveObserverName › should return false for empty string
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      322 |
+      323 |     it('should return false for empty string', () => {
+    > 324 |       const result = saveObserverName('');
+          |                                      ^
+      325 |
+      326 |       expect(result).toBe(false);
+      327 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:324:38)
+
+  ● localStorageUtils › saveObserverName › should return false for whitespace-only string
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      328 |
+      329 |     it('should return false for whitespace-only string', () => {
+    > 330 |       const result = saveObserverName('   ');
+          |                                      ^
+      331 |
+      332 |       expect(result).toBe(false);
+      333 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:330:38)
+
+  ● localStorageUtils › saveObserverName › should return false for non-string values
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      334 |
+      335 |     it('should return false for non-string values', () => {
+    > 336 |       expect(saveObserverName(null)).toBe(false);
+          |                              ^
+      337 |       expect(saveObserverName(undefined)).toBe(false);
+      338 |       expect(saveObserverName(123)).toBe(false);
+      339 |       expect(saveObserverName({})).toBe(false);
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:336:30)
+
+  ● localStorageUtils › saveObserverName › should overwrite existing observer name
+
+    TypeError: (0 , _localStorageUtils.saveObserverName) is not a function
+
+      341 |
+      342 |     it('should overwrite existing observer name', () => {
+    > 343 |       saveObserverName('FirstName');
+          |                       ^
+      344 |       saveObserverName('SecondName');
+      345 |
+      346 |       expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:343:23)
+
+  ● localStorageUtils › loadObserverName › should load observer name from localStorage
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      354 |       localStorage.setItem('wbs-ethogram-observer-name', 'TestObserver');
+      355 |
+    > 356 |       const result = loadObserverName();
+          |                                      ^
+      357 |
+      358 |       expect(result).toBe('TestObserver');
+      359 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:356:38)
+
+  ● localStorageUtils › loadObserverName › should return null if no observer name is saved
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      360 |
+      361 |     it('should return null if no observer name is saved', () => {
+    > 362 |       const result = loadObserverName();
+          |                                      ^
+      363 |
+      364 |       expect(result).toBeNull();
+      365 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:362:38)
+
+  ● localStorageUtils › loadObserverName › should return null if observer name is empty string
+
+    TypeError: (0 , _localStorageUtils.loadObserverName) is not a function
+
+      368 |       localStorage.setItem('wbs-ethogram-observer-name', '');
+      369 |
+    > 370 |       const result = loadObserverName();
+          |                                      ^
+      371 |
+      372 |       expect(result).toBeNull();
+      373 |     });
+
+      at Object.<anonymous> (src/utils/__tests__/localStorageUtils.test.js:370:38)
+
+FAIL src/hooks/__tests__/useFormState.test.js
+  ● useFormState › resetForm › should reset all form state
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "John Doe"
+    Received: ""
+
+      313 |
+      314 |       // Observer name is now preserved from localStorage (in this case 'John Doe')
+    > 315 |       expect(result.current.metadata.observerName).toBe('John Doe');
+          |                                                    ^
+      316 |       expect(result.current.metadata.mode).toBe('live'); // Back to default
+      317 |       expect(result.current.metadata.startTime).toBe('');
+      318 |       expect(result.current.metadata.endTime).toBe('');
+
+      at Object.toBe (src/hooks/__tests__/useFormState.test.js:315:52)
+
+
+Test Suites: 2 failed, 22 passed, 24 total
+Tests:       10 failed, 533 passed, 543 total
+Snapshots:   0 total
+Time:        24.577 s
+Ran all test suites.

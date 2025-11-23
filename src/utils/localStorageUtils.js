@@ -4,7 +4,6 @@
  */
 
 const DRAFT_KEY = 'wbs-ethogram-draft';
-const OBSERVER_NAME_KEY = 'wbs-ethogram-observer-name';
 
 /**
  * Save current form state to localStorage
@@ -70,41 +69,5 @@ export function hasDraft() {
   } catch (error) {
     console.error('Failed to check for draft in localStorage:', error);
     return false;
-  }
-}
-
-/**
- * Save observer name to localStorage for future sessions
- * @param {string} observerName - The observer's name/username
- * @returns {boolean} - True if save succeeded, false otherwise
- */
-export function saveObserverName(observerName) {
-  try {
-    if (!observerName || typeof observerName !== 'string') {
-      return false;
-    }
-    const trimmed = observerName.trim();
-    if (trimmed.length === 0) {
-      return false;
-    }
-    localStorage.setItem(OBSERVER_NAME_KEY, trimmed);
-    return true;
-  } catch (error) {
-    console.error('Failed to save observer name to localStorage:', error);
-    return false;
-  }
-}
-
-/**
- * Load saved observer name from localStorage
- * @returns {string|null} - Saved observer name, or null if none exists
- */
-export function loadObserverName() {
-  try {
-    const observerName = localStorage.getItem(OBSERVER_NAME_KEY);
-    return observerName || null;
-  } catch (error) {
-    console.error('Failed to load observer name from localStorage:', error);
-    return null;
   }
 }
