@@ -11,6 +11,7 @@ import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
 import * as timezoneUtils from '../../src/utils/timezoneUtils';
 import { downloadExcelFile } from '../../src/services/export/excelGenerator';
+import * as emailService from '../../src/services/emailService';
 
 // Mock localStorage utilities
 jest.mock('../../src/utils/localStorageUtils');
@@ -27,6 +28,9 @@ jest.mock('../../src/services/export/excelGenerator', () => ({
   downloadExcelFile: jest.fn(),
 }));
 
+// Mock email service to prevent flaky tests from random mock failures
+jest.mock('../../src/services/emailService');
+
 describe('App Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -35,6 +39,14 @@ describe('App Integration Tests', () => {
     localStorageUtils.loadDraft.mockReturnValue(null);
     localStorageUtils.saveDraft.mockReturnValue(true);
     localStorageUtils.clearDraft.mockReturnValue(true);
+
+    // Mock emailService with deterministic success to prevent flaky tests
+    emailService.submitObservation.mockResolvedValue({
+      success: true,
+      submissionId: 'test-submission-id',
+      message: 'Observation submitted successfully',
+      emailsSent: 1,
+    });
   });
 
   // Helper function to fill in metadata completely
