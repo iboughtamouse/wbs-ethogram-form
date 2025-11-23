@@ -7,6 +7,8 @@ import {
   loadDraft,
   clearDraft,
   hasDraft,
+  saveObserverName,
+  loadObserverName,
 } from '../localStorageUtils';
 
 // Mock localStorage
@@ -297,6 +299,77 @@ describe('localStorageUtils', () => {
 
       expect(loaded.observations).toEqual(observations);
       expect(Object.keys(loaded.observations)).toHaveLength(5);
+    });
+  });
+
+  describe('saveObserverName', () => {
+    it('should save observer name to localStorage', () => {
+      const result = saveObserverName('TestObserver123');
+
+      expect(result).toBe(true);
+      expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+        'TestObserver123'
+      );
+    });
+
+    it('should trim whitespace when saving', () => {
+      saveObserverName('  TestObserver  ');
+
+      expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+        'TestObserver'
+      );
+    });
+
+    it('should return false for empty string', () => {
+      const result = saveObserverName('');
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false for whitespace-only string', () => {
+      const result = saveObserverName('   ');
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false for non-string values', () => {
+      expect(saveObserverName(null)).toBe(false);
+      expect(saveObserverName(undefined)).toBe(false);
+      expect(saveObserverName(123)).toBe(false);
+      expect(saveObserverName({})).toBe(false);
+    });
+
+    it('should overwrite existing observer name', () => {
+      saveObserverName('FirstName');
+      saveObserverName('SecondName');
+
+      expect(localStorage.getItem('wbs-ethogram-observer-name')).toBe(
+        'SecondName'
+      );
+    });
+  });
+
+  describe('loadObserverName', () => {
+    it('should load observer name from localStorage', () => {
+      localStorage.setItem('wbs-ethogram-observer-name', 'TestObserver');
+
+      const result = loadObserverName();
+
+      expect(result).toBe('TestObserver');
+    });
+
+    it('should return null if no observer name is saved', () => {
+      const result = loadObserverName();
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null if observer name is empty string', () => {
+      localStorage.setItem('wbs-ethogram-observer-name', '');
+
+      const result = loadObserverName();
+
+      expect(result).toBeNull();
     });
   });
 });

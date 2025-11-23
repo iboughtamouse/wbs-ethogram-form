@@ -7,7 +7,7 @@ import {
   requiresDescription,
 } from '../constants';
 import { validateTimeRange } from '../utils/timeUtils';
-import { validateLocation } from '../utils/validators';
+import { validateLocation, validateObserverName } from '../utils/validators';
 
 // Fields to validate in observations (all except 'notes' which is always optional)
 const OBSERVATION_FIELDS_TO_VALIDATE = [
@@ -30,9 +30,7 @@ export const useFormValidation = () => {
 
     switch (field) {
       case 'observerName':
-        if (!value.trim()) {
-          error = 'Discord username is required';
-        }
+        error = validateObserverName(value);
         break;
       case 'date':
         if (!value) {

@@ -11,6 +11,7 @@ import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
 import * as timezoneUtils from '../../src/utils/timezoneUtils';
 import { downloadExcelFile } from '../../src/services/export/excelGenerator';
+import * as emailService from '../../src/services/emailService';
 
 // Mock localStorage utilities
 jest.mock('../../src/utils/localStorageUtils');
@@ -27,6 +28,9 @@ jest.mock('../../src/services/export/excelGenerator', () => ({
   downloadExcelFile: jest.fn(),
 }));
 
+// Mock email service to prevent flaky tests from random mock failures
+jest.mock('../../src/services/emailService');
+
 describe('App Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -35,6 +39,14 @@ describe('App Integration Tests', () => {
     localStorageUtils.loadDraft.mockReturnValue(null);
     localStorageUtils.saveDraft.mockReturnValue(true);
     localStorageUtils.clearDraft.mockReturnValue(true);
+
+    // Mock emailService with deterministic success to prevent flaky tests
+    emailService.submitObservation.mockResolvedValue({
+      success: true,
+      submissionId: 'test-submission-id',
+      message: 'Observation submitted successfully',
+      emailsSent: 1,
+    });
   });
 
   // Helper function to fill in metadata completely
@@ -399,13 +411,13 @@ describe('App Integration Tests', () => {
       });
 
       // Try to submit without filling required fields
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
       // Should show validation errors (check for actual error message)
       await waitFor(() => {
         expect(
-          screen.getByText(/Discord username is required/i)
+          screen.getByText(/Observer name is required/i)
         ).toBeInTheDocument();
       });
 
@@ -431,7 +443,7 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
       // Output preview should appear
@@ -464,7 +476,7 @@ describe('App Integration Tests', () => {
       fireEvent.change(behaviorSelect, { target: { value: 'drinking' } });
 
       // Submit form
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
       // Check output contains key data
@@ -504,51 +516,26 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form to show output preview
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
-      // Wait for output preview
+      // Wait for output preview and submission modal to be ready
       await waitFor(() => {
         expect(screen.getByText(/Data Preview/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
       });
 
-      // No loading overlay initially
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-
-      // Click download button
+      // Click download button from SubmissionModal
+      // Note: OutputPreview still exists for JSON preview, but download functionality moved to modal
       const downloadButton = screen.getByRole('button', {
-        name: /download excel file/i,
+        name: /download excel/i,
       });
       fireEvent.click(downloadButton);
 
-      // Loading overlay should appear with proper message
+      // Excel download should be triggered
       await waitFor(() => {
-        const overlay = screen.getByRole('status');
-        expect(overlay).toBeInTheDocument();
-        expect(overlay).toHaveAttribute('aria-live', 'assertive');
-        expect(overlay).toHaveAttribute('aria-busy', 'true');
-        expect(overlay).toHaveAttribute('aria-modal', 'true');
+        expect(downloadExcelFile).toHaveBeenCalled();
       });
-
-      expect(screen.getByText(/generating excel file.../i)).toBeInTheDocument();
-
-      // Download button should be disabled
-      expect(
-        screen.getByRole('button', { name: /generating.../i })
-      ).toBeDisabled();
-
-      // Wait for download to complete and overlay to disappear
-      await waitFor(
-        () => {
-          expect(screen.queryByRole('status')).not.toBeInTheDocument();
-        },
-        { timeout: 2000 }
-      );
-
-      // Button should be re-enabled
-      expect(
-        screen.getByRole('button', { name: /download excel file/i })
-      ).not.toBeDisabled();
     });
   });
 
@@ -578,7 +565,7 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
       // Check that convertToWBSTime was called
@@ -618,7 +605,7 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:05 AM', 'drinking');
 
       // Submit form
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
       // convertToWBSTime should not be called in VOD mode
@@ -778,7 +765,7 @@ describe('App Integration Tests', () => {
       expect(screen.queryByText(/Draft found!/i)).not.toBeInTheDocument();
     });
 
-    test('clears draft from localStorage after successful submission', async () => {
+    test('clears draft from localStorage after successful email submission', async () => {
       render(<App />);
 
       // Fill in complete valid form
@@ -795,13 +782,30 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:00 AM', 'drinking');
       await fillTimeSlot('10:05 AM', 'drinking');
 
-      const submitButton = screen.getByText(/Validate & Preview/i);
+      const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
-      // Draft should be cleared after successful submission
+      // Wait for submission modal to be ready
       await waitFor(() => {
-        expect(localStorageUtils.clearDraft).toHaveBeenCalled();
+        expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
       });
+
+      // Enter email and submit
+      const emailInput = screen.getByLabelText(/Email Address/i);
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+      const sendButton = screen.getByRole('button', {
+        name: /Send via Email/i,
+      });
+      fireEvent.click(sendButton);
+
+      // Draft should be cleared after successful email submission
+      await waitFor(
+        () => {
+          expect(localStorageUtils.clearDraft).toHaveBeenCalled();
+        },
+        { timeout: 3000 }
+      );
     });
   });
 

@@ -15,23 +15,28 @@ Keep edits local and minimal: prefer changing the single source of truth files l
   - `src/services/formSubmission.js` — prepares output data for JSON/Excel export.
   - `src/services/draftManager.js` — autosave decision logic.
   - `src/services/export/excelGenerator.js` — Excel workbook generation (Phase 6).
+  - `src/services/emailService.js` — email submission service (Phase 1: mock, Phase 2: real API).
 - Time logic lives in `src/utils/timeUtils.js` (rounding, slot generation, validation). Time strings are stored as "HH:MM" (24-hour) and displayed in 12-hour format via `formatTo12Hour`.
 - Domain definitions live in modular `src/constants/` directory (Phase 4/5 refactoring):
   - `behaviors.js` — `BEHAVIORS` array + helper functions (`requiresLocation()`, `requiresObject()`, etc.)
   - `locations.js` — `VALID_PERCHES`, `TIME_SLOTS`
   - `interactions.js` — `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `INTERACTION_TYPES`
   - `index.js` — barrel export for clean imports
-- Pure validators in `src/utils/validators/` — e.g., `locationValidator.js` exports `validateLocation()` function.
+- Pure validators in `src/utils/validators/`:
+  - `locationValidator.js` — validates perch locations (numbers 1-31, special codes)
+  - `emailValidator.js` — validates single/multiple email addresses
+  - `observerNameValidator.js` — validates observer names (Discord/Twitch patterns, international names)
 - UI components:
   - `src/components/MetadataSection.jsx` — controlled inputs for metadata (observerName, date, startTime, endTime).
   - `src/components/TimeSlotObservation.jsx` — per-slot container that coordinates form field components; handles conditional visibility based on behavior.
   - `src/components/form/` — extracted form field components (BehaviorSelect, LocationInput, ObjectSelect, AnimalSelect, InteractionTypeSelect, DescriptionField, NotesField).
   - `src/components/PerchDiagramModal.jsx` — modal with tabbed perch diagram images (NE/SW halves) for visual reference.
-  - `src/components/OutputPreview.jsx` — Excel download button and JSON preview of submission.
+  - `src/components/SubmissionModal.jsx` — modal for email submission with 5 states (GENERATING, READY, SUBMITTING, SUCCESS, ERROR).
+  - `src/components/OutputPreview.jsx` — JSON preview of submission (download moved to modal).
 
 ### Data shapes and naming conventions (important)
 
-- `metadata` object keys: `observerName`, `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`, `mode` ('live' or 'vod').
+- `metadata` object keys: `observerName` (saved to localStorage for persistence), `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`, `mode` ('live' or 'vod').
 - `observations` is an object keyed by time strings with flat structure:
   ```
   {

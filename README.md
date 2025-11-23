@@ -35,6 +35,8 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
   - Inline error messages appear as you fill out the form
   - Auto-scrolls to first error on submit
   - Required fields clearly marked
+  - Observer name validation supports Discord/Twitch usernames and full names
+  - Copy-to-next validates before copying to prevent bad data
 
 - **Structured Data Entry**: Standardized options reduce errors
   - Autocomplete perch location dropdown (type to filter)
@@ -42,6 +44,14 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
   - Behavior-specific interaction dropdowns
   - "Other" text fields when you need them
   - Notes field for additional context
+  - Copy-to-next button to duplicate observations across time slots
+
+- **Easy Submission**: Multiple ways to submit your data
+  - **Email submission**: Enter email address(es) to receive Excel file automatically
+  - **Direct download**: Download Excel file to submit manually
+  - **Status tracking**: Real-time feedback during submission (generating, sending, success)
+  - **Error recovery**: Retry button for temporary failures, download fallback for permanent errors
+  - Observer name saved for convenience in future sessions
 
 ### Interaction Sub-fields
 
@@ -60,7 +70,7 @@ When certain behaviors are selected, additional structured fields appear:
 1. **Choose your observation mode**: Are you watching the live stream or reviewing a recorded video?
 
 2. **Enter your information**:
-   - Discord username (so WBS knows who submitted the data)
+   - Observer name (your Discord/Twitch username or full name)
    - Date of observation
    - Start and end times for your observation session
 
@@ -69,15 +79,16 @@ When certain behaviors are selected, additional structured fields appear:
    - Add location if required (perch number or "Ground")
    - For object/animal interactions, select from the dropdown options
    - Add notes if needed
+   - Use "Copy to next" to quickly duplicate observations across time slots
 
-4. **Validate & Preview**: Click the "Validate & Preview" button
-   - The form will check for any errors
-   - If valid, your data will appear in JSON format below the form
-   - You can also download as an Excel file
+4. **Submit**: Click the "Submit Observation" button
+   - The form will validate all required fields
+   - If valid, a submission modal will open
 
-5. **Export & Submit**:
-   - **Excel Download**: Click "Download Excel" to save a formatted .xlsx file
-   - **JSON Copy**: Copy the JSON output and share it with WBS via Discord
+5. **Choose submission method**:
+   - **Email**: Enter email address(es) to receive the Excel file automatically
+   - **Download**: Click "Download Excel" to save locally and submit manually
+   - The modal shows real-time status (generating, submitting, success, or error)
 
 Your work is automatically saved as you type, so don't worry if you need to take a break!
 

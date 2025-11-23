@@ -13,7 +13,7 @@ describe('useFormValidation', () => {
       });
 
       expect(result.current.fieldErrors.observerName).toBe(
-        'Discord username is required'
+        'Observer name is required'
       );
     });
 

@@ -1,10 +1,10 @@
 # Architecture Documentation
 
-> **Last Updated**: November 22, 2025 (Documentation audit and cleanup)
-> **Test Coverage**: Comprehensive test suite with all tests passing
+> **Last Updated**: November 22, 2025 (Phase 1: Email submission feature complete)
+> **Test Coverage**: 543 tests passing, comprehensive coverage
 > **Architecture**: Component-based React app with custom hooks and pure function services
 > **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
-> **Recent Changes**: Copy-to-next validation, accessible loading indicators, Excel export
+> **Recent Changes**: Email submission modal, observer name validation (Discord/Twitch), localStorage persistence
 
 ---
 
@@ -81,9 +81,16 @@ App.jsx - Root coordinator component
 │   └── Close button
 │
 ├── OutputPreview.jsx
-│   ├── LoadingOverlay (during Excel generation)
-│   ├── Excel download button with loading state
-│   └── JSON display with copy button
+│   └── JSON display with collapsible preview
+│
+├── SubmissionModal.jsx [NEW - Email submission modal]
+│   ├── Five states: GENERATING, READY, SUBMITTING, SUCCESS, ERROR
+│   ├── Email input with real-time validation
+│   ├── Send via Email button
+│   ├── Download Excel button
+│   ├── Retry button (transient errors)
+│   ├── Loading states with spinners
+│   └── Accessibility (ESC key, backdrop click, ARIA)
 │
 ├── LoadingOverlay.jsx [Modal overlay component]
 │   ├── Full-screen backdrop (blocks interaction)
@@ -123,12 +130,13 @@ App.jsx - Root coordinator component
 
 Business logic extracted from App.jsx into testable pure functions:
 
-| Service              | Size | Purpose                                       | Key Functions                                                |
-| -------------------- | ---- | --------------------------------------------- | ------------------------------------------------------------ |
-| **formStateManager** | 97L  | Observation state management                  | `generateObservationsForSlots()`, `updateObservationField()` |
-| **formSubmission**   | 50L  | Output data preparation & timezone conversion | `prepareOutputData()`                                        |
-| **draftManager**     | 31L  | Autosave decision logic                       | `shouldAutosave()`                                           |
-| **excelGenerator**   | 212L | Excel workbook generation & download          | `generateExcelWorkbook()`, `downloadExcelFile()`             |
+| Service                | Size | Purpose                                       | Key Functions                                                    |
+| ---------------------- | ---- | --------------------------------------------- | ---------------------------------------------------------------- |
+| **formStateManager**   | 97L  | Observation state management                  | `generateObservationsForSlots()`, `updateObservationField()`     |
+| **formSubmission**     | 50L  | Output data preparation & timezone conversion | `prepareOutputData()`                                            |
+| **draftManager**       | 31L  | Autosave decision logic                       | `shouldAutosave()`                                               |
+| **excelGenerator**     | 212L | Excel workbook generation & download          | `generateExcelWorkbook()`, `downloadExcelFile()`                 |
+| **emailService** [NEW] | 246L | Email submission with mock/real backend       | `submitObservation()`, `isRetryableError()`, `getErrorMessage()` |
 
 **Key Benefits:**
 
@@ -191,10 +199,17 @@ graph TD
 
     O[Submit Button] --> P[validateForm]
     P --> Q{All Valid?}
-    Q -->|Yes| R[formSubmission.prepareOutputData]
-    R --> S[Apply Timezone Conversion for Live Mode]
-    S --> T[Generate JSON Output]
-    Q -->|No| U[Show Errors + Scroll to First Error]
+    Q -->|Yes| R[Open SubmissionModal - GENERATING state]
+    R --> S[excelGenerator.generateExcelWorkbook]
+    S --> T[Modal transitions to READY state]
+    T --> U[User enters email OR clicks Download]
+    U --> V{Action?}
+    V -->|Email| W[emailService.submitObservation]
+    W --> X{Success?}
+    X -->|Yes| Y[Show SUCCESS state + clear draft]
+    X -->|No| Z[Show ERROR state with retry/download]
+    V -->|Download| AA[excelGenerator.downloadExcelFile]
+    Q -->|No| AB[Show Errors + Scroll to First Error]
 
     V[Page Load] --> W[useAutoSave Effect on Mount]
     W --> X{Draft Exists?}
@@ -222,41 +237,46 @@ graph TD
 
 ### Source Files Reference
 
-| File                                        | Category  | Purpose                             |
-| ------------------------------------------- | --------- | ----------------------------------- |
-| `App.jsx`                                   | Component | Root coordinator (uses hooks)       |
-| `hooks/useFormState.js`                     | Hook      | Form state + operations             |
-| `hooks/useAutoSave.js`                      | Hook      | Draft management + autosave         |
-| `hooks/useFormValidation.js`                | Hook      | Centralized validation              |
-| `services/formStateManager.js`              | Service   | Observation state logic             |
-| `services/formSubmission.js`                | Service   | Output data preparation             |
-| `services/draftManager.js`                  | Service   | Autosave decision logic             |
-| `components/TimeSlotObservation.jsx`        | Component | Per-slot container                  |
-| `components/MetadataSection.jsx`            | Component | Metadata inputs                     |
-| `constants/behaviors.js`                    | Config    | BEHAVIORS + helpers                 |
-| `utils/timeUtils.js`                        | Utility   | Time operations                     |
-| `components/PerchDiagramModal.jsx`          | Component | Perch map modal                     |
-| `utils/timezoneUtils.js`                    | Utility   | Timezone conversion                 |
-| `components/form/LocationInput.jsx`         | Component | Location select + map               |
-| `utils/localStorageUtils.js`                | Utility   | Autosave logic                      |
-| `components/form/ObjectSelect.jsx`          | Component | Object dropdown + "other"           |
-| `components/form/AnimalSelect.jsx`          | Component | Animal dropdown + "other"           |
-| `components/form/InteractionTypeSelect.jsx` | Component | Interaction dropdown + "other"      |
-| `constants/interactions.js`                 | Config    | Objects, animals, interaction types |
-| `utils/observationUtils.js`                 | Utility   | Observation helpers                 |
-| `constants/locations.js`                    | Config    | VALID_PERCHES, TIME_SLOTS           |
-| `components/OutputPreview.jsx`              | Component | Excel download + JSON display       |
-| `components/form/BehaviorSelect.jsx`        | Component | Behavior dropdown                   |
-| `components/form/DescriptionField.jsx`      | Component | Description text input              |
-| `utils/validators/locationValidator.js`     | Validator | Pure location validation            |
-| `components/form/NotesField.jsx`            | Component | Notes textarea                      |
-| `utils/debounce.js`                         | Utility   | Debounce function                   |
-| `constants/index.js`                        | Export    | Barrel export for constants         |
-| `main.jsx`                                  | Entry     | React mount point                   |
-| `components/form/index.js`                  | Export    | Barrel export for form components   |
-| `utils/validators/index.js`                 | Export    | Barrel export for validators        |
-| `services/export/excelGenerator.js`         | Service   | Excel workbook generation           |
-| `scripts/convert-images-to-webp.js`         | Script    | PNG to WebP conversion utility      |
+| File                                              | Category  | Purpose                                   |
+| ------------------------------------------------- | --------- | ----------------------------------------- |
+| `App.jsx`                                         | Component | Root coordinator (uses hooks)             |
+| `hooks/useFormState.js`                           | Hook      | Form state + operations                   |
+| `hooks/useAutoSave.js`                            | Hook      | Draft management + autosave               |
+| `hooks/useFormValidation.js`                      | Hook      | Centralized validation                    |
+| `services/formStateManager.js`                    | Service   | Observation state logic                   |
+| `services/formSubmission.js`                      | Service   | Output data preparation                   |
+| `services/draftManager.js`                        | Service   | Autosave decision logic                   |
+| `components/TimeSlotObservation.jsx`              | Component | Per-slot container                        |
+| `components/MetadataSection.jsx`                  | Component | Metadata inputs                           |
+| `constants/behaviors.js`                          | Config    | BEHAVIORS + helpers                       |
+| `utils/timeUtils.js`                              | Utility   | Time operations                           |
+| `components/PerchDiagramModal.jsx`                | Component | Perch map modal                           |
+| `utils/timezoneUtils.js`                          | Utility   | Timezone conversion                       |
+| `components/form/LocationInput.jsx`               | Component | Location select + map                     |
+| `utils/localStorageUtils.js`                      | Utility   | Autosave logic                            |
+| `components/form/ObjectSelect.jsx`                | Component | Object dropdown + "other"                 |
+| `components/form/AnimalSelect.jsx`                | Component | Animal dropdown + "other"                 |
+| `components/form/InteractionTypeSelect.jsx`       | Component | Interaction dropdown + "other"            |
+| `constants/interactions.js`                       | Config    | Objects, animals, interaction types       |
+| `utils/observationUtils.js`                       | Utility   | Observation helpers                       |
+| `constants/locations.js`                          | Config    | VALID_PERCHES, TIME_SLOTS                 |
+| `components/OutputPreview.jsx`                    | Component | JSON preview (download moved to modal)    |
+| `components/SubmissionModal.jsx` [NEW]            | Component | Email submission modal                    |
+| `components/form/BehaviorSelect.jsx`              | Component | Behavior dropdown                         |
+| `components/form/DescriptionField.jsx`            | Component | Description text input                    |
+| `utils/validators/locationValidator.js`           | Validator | Pure location validation                  |
+| `utils/validators/emailValidator.js` [NEW]        | Validator | Email validation (single/multiple)        |
+| `utils/validators/observerNameValidator.js` [NEW] | Validator | Observer name validation (Discord/Twitch) |
+| `components/form/NotesField.jsx`                  | Component | Notes textarea                            |
+| `utils/debounce.js`                               | Utility   | Debounce function                         |
+| `constants/index.js`                              | Export    | Barrel export for constants               |
+| `main.jsx`                                        | Entry     | React mount point                         |
+| `components/form/index.js`                        | Export    | Barrel export for form components         |
+| `utils/validators/index.js`                       | Export    | Barrel export for validators              |
+| `services/export/excelGenerator.js`               | Service   | Excel workbook generation                 |
+| `services/emailService.js` [NEW]                  | Service   | Email submission (Phase 1: mock)          |
+| `utils/localStorageUtils.js`                      | Utility   | Draft + observer name persistence         |
+| `scripts/convert-images-to-webp.js`               | Script    | PNG to WebP conversion utility            |
 
 ### Test Files
 
