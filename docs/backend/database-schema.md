@@ -97,8 +97,8 @@ CREATE TABLE observations (
     AND observation_date <= CURRENT_DATE + INTERVAL '1 day'
   ),
   CONSTRAINT valid_emails CHECK (
-    array_length(emails, 1) > 0
-    AND array_length(emails, 1) <= 10
+    emails IS NULL
+    OR (array_length(emails, 1) BETWEEN 1 AND 10)
   ),
   CONSTRAINT time_slots_is_object CHECK (jsonb_typeof(time_slots) = 'object')
 );
@@ -263,10 +263,8 @@ CREATE INDEX idx_observations_user
 CREATE INDEX idx_observations_time_slots_gin
   ON observations USING GIN (time_slots);
 
--- Specific: Find observations with foster parent present
-CREATE INDEX idx_observations_foster_parent
-  ON observations USING GIN (time_slots)
-  WHERE time_slots @> '[{"subjectType": "foster_parent"}]';
+-- Note: Partial indexes on JSONB with complex WHERE clauses are not supported.
+-- The GIN index above covers all JSONB queries efficiently.
 ```
 
 ### Index Rationale
@@ -459,12 +457,140 @@ CREATE TRIGGER update_observations_updated_at
 **Query example:**
 
 ```sql
--- Check if foster parent present
+-- Check if foster parent present (correct JSONB syntax)
 SELECT
   id,
-  time_slots @> '[{"subjectType": "foster_parent"}]' AS foster_parent_present
+  EXISTS (
+    SELECT 1
+    FROM jsonb_each(time_slots) AS ts(time_key, subjects)
+    WHERE subjects @> '[{"subjectType": "foster_parent"}]'
+  ) AS foster_parent_present
 FROM observations;
 ```
+
+### Phase 2 Frontend-Backend Data Transformation
+
+**Decision:** Database uses array structure `{"12:00": [{...}]}` even though Phase 2 frontend sends flat objects `{"12:00": {...}}`.
+
+**Context:**
+
+- **Phase 2 (Current):** Frontend only supports single-subject observations (Sayyida). Data is sent as flat objects per time slot:
+
+  ```javascript
+  {
+    "12:00": {
+      behavior: "perching",
+      location: "12",
+      notes: "Alert, watching stream"
+    }
+  }
+  ```
+
+- **Phase 4 (Future):** Frontend will support multi-subject observations (foster parent + babies). Data will be sent as arrays:
+  ```javascript
+  {
+    "12:00": [
+      {
+        subjectType: "foster_parent",
+        subjectId: "Sayyida",
+        behavior: "perching",
+        location: "12"
+      },
+      {
+        subjectType: "baby",
+        subjectId: "Baby1",
+        behavior: "eating_elsewhere",
+        location: "nest_box"
+      }
+    ]
+  }
+  ```
+
+**Why Use Array Structure Now?**
+
+- ✅ **No schema migration needed** - Phase 4 just adds more array elements
+- ✅ **Future-proof** - Database ready for multi-subject from day 1
+- ✅ **Clean separation** - Backend owns data shape, frontend adapts
+- ✅ **Simpler queries** - All queries work the same for Phase 2 and Phase 4
+
+**Transformation Strategy:**
+
+**Phase 2 (MVP - Single Subject):**
+
+- Frontend sends flat observation objects (no code changes required)
+- Backend API wraps each observation in array before storing:
+
+  ```javascript
+  // API receives from frontend:
+  { "12:00": { behavior: "perching", location: "12" } }
+
+  // API transforms before storing:
+  {
+    "12:00": [{
+      subjectType: "foster_parent",
+      subjectId: "Sayyida",  // Hardcoded for Phase 2
+      behavior: "perching",
+      location: "12"
+    }]
+  }
+  ```
+
+- Backend API unwraps array when returning data to frontend:
+
+  ```javascript
+  // Database stores:
+  { "12:00": [{ subjectType: "foster_parent", ... }] }
+
+  // API returns to frontend:
+  { "12:00": { behavior: "perching", location: "12" } }
+  ```
+
+**Phase 4 (Multi-Subject):**
+
+- Frontend updated to send array structure directly
+- Backend removes transformation layer
+- No database migration required
+
+**Frontend Changes Needed (Phase 4):**
+
+1. **Update `formStateManager.js`:**
+   - Change `createEmptyObservation()` to return object with `subjectType`, `subjectId`
+   - Update `observations` state structure to support arrays per time slot
+
+2. **Update UI components:**
+   - Support multiple subject observations per time slot
+   - Add subject selector UI (foster parent vs babies)
+   - Handle dynamic subject addition/removal
+
+3. **Update validation:**
+   - Validate each subject in array independently
+   - Ensure at least one subject per time slot
+
+4. **Update Excel export:**
+   - One row per subject per time slot (instead of one row per time slot)
+
+**Migration Path:**
+
+```
+Phase 2: Frontend (flat) → API (transform) → Database (array)
+Phase 3: (No changes, add auth)
+Phase 4: Frontend (array) → API (passthrough) → Database (array)
+```
+
+**Why We Deferred Frontend Changes:**
+
+- ❌ **Breaking change** - Would require rewriting state management, validation, UI
+- ❌ **No current need** - Phase 2 only has one subject (Sayyida)
+- ❌ **Testing burden** - Comprehensive test suite would need updates
+- ✅ **Backend ready** - Database schema already supports multi-subject
+- ✅ **Clean cutover** - Phase 4 frontend changes are isolated, low risk
+
+**Tradeoff:**
+
+- ❌ Backend transformation adds complexity (wrapping/unwrapping)
+- ❌ Two different data shapes during transition period
+
+**Why we chose it:** Minimize Phase 2 risk, defer complexity until needed.
 
 ---
 
@@ -559,7 +685,11 @@ SELECT
   babies_present
 FROM observations
 WHERE aviary = 'Sayyida''s Cove'
-  AND time_slots @> '[{"subjectType": "foster_parent"}]'
+  AND EXISTS (
+    SELECT 1
+    FROM jsonb_each(time_slots) AS ts(time_key, subjects)
+    WHERE subjects @> '[{"subjectType": "foster_parent"}]'
+  )
 ORDER BY observation_date DESC;
 ```
 
@@ -697,23 +827,23 @@ LIMIT 10;
       {
         "subjectType": "foster_parent",
         "subjectId": "Sayyida",
-        "behavior": "feeding",
+        "behavior": "interacting_animal",
         "location": "nest_box",
-        "animal": "baby_owl",
+        "animal": "juvenile_aviary_occupant",
         "interactionType": "feeding",
         "notes": "Feeding hesitant baby"
       },
       {
         "subjectType": "baby",
         "subjectId": "Baby",
-        "behavior": "exploring",
+        "behavior": "walking_ground",
         "location": "GROUND",
         "notes": "Jumped down, first time on ground"
       },
       {
         "subjectType": "baby",
         "subjectId": "Baby",
-        "behavior": "eating",
+        "behavior": "eating_elsewhere",
         "location": "nest_box",
         "notes": "Being fed by Sayyida"
       }
