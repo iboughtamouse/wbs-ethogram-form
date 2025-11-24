@@ -499,7 +499,7 @@ FROM observations;
       },
       {
         subjectType: "baby",
-        subjectId: "Baby1",
+        subjectId: "Baby",
         behavior: "eating_elsewhere",
         location: "BB1"
       }
