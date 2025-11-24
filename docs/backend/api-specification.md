@@ -137,52 +137,48 @@ Authorization: Bearer <jwt_token>
   "babiesPresent": 0,
   "environmentalNotes": null,
   "timeSlots": {
-    "15:00": {
-      "behavior": "resting_alert",
-      "location": "12",
-      "notes": "Alert, watching stream",
-      "object": "",
-      "animal": "",
-      "interactionType": "",
-      "description": ""
-    },
-    "15:05": {
-      "behavior": "preening",
-      "location": "12",
-      "notes": "",
-      "object": "",
-      "animal": "",
-      "interactionType": "",
-      "description": ""
-    }
+    "15:00": [
+      {
+        "subjectType": "foster_parent",
+        "subjectId": "Sayyida",
+        "behavior": "resting_alert",
+        "location": "12",
+        "notes": "Alert, watching stream",
+        "object": "",
+        "objectOther": "",
+        "animal": "",
+        "animalOther": "",
+        "interactionType": "",
+        "interactionTypeOther": "",
+        "description": ""
+      }
+    ],
+    "15:05": [
+      {
+        "subjectType": "foster_parent",
+        "subjectId": "Sayyida",
+        "behavior": "preening",
+        "location": "12",
+        "notes": "",
+        "object": "",
+        "objectOther": "",
+        "animal": "",
+        "animalOther": "",
+        "interactionType": "",
+        "interactionTypeOther": "",
+        "description": ""
+      }
+    ]
   },
   "emails": ["alice@example.com", "wbs@worldbirdsanctuary.org"]
 }
 ```
 
-**Phase 2 Backend Transformation:**
+**Phase 2 Notes:**
 
-The backend will transform the flat observation objects into the array structure required by the database:
+1. **Array Structure:** The frontend will be updated to send observations in the array structure shown above. Each time slot contains an array of subject observations, even though Phase 2 only supports single-subject observations (Sayyida only). This structure supports future multi-subject observations (Phase 4+) without requiring schema migrations.
 
-```javascript
-// Frontend sends (Phase 2):
-{ "15:00": { behavior: "resting_alert", location: "12" } }
-
-// Backend stores (wraps in array with metadata):
-{
-  "15:00": [{
-    subjectType: "foster_parent",
-    subjectId: "Sayyida",  // Hardcoded for Phase 2
-    behavior: "resting_alert",
-    location: "12",
-    notes: "",
-    object: "",
-    animal: "",
-    interactionType: "",
-    description: ""
-  }]
-}
-```
+2. **Future Fields:** The fields `babiesPresent` and `environmentalNotes` are defined in the database schema but not yet implemented in the frontend. Phase 2 submissions will default `babiesPresent` to `0` and `environmentalNotes` to `null`. Frontend implementation planned for Phase 3+.
 
 **Response (Success):**
 
@@ -357,8 +353,11 @@ GET /api/observations/550e8400-e29b-41d4-a716-446655440000
           "location": "12",
           "notes": "Alert, watching stream",
           "object": "",
+          "objectOther": "",
           "animal": "",
+          "animalOther": "",
           "interactionType": "",
+          "interactionTypeOther": "",
           "description": ""
         }
       ],
@@ -370,8 +369,11 @@ GET /api/observations/550e8400-e29b-41d4-a716-446655440000
           "location": "12",
           "notes": "",
           "object": "",
+          "objectOther": "",
           "animal": "",
+          "animalOther": "",
           "interactionType": "",
+          "interactionTypeOther": "",
           "description": ""
         }
       ]
@@ -383,18 +385,6 @@ GET /api/observations/550e8400-e29b-41d4-a716-446655440000
     "userId": null
   }
 }
-```
-
-**Phase 2 Backend Transformation (Reverse):**
-
-When returning data to the frontend, the backend unwraps the array structure back to flat objects:
-
-```javascript
-// Database stores:
-{ "15:00": [{ subjectType: "foster_parent", behavior: "resting_alert", ... }] }
-
-// API returns to frontend (Phase 2):
-{ "15:00": { behavior: "resting_alert", location: "12", notes: "", ... } }
 ```
 
 **HTTP Status Codes:**
@@ -908,16 +898,21 @@ World Bird Sanctuary Ethogram Team
 
 **Example:** `WBS-Ethogram-Alice-2025-11-24-550e8400.xlsx`
 
-**Sheets:**
+**Format:**
 
-1. **Metadata** - Observer info, date, time, mode, aviary
-2. **Time Slots** - One row per time slot with all fields
-3. **Summary** - Behavior counts, location usage stats
+Single worksheet with a matrix layout matching the current WBS ethogram format that observers use:
+
+- **Header rows:** Observer name, date, start/end time, mode, aviary
+- **Time slot columns:** One column per 5-minute time slot (e.g., 15:00, 15:05, 15:10)
+- **Behavior rows:** One row per field (behavior, location, notes, etc.)
+- **Values:** Cell values show the observation data for each time slot
+
+This format allows researchers to easily review data in a familiar spreadsheet layout and matches the existing manual ethogram forms.
 
 **Process:**
 
 1. Frontend submits observation → Backend saves to database
-2. Backend generates Excel file using exceljs
+2. Backend generates Excel file using excelize (Go library: github.com/xuri/excelize)
 3. Backend uploads Excel to Resend (as attachment)
 4. Backend sends email via Resend API to all recipients
 5. Backend returns success response to frontend
@@ -954,19 +949,25 @@ Server-side validation **must** match frontend rules for consistency.
 
 ### Metadata Validation
 
-| Field                | Rule                                                         |
-| -------------------- | ------------------------------------------------------------ |
-| `observerName`       | Required, 1-255 characters, Discord/Twitch format supported  |
-| `observationDate`    | Required, valid date, >= 2024-01-01, <= tomorrow             |
-| `startTime`          | Required, valid HH:MM (24-hour)                              |
-| `endTime`            | Required, valid HH:MM, must be > startTime                   |
-| `aviary`             | Required, 1-255 characters                                   |
-| `mode`               | Required, must be "live" or "vod"                            |
-| `babiesPresent`      | Required, integer >= 0                                       |
-| `environmentalNotes` | Optional, max 5000 characters                                |
-| `emails`             | Optional (nullable), if provided: 1-10 valid email addresses |
+| Field                | Rule                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `observerName`       | Required, 2-32 characters, supports Discord/Twitch usernames and full names (letters, numbers, spaces, and symbols: . \_ -)           |
+| `observationDate`    | Required, valid date, >= 2024-01-01, <= tomorrow                                                                                      |
+| `startTime`          | Required, valid HH:MM (24-hour)                                                                                                       |
+| `endTime`            | Required, valid HH:MM, must be > startTime                                                                                            |
+| `aviary`             | Required, 1-255 characters                                                                                                            |
+| `mode`               | Required, must be "live" or "vod"                                                                                                     |
+| `babiesPresent`      | Required, integer >= 0                                                                                                                |
+| `environmentalNotes` | Optional, max 5000 characters                                                                                                         |
+| `emails`             | Can be omitted, set to `null`, or set to empty array `[]`. If provided as a non-empty array, must contain 1-10 valid email addresses. |
 
 ### Time Slots Validation
+
+**Time Slot Generation:**
+
+Time slots are generated in 5-minute intervals from `startTime` to `endTime`, **inclusive on both ends**. For example:
+
+- Start: 10:00 AM, End: 10:10 AM → Generates 3 slots: 10:00, 10:05, 10:10
 
 **Rules:**
 
@@ -1157,16 +1158,22 @@ curl -X POST https://api.ethogram.worldbirdsanctuary.org/api/observations \
     "aviary": "Sayyida'\''s Cove",
     "mode": "live",
     "babiesPresent": 0,
+    "environmentalNotes": null,
     "timeSlots": {
-      "15:00": {
+      "15:00": [{
+        "subjectType": "foster_parent",
+        "subjectId": "Sayyida",
         "behavior": "resting_alert",
         "location": "12",
         "notes": "",
         "object": "",
+        "objectOther": "",
         "animal": "",
+        "animalOther": "",
         "interactionType": "",
+        "interactionTypeOther": "",
         "description": ""
-      }
+      }]
     },
     "emails": ["alice@example.com"]
   }'
