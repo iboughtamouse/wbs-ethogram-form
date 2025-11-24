@@ -82,13 +82,14 @@ CREATE TABLE observations (
   -- Email delivery
   emails TEXT[],
 
-  -- Timestamps
-  submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  -- Timestamps (server time in UTC)
+  submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   -- For Phase 3+ (auth) - ALWAYS NULLABLE (anonymous submissions supported)
-  user_id UUID REFERENCES users(id),
+  -- Note: Foreign key constraint will be added in Phase 3 migration
+  user_id UUID,
 
   -- Constraints
   CONSTRAINT valid_time_range CHECK (end_time > start_time),
@@ -122,10 +123,10 @@ COMMENT ON TABLE observations IS 'Behavioral observations of birds in aviaries, 
 | `environmental_notes` | TEXT         | Yes      | Freeform notes about context (weather, events, triggers) |
 | `time_slots`          | JSONB        | No       | Multi-subject observation data (see structure below)     |
 | `emails`              | TEXT[]       | Yes      | Array of email addresses for Excel delivery (1-10)       |
-| `submitted_at`        | TIMESTAMP    | No       | When observation was submitted to backend                |
-| `created_at`          | TIMESTAMP    | No       | When database record was created                         |
-| `updated_at`          | TIMESTAMP    | No       | When database record was last updated                    |
-| `user_id`             | UUID         | Yes      | Foreign key to users table (NULL = anonymous)            |
+| `submitted_at`        | TIMESTAMPTZ  | No       | When observation was submitted to backend (UTC)          |
+| `created_at`          | TIMESTAMPTZ  | No       | When database record was created (UTC)                   |
+| `updated_at`          | TIMESTAMPTZ  | No       | When database record was last updated (UTC)              |
+| `user_id`             | UUID         | Yes      | User ID (Phase 3+, NULL = anonymous, FK added later)     |
 
 ### `time_slots` JSONB Structure
 
@@ -305,10 +306,10 @@ CHECK (
 -- Number of babies cannot be negative
 CHECK (babies_present >= 0)
 
--- Email count must be 1-10
+-- Email count must be 1-10 (or NULL for download-only submissions)
 CHECK (
-  array_length(emails, 1) > 0
-  AND array_length(emails, 1) <= 10
+  emails IS NULL
+  OR (array_length(emails, 1) BETWEEN 1 AND 10)
 )
 
 -- time_slots must be a JSON object (not array or primitive)
@@ -788,6 +789,8 @@ LIMIT 10;
 
 ### Phase 4 Example (Sayyida + 2 Babies)
 
+**Note on Baby Identifiers:** All babies use generic `subjectId: "Baby"` because observers cannot reliably distinguish individual babies across time slots within a session. Using distinct identifiers (Baby1, Baby2) would imply tracking capability that doesn't exist, leading to inconsistent or misleading data. The `babies_present` count captures the total number without requiring individual identification.
+
 ```json
 {
   "id": "660f9511-f3ac-52e5-b827-557766551111",
@@ -1000,7 +1003,11 @@ CREATE TABLE users ( ... );  -- Full schema from Supporting Tables section
 CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_external_auth ON users (external_auth_id);
 
--- observations.user_id already exists (nullable), no ALTER needed
+-- Add foreign key constraint to existing user_id column
+ALTER TABLE observations
+  ADD CONSTRAINT fk_observations_user
+  FOREIGN KEY (user_id) REFERENCES users(id)
+  ON DELETE SET NULL;  -- Preserve observation if user deleted
 ```
 
 ### Phase 5+ Migration (Add Aviaries Table)
