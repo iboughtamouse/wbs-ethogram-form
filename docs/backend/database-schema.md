@@ -139,7 +139,7 @@ The `time_slots` column stores multi-subject observations as a JSONB object:
       "subjectType": "foster_parent",
       "subjectId": "Sayyida",
       "behavior": "eating_food_platform",
-      "location": "platform",
+      "location": "",
       "notes": "Alert, watching stream",
       "object": "",
       "objectOther": "",
@@ -153,7 +153,7 @@ The `time_slots` column stores multi-subject observations as a JSONB object:
       "subjectType": "baby",
       "subjectId": "Baby",
       "behavior": "nesting",
-      "location": "nest_box",
+      "location": "BB1",
       "notes": ""
     }
   ],
@@ -173,8 +173,8 @@ The `time_slots` column stores multi-subject observations as a JSONB object:
 
 - `subjectType`: `"foster_parent"` | `"baby"` | `"juvenile"`
 - `subjectId`: Subject identifier (e.g., `"Sayyida"`, `"Baby"`)
-- `behavior`: Behavior code (e.g., `"perching"`, `"eating_food_platform"`)
-- `location`: Location code (e.g., `"12"`, `"platform"`, `"nest_box"`)
+- `behavior`: Behavior code (e.g., `"resting_alert"`, `"eating_food_platform"`)
+- `location`: Location code (e.g., `"12"`, `"BB1"`, `"GROUND"`, or `""` if not required)
 - `notes`: Freeform notes
 - `object`: Inanimate object (when `behavior` is `"interacting_object"`)
 - `objectOther`: Custom object description (when `object` is `"other"`)
@@ -480,7 +480,7 @@ FROM observations;
   ```javascript
   {
     "12:00": {
-      behavior: "perching",
+      behavior: "resting_alert",
       location: "12",
       notes: "Alert, watching stream"
     }
@@ -494,14 +494,14 @@ FROM observations;
       {
         subjectType: "foster_parent",
         subjectId: "Sayyida",
-        behavior: "perching",
+        behavior: "resting_alert",
         location: "12"
       },
       {
         subjectType: "baby",
         subjectId: "Baby1",
         behavior: "eating_elsewhere",
-        location: "nest_box"
+        location: "BB1"
       }
     ]
   }
@@ -523,14 +523,14 @@ FROM observations;
 
   ```javascript
   // API receives from frontend:
-  { "12:00": { behavior: "perching", location: "12" } }
+  { "12:00": { behavior: "resting_alert", location: "12" } }
 
   // API transforms before storing:
   {
     "12:00": [{
       subjectType: "foster_parent",
       subjectId: "Sayyida",  // Hardcoded for Phase 2
-      behavior: "perching",
+      behavior: "resting_alert",
       location: "12"
     }]
   }
@@ -543,7 +543,7 @@ FROM observations;
   { "12:00": [{ subjectType: "foster_parent", ... }] }
 
   // API returns to frontend:
-  { "12:00": { behavior: "perching", location: "12" } }
+  { "12:00": { behavior: "resting_alert", location: "12" } }
   ```
 
 **Phase 4 (Multi-Subject):**
@@ -822,7 +822,7 @@ LIMIT 10;
         "subjectType": "baby",
         "subjectId": "Baby",
         "behavior": "nesting",
-        "location": "nest_box",
+        "location": "BB1",
         "notes": "Still hesitant to leave"
       }
     ],
@@ -831,7 +831,7 @@ LIMIT 10;
         "subjectType": "foster_parent",
         "subjectId": "Sayyida",
         "behavior": "interacting_animal",
-        "location": "nest_box",
+        "location": "BB1",
         "animal": "juvenile_aviary_occupant",
         "interactionType": "feeding",
         "notes": "Feeding hesitant baby"
@@ -847,7 +847,7 @@ LIMIT 10;
         "subjectType": "baby",
         "subjectId": "Baby",
         "behavior": "eating_elsewhere",
-        "location": "nest_box",
+        "location": "BB1",
         "notes": "Being fed by Sayyida"
       }
     ],
@@ -870,7 +870,7 @@ LIMIT 10;
         "subjectType": "baby",
         "subjectId": "Baby",
         "behavior": "resting_not_alert",
-        "location": "nest_box",
+        "location": "BB1",
         "notes": "Full and sleepy after feeding"
       }
     ]
