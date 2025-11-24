@@ -750,7 +750,7 @@ LIMIT 10;
       {
         "subjectType": "foster_parent",
         "subjectId": "Sayyida",
-        "behavior": "perching",
+        "behavior": "resting_alert",
         "location": "12",
         "notes": "Alert, watching stream chat",
         "object": "",
@@ -804,14 +804,14 @@ LIMIT 10;
       {
         "subjectType": "foster_parent",
         "subjectId": "Sayyida",
-        "behavior": "watching",
+        "behavior": "resting_alert",
         "location": "BB1",
         "notes": "Keeping eye on babies"
       },
       {
         "subjectType": "baby",
         "subjectId": "Baby",
-        "behavior": "exploring",
+        "behavior": "resting_alert",
         "location": "5",
         "notes": "First time on this perch"
       },
@@ -852,7 +852,7 @@ LIMIT 10;
       {
         "subjectType": "foster_parent",
         "subjectId": "Sayyida",
-        "behavior": "perching",
+        "behavior": "resting_unknown",
         "location": "12",
         "notes": "Back to favorite perch"
       },
@@ -866,7 +866,7 @@ LIMIT 10;
       {
         "subjectType": "baby",
         "subjectId": "Baby",
-        "behavior": "sleeping",
+        "behavior": "resting_not_alert",
         "location": "nest_box",
         "notes": "Full and sleepy after feeding"
       }
