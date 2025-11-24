@@ -209,12 +209,12 @@ Authorization: Bearer <jwt_token>
     "message": "Validation failed",
     "details": [
       {
-        "field": "timeSlots.15:00.behavior",
+        "field": "timeSlots.15:00[0].behavior",
         "message": "Behavior is required"
       },
       {
-        "field": "emails",
-        "message": "At least one email address is required"
+        "field": "observerName",
+        "message": "Observer name must be at least 2 characters"
       }
     ]
   }
@@ -793,14 +793,14 @@ All API responses follow this structure:
     "message": "Validation failed",
     "details": [
       {
-        "field": "timeSlots.15:00.behavior",
+        "field": "timeSlots.15:00[0].behavior",
         "message": "Behavior is required",
         "value": ""
       },
       {
-        "field": "emails",
-        "message": "Email count must be between 1 and 10",
-        "value": []
+        "field": "emails[0]",
+        "message": "Invalid email format",
+        "value": "not-an-email"
       }
     ]
   }
@@ -880,10 +880,7 @@ Observation Details:
 - Mode: [Live/VOD]
 - Submitted: [Timestamp]
 
-Your Excel file is attached. This file contains:
-- Metadata sheet with observation details
-- Time slots sheet with behavioral data
-- Summary statistics
+Your Excel file is attached. This file contains your observation data in the standard WBS ethogram format with metadata header rows and a behavioral matrix layout.
 
 If you have any questions or notice any issues, please contact us at support@worldbirdsanctuary.org.
 
