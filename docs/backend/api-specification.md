@@ -180,6 +180,15 @@ Authorization: Bearer <jwt_token>
 
 2. **Future Fields:** The fields `babiesPresent` and `environmentalNotes` are defined in the database schema but not yet implemented in the frontend. Phase 2 submissions will default `babiesPresent` to `0` and `environmentalNotes` to `null`. Frontend implementation planned for Phase 3+.
 
+3. **Field Name Conversion:** The API uses camelCase field names which the backend converts to snake_case for database storage:
+   - `observerName` → `observer_name`
+   - `observationDate` → `observation_date`
+   - `startTime` → `start_time`
+   - `endTime` → `end_time`
+   - `babiesPresent` → `babies_present`
+   - `environmentalNotes` → `environmental_notes`
+   - `timeSlots` → `time_slots`
+
 **Response (Success):**
 
 ```json
