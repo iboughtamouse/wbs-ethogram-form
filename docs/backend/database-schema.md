@@ -97,6 +97,13 @@ CREATE TABLE observations (
     observation_date >= '2024-01-01'
     AND observation_date <= CURRENT_DATE + INTERVAL '1 day'
   ),
+  CONSTRAINT valid_observer_name_length CHECK (
+    length(observer_name) BETWEEN 2 AND 32
+  ),
+  CONSTRAINT valid_environmental_notes_length CHECK (
+    environmental_notes IS NULL
+    OR length(environmental_notes) <= 5000
+  ),
   CONSTRAINT valid_emails CHECK (
     emails IS NULL
     OR (array_length(emails, 1) BETWEEN 1 AND 10)
@@ -110,23 +117,23 @@ COMMENT ON TABLE observations IS 'Behavioral observations of birds in aviaries, 
 
 ### Column Descriptions
 
-| Column                | Type         | Nullable | Description                                              |
-| --------------------- | ------------ | -------- | -------------------------------------------------------- |
-| `id`                  | UUID         | No       | Unique observation session identifier                    |
-| `observer_name`       | VARCHAR(255) | No       | Observer's name or username (Discord/Twitch handle)      |
-| `observation_date`    | DATE         | No       | Date of observation (not submission date)                |
-| `start_time`          | TIME         | No       | Observation session start time (24-hour format)          |
-| `end_time`            | TIME         | No       | Observation session end time (24-hour format)            |
-| `aviary`              | VARCHAR(255) | No       | Aviary name (e.g., "Sayyida's Cove")                     |
-| `mode`                | VARCHAR(10)  | No       | Observation mode: `live` or `vod`                        |
-| `babies_present`      | INTEGER      | No       | Total number of babies in aviary (0 if none)             |
-| `environmental_notes` | TEXT         | Yes      | Freeform notes about context (weather, events, triggers) |
-| `time_slots`          | JSONB        | No       | Multi-subject observation data (see structure below)     |
-| `emails`              | TEXT[]       | Yes      | Array of email addresses for Excel delivery (1-10)       |
-| `submitted_at`        | TIMESTAMPTZ  | No       | When observation was submitted to backend (UTC)          |
-| `created_at`          | TIMESTAMPTZ  | No       | When database record was created (UTC)                   |
-| `updated_at`          | TIMESTAMPTZ  | No       | When database record was last updated (UTC)              |
-| `user_id`             | UUID         | Yes      | User ID (Phase 3+, NULL = anonymous, FK added later)     |
+| Column                | Type         | Nullable | Description                                                                   |
+| --------------------- | ------------ | -------- | ----------------------------------------------------------------------------- |
+| `id`                  | UUID         | No       | Unique observation session identifier                                         |
+| `observer_name`       | VARCHAR(255) | No       | Observer's name or username (Discord/Twitch handle), 2-32 characters          |
+| `observation_date`    | DATE         | No       | Date of observation (not submission date)                                     |
+| `start_time`          | TIME         | No       | Observation session start time (24-hour format)                               |
+| `end_time`            | TIME         | No       | Observation session end time (24-hour format)                                 |
+| `aviary`              | VARCHAR(255) | No       | Aviary name (e.g., "Sayyida's Cove")                                          |
+| `mode`                | VARCHAR(10)  | No       | Observation mode: `live` or `vod`                                             |
+| `babies_present`      | INTEGER      | No       | Total number of babies in aviary (0 if none)                                  |
+| `environmental_notes` | TEXT         | Yes      | Freeform notes about context (weather, events, triggers), max 5000 characters |
+| `time_slots`          | JSONB        | No       | Multi-subject observation data (see structure below)                          |
+| `emails`              | TEXT[]       | Yes      | Array of email addresses for Excel delivery (1-10)                            |
+| `submitted_at`        | TIMESTAMPTZ  | No       | When observation was submitted to backend (UTC)                               |
+| `created_at`          | TIMESTAMPTZ  | No       | When database record was created (UTC)                                        |
+| `updated_at`          | TIMESTAMPTZ  | No       | When database record was last updated (UTC)                                   |
+| `user_id`             | UUID         | Yes      | User ID (Phase 3+, NULL = anonymous, FK added later)                          |
 
 ### `time_slots` JSONB Structure
 
