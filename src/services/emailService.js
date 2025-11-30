@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from '../utils/envConfig.js';
+
 /**
  * Email submission service
  *
@@ -81,7 +83,8 @@ export const ERROR_TYPES = {
  */
 export async function submitObservation(formData, emails) {
   try {
-    const response = await fetch('/api/observations/submit', {
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await fetch(`${apiBaseUrl}/api/observations/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -201,13 +204,17 @@ export function getErrorMessage(result) {
  */
 export async function shareObservation(observationId, email) {
   try {
-    const response = await fetch(`/api/observations/${observationId}/share`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await fetch(
+      `${apiBaseUrl}/api/observations/${observationId}/share`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
 
     const data = await response.json();
 

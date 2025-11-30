@@ -5,6 +5,7 @@
  */
 
 import { generateExcelBuffer } from './export/excelGenerator';
+import { getApiBaseUrl } from '../utils/envConfig.js';
 
 /**
  * Download Excel file from backend
@@ -15,7 +16,10 @@ import { generateExcelBuffer } from './export/excelGenerator';
  */
 export async function downloadFromBackend(observationId) {
   try {
-    const response = await fetch(`/api/observations/${observationId}/excel`);
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await fetch(
+      `${apiBaseUrl}/api/observations/${observationId}/excel`
+    );
 
     if (!response.ok) {
       throw new Error(`Download failed: ${response.statusText}`);

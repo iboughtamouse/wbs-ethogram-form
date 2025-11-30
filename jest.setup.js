@@ -4,3 +4,4 @@ import '@testing-library/jest-dom';
 // Note: We use process.env instead of mocking import.meta because
 // Jest's parser doesn't support import.meta syntax
 process.env.VITE_WBS_EMAIL = 'test-wbs@example.com';
+process.env.VITE_API_BASE_URL = 'http://localhost:3000';

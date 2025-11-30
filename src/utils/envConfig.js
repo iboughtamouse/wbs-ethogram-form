@@ -49,3 +49,11 @@ export function getEnv(key) {
 export function getWBSEmail() {
   return getEnv('VITE_WBS_EMAIL');
 }
+
+/**
+ * Get API base URL from environment
+ * @returns {string} API base URL (defaults to empty string for relative URLs)
+ */
+export function getApiBaseUrl() {
+  return getEnv('VITE_API_BASE_URL') || '';
+}
