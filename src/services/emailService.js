@@ -73,79 +73,13 @@ export const ERROR_TYPES = {
 };
 
 /**
- * Submit observation data to backend
+ * Submit observation data to backend API
  *
  * @param {FormData} formData - Complete form data with metadata and observations
  * @param {string[]} emails - Array of email addresses to send Excel file to
  * @returns {Promise<SubmissionResult>} Submission result with success/error details
  */
 export async function submitObservation(formData, emails) {
-  // Phase 1: Mock implementation
-  return mockSubmitObservation(formData, emails);
-
-  // Phase 2: Uncomment for real backend integration
-  // return realSubmitObservation(formData, emails);
-}
-
-/**
- * Mock implementation for Phase 1 development
- * Simulates backend behavior for testing frontend flow
- *
- * @param {FormData} formData - Complete form data
- * @param {string[]} emails - Email addresses
- * @returns {Promise<SubmissionResult>} Mock submission result
- */
-async function mockSubmitObservation(formData, emails) {
-  // Simulate network delay (1-2 seconds)
-  const delay = 1000 + Math.random() * 1000;
-  await new Promise((resolve) => setTimeout(resolve, delay));
-
-  // Mock different scenarios for testing
-  // You can change these conditions to test different error states
-
-  // Simulate random network failure (5% chance)
-  if (Math.random() < 0.05) {
-    return {
-      success: false,
-      error: ERROR_TYPES.TRANSIENT,
-      message: 'Network timeout. Please try again.',
-      retryable: true,
-    };
-  }
-
-  // Simulate server error (3% chance)
-  if (Math.random() < 0.03) {
-    return {
-      success: false,
-      error: ERROR_TYPES.TRANSIENT,
-      message: 'Service temporarily unavailable.',
-      retryable: true,
-    };
-  }
-
-  // Mock success response
-  return {
-    success: true,
-    submissionId: `mock-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-    message: 'Observation submitted successfully',
-    emailsSent: emails.length,
-  };
-}
-
-/**
- * Real backend implementation for Phase 2
- * Makes actual HTTP request to backend API
- *
- * NOTE: This function is intentionally defined but not used in Phase 1.
- * It will be activated in Phase 2 when the backend API is ready.
- * See line 86 where mockSubmitObservation is used instead.
- *
- * @param {FormData} formData - Complete form data
- * @param {string[]} emails - Email addresses
- * @returns {Promise<SubmissionResult>} Submission result
- */
-// eslint-disable-next-line no-unused-vars
-async function realSubmitObservation(formData, emails) {
   try {
     const response = await fetch('/api/observations/submit', {
       method: 'POST',
@@ -161,15 +95,15 @@ async function realSubmitObservation(formData, emails) {
     const data = await response.json();
 
     if (!response.ok) {
-      // Categorize error based on response
-      const errorType = categorizeHttpError(response.status, data);
+      const errorObj = data.error || {};
+      const errorType = categorizeHttpError(response.status, errorObj);
 
       return {
         success: false,
         error: errorType,
-        message: data.message || 'Submission failed',
+        message: errorObj.message || 'Submission failed',
         retryable: errorType === ERROR_TYPES.TRANSIENT,
-        ...(data.errors && { errors: data.errors }), // Include validation errors if present
+        ...(errorObj.details && { details: errorObj.details }),
       };
     }
 
@@ -189,12 +123,13 @@ async function realSubmitObservation(formData, emails) {
  * Categorize HTTP errors into transient vs permanent
  *
  * @param {number} status - HTTP status code
- * @param {Object} data - Response data from server
- * @param {string} [data.message] - Error message
- * @param {Object.<string, string>} [data.errors] - Field-specific validation errors
+ * @param {Object} errorObj - Error object from server response
+ * @param {string} [errorObj.code] - Error code (e.g., 'VALIDATION_ERROR', 'DATABASE_ERROR')
+ * @param {string} [errorObj.message] - Error message
+ * @param {Array} [errorObj.details] - Validation error details
  * @returns {'transient'|'permanent'|'validation'} Error type
  */
-function categorizeHttpError(status, data) {
+function categorizeHttpError(status, errorObj) {
   // 5xx errors are server errors (transient)
   if (status >= 500) {
     return ERROR_TYPES.TRANSIENT;
@@ -205,8 +140,8 @@ function categorizeHttpError(status, data) {
     return ERROR_TYPES.TRANSIENT;
   }
 
-  // 422 Unprocessable Entity (validation errors)
-  if (status === 422 && data.errors) {
+  // Validation errors (400 with VALIDATION_ERROR code)
+  if (status === 400 && errorObj.code === 'VALIDATION_ERROR') {
     return ERROR_TYPES.VALIDATION;
   }
 
