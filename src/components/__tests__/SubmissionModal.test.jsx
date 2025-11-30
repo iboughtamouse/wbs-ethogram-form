@@ -12,7 +12,7 @@ describe('SubmissionModal', () => {
   const defaultProps = {
     isOpen: true,
     onClose: mockOnClose,
-    submissionState: SUBMISSION_STATES.READY,
+    submissionState: SUBMISSION_STATES.SUBMITTING,
     errorMessage: '',
     isTransientError: false,
     email: '',
@@ -52,22 +52,27 @@ describe('SubmissionModal', () => {
       );
     });
 
-    it('should have accessible close button in READY state', () => {
-      render(<SubmissionModal {...defaultProps} />);
+    it('should have accessible close button in SUCCESS state', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
       const closeButton = screen.getByLabelText('Close submission modal');
       expect(closeButton).toBeInTheDocument();
     });
 
-    it('should not show close button in GENERATING state', () => {
+    it('should have accessible close button in ERROR state', () => {
       render(
         <SubmissionModal
           {...defaultProps}
-          submissionState={SUBMISSION_STATES.GENERATING}
+          submissionState={SUBMISSION_STATES.ERROR}
+          errorMessage="Test error"
         />
       );
-      expect(
-        screen.queryByLabelText('Close submission modal')
-      ).not.toBeInTheDocument();
+      const closeButton = screen.getByLabelText('Close submission modal');
+      expect(closeButton).toBeInTheDocument();
     });
 
     it('should not show close button in SUBMITTING state', () => {
@@ -83,191 +88,8 @@ describe('SubmissionModal', () => {
     });
   });
 
-  describe('GENERATING state', () => {
-    it('should show loading spinner and message', () => {
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          submissionState={SUBMISSION_STATES.GENERATING}
-        />
-      );
-      expect(
-        screen.getByText('Generating Excel spreadsheet...')
-      ).toBeInTheDocument();
-      expect(screen.getByRole('status')).toBeInTheDocument();
-    });
-
-    it('should display correct title', () => {
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          submissionState={SUBMISSION_STATES.GENERATING}
-        />
-      );
-      expect(screen.getByText('Generating Spreadsheet')).toBeInTheDocument();
-    });
-
-    it('should not allow closing via ESC key', async () => {
-      const user = userEvent.setup();
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          submissionState={SUBMISSION_STATES.GENERATING}
-        />
-      );
-
-      const dialog = screen.getByRole('dialog');
-      await user.type(dialog, '{Escape}');
-
-      expect(mockOnClose).not.toHaveBeenCalled();
-    });
-
-    it('should not allow closing via backdrop click', async () => {
-      const user = userEvent.setup();
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          submissionState={SUBMISSION_STATES.GENERATING}
-        />
-      );
-
-      const backdrop = screen.getByRole('dialog');
-      await user.click(backdrop);
-
-      expect(mockOnClose).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('READY state', () => {
-    it('should show email input and action buttons', () => {
-      render(<SubmissionModal {...defaultProps} />);
-      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /download excel/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /send via email/i })
-      ).toBeInTheDocument();
-    });
-
-    it('should display instructions', () => {
-      render(<SubmissionModal {...defaultProps} />);
-      expect(
-        screen.getByText(/your observation data has been prepared/i)
-      ).toBeInTheDocument();
-    });
-
-    it('should call onEmailChange when email input changes', async () => {
-      const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
-
-      const emailInput = screen.getByLabelText(/email address/i);
-      await user.type(emailInput, 'test@example.com');
-
-      expect(mockOnEmailChange).toHaveBeenCalled();
-    });
-
-    it('should call onDownload when Download button is clicked', async () => {
-      const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
-
-      const downloadButton = screen.getByRole('button', {
-        name: /download excel/i,
-      });
-      await user.click(downloadButton);
-
-      expect(mockOnDownload).toHaveBeenCalledTimes(1);
-    });
-
-    it('should disable Send button when email is empty', () => {
-      render(<SubmissionModal {...defaultProps} email="" />);
-      const sendButton = screen.getByRole('button', {
-        name: /send via email/i,
-      });
-      expect(sendButton).toBeDisabled();
-    });
-
-    it('should enable Send button when email has value', () => {
-      render(<SubmissionModal {...defaultProps} email="test@example.com" />);
-      const sendButton = screen.getByRole('button', {
-        name: /send via email/i,
-      });
-      expect(sendButton).not.toBeDisabled();
-    });
-
-    it('should call onEmailSubmit when form is submitted', async () => {
-      const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} email="test@example.com" />);
-
-      const sendButton = screen.getByRole('button', {
-        name: /send via email/i,
-      });
-      await user.click(sendButton);
-
-      expect(mockOnEmailSubmit).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call onEmailSubmit if email has error', async () => {
-      const user = userEvent.setup();
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          email="invalid"
-          emailError="Invalid email format"
-        />
-      );
-
-      const sendButton = screen.getByRole('button', {
-        name: /send via email/i,
-      });
-      await user.click(sendButton);
-
-      expect(mockOnEmailSubmit).not.toHaveBeenCalled();
-    });
-
-    it('should not show error message before submit attempt', () => {
-      render(
-        <SubmissionModal
-          {...defaultProps}
-          email="invalid"
-          emailError="Invalid email format"
-        />
-      );
-
-      // Error should not be visible until user attempts to submit
-      expect(
-        screen.queryByText('Invalid email format')
-      ).not.toBeInTheDocument();
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
-
-    it('should show hint when no email error', () => {
-      render(<SubmissionModal {...defaultProps} />);
-      expect(
-        screen.getByText('Leave blank to download only')
-      ).toBeInTheDocument();
-    });
-
-    it('should allow closing via ESC key', async () => {
-      const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
-
-      const dialog = screen.getByRole('dialog');
-      await user.type(dialog, '{Escape}');
-
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    });
-
-    it('should allow closing via close button', async () => {
-      const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
-
-      const closeButton = screen.getByLabelText('Close submission modal');
-      await user.click(closeButton);
-
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    });
-  });
+  // Note: GENERATING and READY states removed in backend integration
+  // New flow: Submit → SUBMITTING → SUCCESS (with download/share) or ERROR
 
   describe('SUBMITTING state', () => {
     it('should show loading spinner and message', () => {
@@ -277,7 +99,7 @@ describe('SubmissionModal', () => {
           submissionState={SUBMISSION_STATES.SUBMITTING}
         />
       );
-      expect(screen.getByText('Sending email...')).toBeInTheDocument();
+      expect(screen.getByText('Submitting observation...')).toBeInTheDocument();
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
@@ -288,7 +110,19 @@ describe('SubmissionModal', () => {
           submissionState={SUBMISSION_STATES.SUBMITTING}
         />
       );
-      expect(screen.getByText('Sending Email')).toBeInTheDocument();
+      expect(screen.getByText('Submitting Observation')).toBeInTheDocument();
+    });
+
+    it('should not show close button', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUBMITTING}
+        />
+      );
+      expect(
+        screen.queryByLabelText('Close submission modal')
+      ).not.toBeInTheDocument();
     });
 
     it('should not allow closing via ESC key', async () => {
@@ -308,16 +142,17 @@ describe('SubmissionModal', () => {
   });
 
   describe('SUCCESS state', () => {
-    it('should show success message with email address', () => {
+    it('should show success message', () => {
       render(
         <SubmissionModal
           {...defaultProps}
           submissionState={SUBMISSION_STATES.SUCCESS}
-          email="test@example.com"
         />
       );
-      expect(screen.getByText('Email Sent Successfully!')).toBeInTheDocument();
-      expect(screen.getByText('test@example.com')).toBeInTheDocument();
+      expect(screen.getByText('Observation Submitted!')).toBeInTheDocument();
+      expect(
+        screen.getByText(/successfully saved and sent to WBS/i)
+      ).toBeInTheDocument();
     });
 
     it('should display correct title', () => {
@@ -327,10 +162,10 @@ describe('SubmissionModal', () => {
           submissionState={SUBMISSION_STATES.SUCCESS}
         />
       );
-      expect(screen.getByText('Success')).toBeInTheDocument();
+      expect(screen.getByText('Success!')).toBeInTheDocument();
     });
 
-    it('should show Download and Close buttons', () => {
+    it('should show Download button and Share section', () => {
       render(
         <SubmissionModal
           {...defaultProps}
@@ -340,11 +175,47 @@ describe('SubmissionModal', () => {
       expect(
         screen.getByRole('button', { name: /download excel/i })
       ).toBeInTheDocument();
+      expect(screen.getByText('Share via Email')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /share/i })
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /done/i })).toBeInTheDocument();
+    });
 
-      // Get all buttons and find the "Close" action button (not the × button)
-      const buttons = screen.getAllByRole('button');
-      const closeButton = buttons.find((btn) => btn.textContent === 'Close');
-      expect(closeButton).toBeInTheDocument();
+    it('should show email input in share section', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
+      const emailInput = screen.getByPlaceholderText(/enter email address/i);
+      expect(emailInput).toBeInTheDocument();
+      expect(emailInput).toHaveAttribute('type', 'email');
+    });
+
+    it('should disable Share button when email is empty', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+          email=""
+        />
+      );
+      const shareButton = screen.getByRole('button', { name: /share/i });
+      expect(shareButton).toBeDisabled();
+    });
+
+    it('should enable Share button when email has value', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+          email="test@example.com"
+        />
+      );
+      const shareButton = screen.getByRole('button', { name: /share/i });
+      expect(shareButton).not.toBeDisabled();
     });
 
     it('should call onDownload when Download button is clicked', async () => {
@@ -364,7 +235,36 @@ describe('SubmissionModal', () => {
       expect(mockOnDownload).toHaveBeenCalledTimes(1);
     });
 
-    it('should call onClose when Close button is clicked', async () => {
+    it('should call onEmailSubmit when Share button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+          email="test@example.com"
+        />
+      );
+
+      const shareButton = screen.getByRole('button', { name: /share/i });
+      await user.click(shareButton);
+
+      expect(mockOnEmailSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it('should disable Share button when email has error', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+          email="invalid"
+          emailError="Invalid email format"
+        />
+      );
+      const shareButton = screen.getByRole('button', { name: /share/i });
+      expect(shareButton).toBeDisabled();
+    });
+
+    it('should call onEmailChange when typing in share email input', async () => {
       const user = userEvent.setup();
       render(
         <SubmissionModal
@@ -373,12 +273,40 @@ describe('SubmissionModal', () => {
         />
       );
 
-      // Get all buttons and find the "Close" action button (not the × button)
-      const buttons = screen.getAllByRole('button');
-      const closeButton = buttons.find((btn) => btn.textContent === 'Close');
-      await user.click(closeButton);
+      const emailInput = screen.getByPlaceholderText(/enter email address/i);
+      await user.type(emailInput, 'test@example.com');
+
+      expect(mockOnEmailChange).toHaveBeenCalled();
+    });
+
+    it('should call onClose when Done button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
+
+      const doneButton = screen.getByRole('button', { name: /done/i });
+      await user.click(doneButton);
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('should display email error when present', () => {
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+          email="invalid"
+          emailError="Invalid email format"
+        />
+      );
+      expect(screen.getByText('Invalid email format')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Invalid email format'
+      );
     });
   });
 
@@ -494,21 +422,48 @@ describe('SubmissionModal', () => {
   });
 
   describe('Keyboard interactions', () => {
-    it('should submit form on Enter in email input', async () => {
+    it('should allow closing SUCCESS state via ESC key', async () => {
       const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} email="test@example.com" />);
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
 
-      const emailInput = screen.getByLabelText(/email address/i);
-      await user.type(emailInput, '{Enter}');
+      const dialog = screen.getByRole('dialog');
+      await user.type(dialog, '{Escape}');
 
-      expect(mockOnEmailSubmit).toHaveBeenCalled();
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('should allow closing ERROR state via ESC key', async () => {
+      const user = userEvent.setup();
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.ERROR}
+          errorMessage="Test error"
+          isTransientError={true}
+        />
+      );
+
+      const dialog = screen.getByRole('dialog');
+      await user.type(dialog, '{Escape}');
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Backdrop click interaction', () => {
-    it('should call onClose when backdrop is clicked in READY state', async () => {
+    it('should call onClose when backdrop is clicked in SUCCESS state', async () => {
       const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
 
       const backdrop = screen.getByRole('dialog');
       await user.click(backdrop);
@@ -518,10 +473,30 @@ describe('SubmissionModal', () => {
 
     it('should not call onClose when modal content is clicked', async () => {
       const user = userEvent.setup();
-      render(<SubmissionModal {...defaultProps} />);
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUCCESS}
+        />
+      );
 
-      const modalTitle = screen.getByText('Submit Observation Data');
+      const modalTitle = screen.getByText('Success!');
       await user.click(modalTitle);
+
+      expect(mockOnClose).not.toHaveBeenCalled();
+    });
+
+    it('should not call onClose when backdrop clicked in SUBMITTING state', async () => {
+      const user = userEvent.setup();
+      render(
+        <SubmissionModal
+          {...defaultProps}
+          submissionState={SUBMISSION_STATES.SUBMITTING}
+        />
+      );
+
+      const backdrop = screen.getByRole('dialog');
+      await user.click(backdrop);
 
       expect(mockOnClose).not.toHaveBeenCalled();
     });

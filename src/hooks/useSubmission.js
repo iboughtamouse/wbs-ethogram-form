@@ -2,17 +2,26 @@
  * useSubmission Hook
  *
  * Manages all submission-related state and logic for the observation form.
- * Handles modal states, email validation, API submission, and error handling.
+ * Handles backend submission, modal states, download/share actions, and error handling.
+ *
+ * Flow: Submit → Backend API → Success (show download/share) or Error (retry/fallback)
  */
 
 import { useState } from 'react';
 import { clearDraft } from '../utils/localStorageUtils';
 import {
   submitObservation,
+  shareObservation,
   isRetryableError,
+  isNetworkError,
   getErrorMessage,
 } from '../services/emailService';
+import {
+  downloadFromBackend,
+  downloadLocally,
+} from '../services/downloadService';
 import { validateEmailInput, parseEmailList } from '../utils/validators';
+import { getWBSEmail } from '../utils/envConfig';
 import { SUBMISSION_STATES } from '../components/SubmissionModal';
 
 /**
@@ -27,25 +36,73 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   // Modal and submission state
   const [showModal, setShowModal] = useState(false);
   const [submissionState, setSubmissionState] = useState(
-    SUBMISSION_STATES.GENERATING
+    SUBMISSION_STATES.SUBMITTING
   );
+  const [observationId, setObservationId] = useState(null);
   const [submissionEmail, setSubmissionEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const [isTransientError, setIsTransientError] = useState(false);
 
   /**
-   * Open submission modal and start Excel generation
+   * Open submission modal and submit to backend immediately
+   * New flow: Submit first, then offer download/share options
    */
   const handleOpen = async () => {
-    setSubmissionState(SUBMISSION_STATES.GENERATING);
+    setSubmissionState(SUBMISSION_STATES.SUBMITTING);
     setShowModal(true);
 
-    // Show loading state briefly
-    // In production, actual Excel generation happens on-demand during download
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Get WBS email from environment
+    const wbsEmail = getWBSEmail();
+    if (!wbsEmail) {
+      console.error('VITE_WBS_EMAIL not configured');
+      setSubmissionState(SUBMISSION_STATES.ERROR);
+      setSubmissionError(
+        'Configuration error: WBS email not set. Please contact support.'
+      );
+      setIsTransientError(false);
+      return;
+    }
 
-    setSubmissionState(SUBMISSION_STATES.READY);
+    // Prepare form data
+    const formData = getOutputData();
+
+    try {
+      // Submit to backend
+      const result = await submitObservation(formData, [wbsEmail]);
+
+      if (result.success) {
+        // Success! Store ID and show success state with download/share options
+        setObservationId(result.submissionId);
+        setSubmissionState(SUBMISSION_STATES.SUCCESS);
+        setSubmissionError('');
+        setIsTransientError(false);
+        clearDraft();
+      } else {
+        // API error - check if it's a network issue for local fallback
+        if (isNetworkError(result)) {
+          // Network error - offer local Excel generation
+          setSubmissionState(SUBMISSION_STATES.ERROR);
+          setSubmissionError(
+            'Unable to reach server. You can download a local copy of your observation.'
+          );
+          setIsTransientError(true);
+        } else {
+          // Other API error
+          setSubmissionState(SUBMISSION_STATES.ERROR);
+          setSubmissionError(getErrorMessage(result));
+          setIsTransientError(isRetryableError(result));
+        }
+      }
+    } catch (error) {
+      // Unexpected error - treat as network issue
+      console.error('Submission error:', error);
+      setSubmissionState(SUBMISSION_STATES.ERROR);
+      setSubmissionError(
+        'Unable to reach server. You can download a local copy of your observation.'
+      );
+      setIsTransientError(true);
+    }
   };
 
   /**
@@ -58,82 +115,76 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   };
 
   /**
-   * Submit observation via email
+   * Share observation via email (after successful submission)
+   * Only available when observationId exists
    */
-  const handleEmailSubmit = async () => {
-    // Validate email before submitting
+  const handleShare = async () => {
+    // Validate email before sharing
     const error = validateEmailInput(submissionEmail);
     if (error) {
       setEmailError(error);
       return;
     }
 
+    // Must have observationId to share
+    if (!observationId) {
+      setEmailError('Cannot share: observation not submitted to server');
+      return;
+    }
+
     // Parse email(s) into array
     const { emails } = parseEmailList(submissionEmail);
 
-    // Set submitting state
-    setSubmissionState(SUBMISSION_STATES.SUBMITTING);
-
-    // Prepare form data
-    const formData = getOutputData();
+    // Clear any previous errors
+    setEmailError('');
+    setSubmissionError('');
 
     try {
-      // Submit observation
-      const result = await submitObservation(formData, emails);
+      // Share via backend
+      const result = await shareObservation(observationId, emails);
 
       if (result.success) {
-        // Success
-        setSubmissionState(SUBMISSION_STATES.SUCCESS);
-        setSubmissionError('');
-        setIsTransientError(false);
-        clearDraft();
+        // Success - show feedback
+        alert(`Successfully shared with ${emails.join(', ')}`);
+        setSubmissionEmail(''); // Clear email field
       } else {
-        // Error
-        setSubmissionState(SUBMISSION_STATES.ERROR);
-        setSubmissionError(getErrorMessage(result));
-        setIsTransientError(isRetryableError(result));
+        // Error (could be rate limit or other issue)
+        setEmailError(result.message || 'Failed to share observation');
       }
     } catch (error) {
-      // Unexpected error
-      setSubmissionState(SUBMISSION_STATES.ERROR);
-      setSubmissionError('An unexpected error occurred. Please try again.');
-      setIsTransientError(true);
+      console.error('Share failed:', error);
+      setEmailError('Failed to share observation. Please try again.');
     }
   };
 
   /**
-   * Retry after error
+   * Retry submission after error
    */
   const handleRetry = () => {
-    setSubmissionState(SUBMISSION_STATES.READY);
+    // Clear errors and retry submission
     setSubmissionError('');
+    setEmailError('');
+    handleOpen();
   };
 
   /**
    * Download Excel file
+   * If we have observationId, download from backend
+   * Otherwise, generate locally (offline mode)
    */
   const handleDownload = async () => {
     try {
-      // Dynamically import Excel generator
-      const { downloadExcelFile } = await import(
-        '../services/export/excelGenerator'
-      );
-
-      // Prepare data
-      const data = getOutputData();
-
-      // Sanitize patient name for filename
-      const sanitizedPatient = data.metadata.patient.replace(
-        /[/\\:*?"<>|]/g,
-        '_'
-      );
-      const filename = `ethogram-${sanitizedPatient}-${data.metadata.date}`;
-
-      // Download
-      await downloadExcelFile(data, filename);
+      if (observationId) {
+        // Download from backend
+        await downloadFromBackend(observationId);
+      } else {
+        // Generate locally (fallback/offline mode)
+        const formData = getOutputData();
+        await downloadLocally(formData, true); // true = mark as offline
+      }
     } catch (error) {
-      console.error('Failed to generate Excel file:', error);
-      alert('Failed to generate Excel file. Please try again.');
+      console.error('Download failed:', error);
+      alert('Failed to download Excel file. Please try again.');
     }
   };
 
@@ -149,7 +200,8 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
 
     // Reset modal state
     setShowModal(false);
-    setSubmissionState(SUBMISSION_STATES.GENERATING);
+    setSubmissionState(SUBMISSION_STATES.SUBMITTING);
+    setObservationId(null);
     setSubmissionEmail('');
     setEmailError('');
     setSubmissionError('');
@@ -160,6 +212,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     // State
     showModal,
     submissionState,
+    observationId,
     submissionEmail,
     emailError,
     submissionError,
@@ -168,7 +221,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     // Actions
     handleOpen,
     handleEmailChange,
-    handleEmailSubmit,
+    handleShare,
     handleRetry,
     handleDownload,
     handleClose,

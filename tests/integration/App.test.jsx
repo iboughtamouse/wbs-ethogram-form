@@ -12,6 +12,7 @@ import * as localStorageUtils from '../../src/utils/localStorageUtils';
 import * as timezoneUtils from '../../src/utils/timezoneUtils';
 import { downloadExcelFile } from '../../src/services/export/excelGenerator';
 import * as emailService from '../../src/services/emailService';
+import * as downloadService from '../../src/services/downloadService';
 
 // Mock localStorage utilities
 jest.mock('../../src/utils/localStorageUtils');
@@ -31,6 +32,9 @@ jest.mock('../../src/services/export/excelGenerator', () => ({
 // Mock email service to prevent flaky tests from random mock failures
 jest.mock('../../src/services/emailService');
 
+// Mock download service for download tests
+jest.mock('../../src/services/downloadService');
+
 describe('App Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -47,6 +51,10 @@ describe('App Integration Tests', () => {
       message: 'Observation submitted successfully',
       emailsSent: 1,
     });
+
+    // Mock downloadService
+    downloadService.downloadFromBackend.mockResolvedValue({ success: true });
+    downloadService.downloadLocally.mockReturnValue({ success: true });
   });
 
   // Helper function to fill in metadata completely
@@ -490,12 +498,12 @@ describe('App Integration Tests', () => {
       });
     });
 
-    test('shows loading overlay during Excel download', async () => {
-      // Mock a slow Excel download
-      downloadExcelFile.mockImplementationOnce(
+    test('downloads Excel from backend after successful submission', async () => {
+      // Mock a slow Excel download from backend
+      downloadService.downloadFromBackend.mockImplementationOnce(
         () =>
           new Promise((resolve) => {
-            setTimeout(resolve, 100);
+            setTimeout(() => resolve({ success: true }), 100);
           })
       );
 
@@ -515,26 +523,24 @@ describe('App Integration Tests', () => {
       await fillTimeSlot('10:00 AM', 'drinking');
       await fillTimeSlot('10:05 AM', 'drinking');
 
-      // Submit form to show output preview
+      // Submit form (submits to backend immediately)
       const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
-      // Wait for output preview and submission modal to be ready
+      // Wait for submission success state
       await waitFor(() => {
-        expect(screen.getByText(/Data Preview/i)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
+        expect(screen.getByText(/Observation Submitted!/i)).toBeInTheDocument();
       });
 
-      // Click download button from SubmissionModal
-      // Note: OutputPreview still exists for JSON preview, but download functionality moved to modal
+      // Click download button from SubmissionModal in SUCCESS state
       const downloadButton = screen.getByRole('button', {
         name: /download excel/i,
       });
       fireEvent.click(downloadButton);
 
-      // Excel download should be triggered
+      // Should download from backend (using observationId from successful submission)
       await waitFor(() => {
-        expect(downloadExcelFile).toHaveBeenCalled();
+        expect(downloadService.downloadFromBackend).toHaveBeenCalled();
       });
     });
   });
@@ -765,7 +771,7 @@ describe('App Integration Tests', () => {
       expect(screen.queryByText(/Draft found!/i)).not.toBeInTheDocument();
     });
 
-    test('clears draft from localStorage after successful email submission', async () => {
+    test('clears draft from localStorage after successful submission', async () => {
       render(<App />);
 
       // Fill in complete valid form
@@ -785,27 +791,19 @@ describe('App Integration Tests', () => {
       const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
-      // Wait for submission modal to be ready
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
-      });
-
-      // Enter email and submit
-      const emailInput = screen.getByLabelText(/Email Address/i);
-      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
-      const sendButton = screen.getByRole('button', {
-        name: /Send via Email/i,
-      });
-      fireEvent.click(sendButton);
-
-      // Draft should be cleared after successful email submission
+      // With new backend integration flow, submission happens immediately
+      // Wait for success state (which means draft was cleared)
       await waitFor(
         () => {
-          expect(localStorageUtils.clearDraft).toHaveBeenCalled();
+          expect(
+            screen.getByText(/Observation Submitted!/i)
+          ).toBeInTheDocument();
         },
         { timeout: 3000 }
       );
+
+      // Draft should be cleared after successful submission
+      expect(localStorageUtils.clearDraft).toHaveBeenCalled();
     });
   });
 

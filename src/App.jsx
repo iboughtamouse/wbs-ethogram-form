@@ -217,7 +217,7 @@ function App() {
         email={submission.submissionEmail}
         emailError={submission.emailError}
         onEmailChange={submission.handleEmailChange}
-        onEmailSubmit={submission.handleEmailSubmit}
+        onEmailSubmit={submission.handleShare}
         onDownload={submission.handleDownload}
         onRetry={submission.handleRetry}
       />

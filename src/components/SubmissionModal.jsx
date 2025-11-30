@@ -6,22 +6,18 @@ import './SubmissionModal.css';
  * Submission states for the modal
  */
 export const SUBMISSION_STATES = {
-  GENERATING: 'generating', // Excel generation in progress
-  READY: 'ready', // Excel ready, awaiting email input
-  SUBMITTING: 'submitting', // Email submission in progress
-  SUCCESS: 'success', // Email sent successfully
-  ERROR: 'error', // Error occurred
+  SUBMITTING: 'submitting', // Backend submission in progress
+  SUCCESS: 'success', // Successfully submitted to backend
+  ERROR: 'error', // Error occurred during submission
 };
 
 /**
- * SubmissionModal - Modal for handling form submission and email delivery
+ * SubmissionModal - Modal for handling backend submission with download/share options
  *
- * Workflow:
- * 1. GENERATING: Excel generation in progress (shows loading)
- * 2. READY: Excel ready, shows email input + download button
- * 3. SUBMITTING: Email submission in progress (shows loading)
- * 4. SUCCESS: Email sent successfully (shows success message)
- * 5. ERROR: Error occurred (shows error + retry/download options)
+ * New Workflow (Backend Integration):
+ * 1. SUBMITTING: Backend submission in progress (shows loading)
+ * 2. SUCCESS: Successfully saved to backend (shows download/share options)
+ * 3. ERROR: Submission failed (shows error + retry or local download fallback)
  *
  * @param {object} props
  * @param {boolean} props.isOpen - Whether modal is visible
@@ -29,10 +25,10 @@ export const SUBMISSION_STATES = {
  * @param {string} props.submissionState - Current submission state
  * @param {string} props.errorMessage - Error message to display (if any)
  * @param {boolean} props.isTransientError - Whether error is retryable
- * @param {string} props.email - Email address value
+ * @param {string} props.email - Email address value (for share function)
  * @param {string} props.emailError - Email validation error
  * @param {function} props.onEmailChange - Email input change handler
- * @param {function} props.onEmailSubmit - Email submission handler
+ * @param {function} props.onEmailSubmit - Share via email handler
  * @param {function} props.onDownload - Download Excel handler
  * @param {function} props.onRetry - Retry submission handler
  */
@@ -94,85 +90,13 @@ const SubmissionModal = ({
 
   const renderContent = () => {
     switch (submissionState) {
-      case SUBMISSION_STATES.GENERATING:
-        return (
-          <div className="submission-modal-loading">
-            <div className="loading-spinner" role="status" aria-live="polite">
-              <div className="spinner"></div>
-            </div>
-            <p className="loading-text">Generating Excel spreadsheet...</p>
-          </div>
-        );
-
-      case SUBMISSION_STATES.READY:
-        return (
-          <div className="submission-modal-ready">
-            <p className="submission-instructions">
-              Your observation data has been prepared. You can download the
-              Excel file now, or optionally provide an email address to have it
-              sent to you.
-            </p>
-
-            <form onSubmit={handleEmailSubmit} className="email-form">
-              <div className="form-group">
-                <label htmlFor="submission-email" className="email-label">
-                  Email Address (Optional)
-                </label>
-                <input
-                  type="email"
-                  id="submission-email"
-                  className={`email-input ${emailError && hasAttemptedSubmit ? 'error' : ''}`}
-                  value={email}
-                  onChange={(e) => onEmailChange(e.target.value)}
-                  placeholder="your@email.com"
-                  aria-describedby={
-                    emailError && hasAttemptedSubmit
-                      ? 'email-error'
-                      : 'email-hint'
-                  }
-                  aria-invalid={
-                    emailError && hasAttemptedSubmit ? 'true' : 'false'
-                  }
-                />
-                {emailError && hasAttemptedSubmit && (
-                  <span id="email-error" className="error-message" role="alert">
-                    {emailError}
-                  </span>
-                )}
-                {!emailError && (
-                  <span id="email-hint" className="input-hint">
-                    Leave blank to download only
-                  </span>
-                )}
-              </div>
-
-              <div className="submission-actions">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={onDownload}
-                >
-                  Download Excel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={!email.trim()}
-                >
-                  Send via Email
-                </button>
-              </div>
-            </form>
-          </div>
-        );
-
       case SUBMISSION_STATES.SUBMITTING:
         return (
           <div className="submission-modal-loading">
             <div className="loading-spinner" role="status" aria-live="polite">
               <div className="spinner"></div>
             </div>
-            <p className="loading-text">Sending email...</p>
+            <p className="loading-text">Submitting observation...</p>
           </div>
         );
 
@@ -182,28 +106,65 @@ const SubmissionModal = ({
             <div className="success-icon" aria-hidden="true">
               ✓
             </div>
-            <h3 className="success-title">Email Sent Successfully!</h3>
+            <h3 className="success-title">Observation Submitted!</h3>
             <p className="success-message">
-              Your observation data has been sent to <strong>{email}</strong>.
-              You should receive it shortly.
+              Your observation has been successfully saved and sent to WBS for
+              review.
             </p>
             <p className="success-hint">
-              You can also download the file directly:
+              Download a copy or share it with others:
             </p>
             <div className="submission-actions">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-primary"
                 onClick={onDownload}
               >
                 Download Excel
               </button>
+            </div>
+
+            {/* Share via email section */}
+            <div className="share-section">
+              <hr className="divider" />
+              <h4 className="share-title">Share via Email</h4>
+              <p className="share-hint">
+                Send a copy to yourself or others (optional)
+              </p>
+              <div className="email-input-group">
+                <input
+                  type="email"
+                  className={`email-input ${emailError ? 'has-error' : ''}`}
+                  placeholder="Enter email address(es)"
+                  value={email}
+                  onChange={(e) => onEmailChange(e.target.value)}
+                  aria-label="Email address"
+                  aria-invalid={emailError ? 'true' : 'false'}
+                  aria-describedby={emailError ? 'email-error' : undefined}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onEmailSubmit}
+                  disabled={!email || !!emailError}
+                >
+                  Share
+                </button>
+              </div>
+              {emailError && (
+                <p className="error-message" id="email-error" role="alert">
+                  {emailError}
+                </p>
+              )}
+            </div>
+
+            <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-tertiary"
                 onClick={onClose}
               >
-                Close
+                Done
               </button>
             </div>
           </div>
@@ -266,14 +227,10 @@ const SubmissionModal = ({
 
   const getModalTitle = () => {
     switch (submissionState) {
-      case SUBMISSION_STATES.GENERATING:
-        return 'Generating Spreadsheet';
-      case SUBMISSION_STATES.READY:
-        return 'Submit Observation Data';
       case SUBMISSION_STATES.SUBMITTING:
-        return 'Sending Email';
+        return 'Submitting Observation';
       case SUBMISSION_STATES.SUCCESS:
-        return 'Success';
+        return 'Success!';
       case SUBMISSION_STATES.ERROR:
         return 'Error';
       default:
@@ -281,9 +238,7 @@ const SubmissionModal = ({
     }
   };
 
-  const showCloseButton =
-    submissionState !== SUBMISSION_STATES.GENERATING &&
-    submissionState !== SUBMISSION_STATES.SUBMITTING;
+  const showCloseButton = submissionState !== SUBMISSION_STATES.SUBMITTING;
 
   return (
     <div
