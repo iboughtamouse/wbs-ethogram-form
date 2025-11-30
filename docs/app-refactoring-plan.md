@@ -1,7 +1,7 @@
 # App.jsx Refactoring Plan
 
 **Created:** November 30, 2025  
-**Status:** Planning  
+**Status:** Phase 1 & 2 Complete ✅  
 **Goal:** Modularize App.jsx to improve maintainability before implementing backend integration
 
 ---
@@ -247,10 +247,36 @@ Write AFTER implementation is working:
 
 ---
 
+## Refactoring Progress
+
+### ✅ Phase 1: Extract Submission Logic (Complete)
+
+- **Created:** `src/hooks/useSubmission.js` (177 lines)
+- **Result:** Extracted modal state, email validation, submission handlers
+- **Reduced App.jsx by:** ~130 lines
+- **Status:** All 535 tests passing
+
+### ✅ Phase 2: Extract Form Handlers (Complete)
+
+- **Created:** `src/hooks/useFormHandlers.js` (122 lines)
+- **Result:** Extracted metadata/observation change handlers, validation triggers, copy-to-next, reset
+- **Reduced App.jsx by:** ~60 additional lines
+- **Status:** All 535 tests passing
+
+### 📊 Current App.jsx Status
+
+- **Before:** 398 lines
+- **After:** 227 lines (Phase 1 + 2)
+- **Reduction:** 171 lines (43% reduction)
+
+---
+
 ## Next Steps
 
-1. Review this plan
-2. Discuss and refine approach
-3. Start with Phase 1 (useSubmission)
-4. Write tests as we go (properly, not committing failures)
-5. Keep existing functionality working throughout
+1. ✅ ~~Phase 1: Extract submission logic~~
+2. ✅ ~~Phase 2: Extract form handlers~~
+3. **Phase 3:** Backend integration (ready to begin)
+   - Update useSubmission for API calls
+   - Wire up downloadService and shareObservation
+   - Update SubmissionModal flow
+   - Write integration tests properly using TDD

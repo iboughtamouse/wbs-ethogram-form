@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { clearDraft } from './utils/localStorageUtils';
 import { useFormValidation } from './hooks/useFormValidation';
 import { useFormState } from './hooks/useFormState';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useSubmission } from './hooks/useSubmission';
+import { useFormHandlers } from './hooks/useFormHandlers';
 import { prepareOutputData } from './services/formSubmission';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
@@ -57,65 +57,28 @@ function App() {
   // Submission management
   const submission = useSubmission(getOutputData, resetForm, clearAllErrors);
 
-  // Metadata change handler with validation
-  const onMetadataChange = (field, value, shouldValidate = false) => {
-    handleMetadataChange(field, value);
-
-    // Clear error when user starts typing
-    if (!shouldValidate && fieldErrors[field]) {
-      clearFieldError(field);
-    }
-
-    // Validate on blur
-    if (shouldValidate) {
-      // Need to construct updated metadata for validation
-      const updatedMetadata = { ...metadata, [field]: value };
-      validateSingleMetadataField(field, value, updatedMetadata);
-    }
-  };
-
-  // Observation change handler
-  const onObservationChange = (time, field, value) => {
-    handleObservationChange(time, field, value);
-
-    // Clear error when user starts typing
-    const errorKey = `${time}_${field}`;
-    if (fieldErrors[errorKey]) {
-      clearFieldError(errorKey);
-    }
-  };
-
-  // Observation validation handler
-  const onObservationValidate = (time, field, currentValue = null) => {
-    validateSingleObservationField(time, field, observations, currentValue);
-  };
-
-  // Copy to next handler with validation
-  const onCopyToNext = (time) => {
-    // Validate the current observation slot before copying
-    const validation = validateObservationSlot(time, observations);
-
-    if (!validation.valid) {
-      // Validation failed - errors are already set in state
-      // Scroll to first error in this time slot (if scrollIntoView is available)
-      const firstError = document.querySelector(`[data-time="${time}"] .error`);
-      if (firstError && firstError.scrollIntoView) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return false;
-    }
-
-    // Validation passed - proceed with copy
-    return handleCopyToNext(time);
-  };
-
-  // Form reset
-  const handleReset = () => {
-    resetForm();
-    clearAllErrors();
-    setShowOutput(false);
-    clearDraft();
-  };
+  // Form handlers
+  const {
+    onMetadataChange,
+    onObservationChange,
+    onObservationValidate,
+    onCopyToNext,
+    onReset,
+  } = useFormHandlers({
+    metadata,
+    observations,
+    fieldErrors,
+    handleMetadataChange,
+    handleObservationChange,
+    handleCopyToNext,
+    resetForm,
+    validateSingleMetadataField,
+    validateSingleObservationField,
+    validateObservationSlot,
+    clearFieldError,
+    clearAllErrors,
+    setShowOutput,
+  });
 
   // Form submission - validate then open modal
   const handleSubmit = (e) => {
@@ -230,11 +193,7 @@ function App() {
             <button type="submit" className="btn-primary">
               Submit Observation
             </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="btn-secondary"
-            >
+            <button type="button" onClick={onReset} className="btn-secondary">
               Reset Form
             </button>
           </div>
