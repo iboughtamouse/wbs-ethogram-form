@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SubmissionModal.css';
 
@@ -47,8 +46,6 @@ const SubmissionModal = ({
   onDownload,
   onRetry,
 }) => {
-  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
-
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
@@ -71,23 +68,6 @@ const SubmissionModal = ({
     ) {
       onClose();
     }
-  };
-
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-    setHasAttemptedSubmit(true);
-
-    // Don't submit if there's an email error
-    if (emailError) {
-      return;
-    }
-
-    onEmailSubmit();
-  };
-
-  const handleRetry = () => {
-    setHasAttemptedSubmit(false);
-    onRetry();
   };
 
   const renderContent = () => {
@@ -210,7 +190,7 @@ const SubmissionModal = ({
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={handleRetry}
+                  onClick={onRetry}
                 >
                   Try Again
                 </button>
