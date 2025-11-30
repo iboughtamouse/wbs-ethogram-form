@@ -95,14 +95,6 @@ describe('downloadService', () => {
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        headers: {
-          get: (header) => {
-            if (header === 'content-disposition') {
-              return 'attachment; filename="observation-2025-11-30.xlsx"';
-            }
-            return null;
-          },
-        },
         blob: jest.fn().mockResolvedValue(mockBlob),
       });
 
@@ -112,22 +104,26 @@ describe('downloadService', () => {
         'http://localhost:3000/api/observations/test-observation-123/excel'
       );
       expect(URL.createObjectURL).toHaveBeenCalledWith(mockBlob);
+      expect(mockLink.download).toBe(
+        'ethogram-observation-test-observation-123.xlsx'
+      );
     });
 
-    it('should use default filename if content-disposition header missing', async () => {
+    it('should create download link with correct filename', async () => {
       const mockBlob = new Blob(['mock data']);
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
-        headers: {
-          get: () => null,
-        },
         blob: jest.fn().mockResolvedValue(mockBlob),
       });
 
       await downloadFromBackend(mockObservationId);
 
       expect(URL.createObjectURL).toHaveBeenCalled();
+      expect(mockLink.download).toBe(
+        'ethogram-observation-test-observation-123.xlsx'
+      );
+      expect(mockLink.click).toHaveBeenCalled();
     });
 
     it('should throw error if backend returns non-ok response', async () => {
