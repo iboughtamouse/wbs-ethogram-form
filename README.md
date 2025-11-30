@@ -143,7 +143,38 @@ The form outputs structured JSON data:
 
 ## 🛠️ For Developers
 
-Interested in contributing or setting up your own instance? Check out:
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/iboughtamouse/wbs-ethogram-form.git
+cd wbs-ethogram-form
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env and set VITE_WBS_EMAIL to your test email
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+```
+
+### Environment Variables
+
+The application requires the following environment variable:
+
+- `VITE_WBS_EMAIL` - Email address to receive observation submissions
+  - Development: Set to your test email address
+  - Production: Configure in Vercel with the WBS research email
+
+### Documentation
+
+Interested in contributing or learning more? Check out:
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture, component structure, and data flow
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical setup, development workflow, and testing
