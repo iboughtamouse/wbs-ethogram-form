@@ -216,6 +216,7 @@ function App() {
         isTransientError={submission.isTransientError}
         email={submission.submissionEmail}
         emailError={submission.emailError}
+        shareSuccessMessage={submission.shareSuccessMessage}
         onEmailChange={submission.handleEmailChange}
         onEmailSubmit={submission.handleShare}
         onDownload={submission.handleDownload}

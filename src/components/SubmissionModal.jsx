@@ -27,6 +27,7 @@ export const SUBMISSION_STATES = {
  * @param {boolean} props.isTransientError - Whether error is retryable
  * @param {string} props.email - Email address value (for share function)
  * @param {string} props.emailError - Email validation error
+ * @param {string} props.shareSuccessMessage - Success message for share action
  * @param {function} props.onEmailChange - Email input change handler
  * @param {function} props.onEmailSubmit - Share via email handler
  * @param {function} props.onDownload - Download Excel handler
@@ -40,6 +41,7 @@ const SubmissionModal = ({
   isTransientError = false,
   email,
   emailError = '',
+  shareSuccessMessage = '',
   onEmailChange,
   onEmailSubmit,
   onDownload,
@@ -154,6 +156,11 @@ const SubmissionModal = ({
               {emailError && (
                 <p className="error-message" id="email-error" role="alert">
                   {emailError}
+                </p>
+              )}
+              {shareSuccessMessage && (
+                <p className="success-message" role="status">
+                  ✓ {shareSuccessMessage}
                 </p>
               )}
             </div>
@@ -277,6 +284,7 @@ SubmissionModal.propTypes = {
   isTransientError: PropTypes.bool,
   email: PropTypes.string.isRequired,
   emailError: PropTypes.string,
+  shareSuccessMessage: PropTypes.string,
   onEmailChange: PropTypes.func.isRequired,
   onEmailSubmit: PropTypes.func.isRequired,
   onDownload: PropTypes.func.isRequired,

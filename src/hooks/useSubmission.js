@@ -41,6 +41,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   const [observationId, setObservationId] = useState(null);
   const [submissionEmail, setSubmissionEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [shareSuccessMessage, setShareSuccessMessage] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const [isTransientError, setIsTransientError] = useState(false);
 
@@ -140,8 +141,9 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
       return;
     }
 
-    // Clear any previous errors
+    // Clear any previous errors and messages
     setEmailError('');
+    setShareSuccessMessage('');
     setSubmissionError('');
 
     try {
@@ -149,9 +151,17 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
       const result = await shareObservation(observationId, emails);
 
       if (result.success) {
-        // Success - show feedback
-        alert(`Successfully shared with ${emails.join(', ')}`);
+        // Success - show feedback message
+        const count = emails.length;
+        const message =
+          count === 1
+            ? `Successfully shared with ${emails[0]}`
+            : `Successfully shared with ${count} recipients`;
+        setShareSuccessMessage(message);
         setSubmissionEmail(''); // Clear email field
+
+        // Clear success message after 5 seconds
+        setTimeout(() => setShareSuccessMessage(''), 5000);
       } else {
         // Error (could be rate limit or other issue)
         setEmailError(result.message || 'Failed to share observation');
@@ -209,6 +219,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     setObservationId(null);
     setSubmissionEmail('');
     setEmailError('');
+    setShareSuccessMessage('');
     setSubmissionError('');
     setIsTransientError(false);
   };
@@ -220,6 +231,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     observationId,
     submissionEmail,
     emailError,
+    shareSuccessMessage,
     submissionError,
     isTransientError,
 
