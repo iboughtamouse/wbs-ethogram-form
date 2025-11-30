@@ -194,6 +194,36 @@ describe('useSubmission', () => {
         expect(result.current.isTransientError).toBe(true);
       });
     });
+
+    it('should handle API-level network errors (isNetworkError returns true)', async () => {
+      // Mock submitObservation to return success:false with network error
+      emailService.submitObservation.mockResolvedValueOnce({
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Connection failed' },
+      });
+      emailService.isNetworkError.mockReturnValue(true);
+
+      const { result } = renderHook(() =>
+        useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
+      );
+
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      await waitFor(() => {
+        expect(result.current.submissionState).toBe(SUBMISSION_STATES.ERROR);
+        expect(result.current.submissionError).toContain(
+          'Unable to reach server'
+        );
+        expect(result.current.isTransientError).toBe(true);
+      });
+    });
+
+    // Note: Missing WBS email configuration (lines 69-78 in useSubmission.js) is not tested.
+    // This is a deployment/configuration concern, not business logic. If VITE_WBS_EMAIL is
+    // missing, the app is misconfigured at build time. The defensive runtime check exists
+    // for graceful degradation but doesn't represent testable user-facing behavior.
   });
 
   describe('handleShare - Email sharing', () => {
@@ -320,6 +350,45 @@ describe('useSubmission', () => {
 
       expect(emailService.shareObservation).not.toHaveBeenCalled();
       expect(result.current.emailError).toContain('observation not submitted');
+    });
+
+    it('should handle exception thrown by shareObservation', async () => {
+      // Suppress expected console.error
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      // Mock shareObservation to throw an exception
+      emailService.shareObservation.mockRejectedValueOnce(
+        new Error('Network timeout')
+      );
+
+      const { result } = renderHook(() =>
+        useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
+      );
+
+      // Submit first
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      // Set valid email
+      act(() => {
+        result.current.handleEmailChange('test@example.com');
+      });
+
+      // Try to share - should catch exception
+      await act(async () => {
+        await result.current.handleShare();
+      });
+
+      await waitFor(() => {
+        expect(result.current.emailError).toBe(
+          'Failed to share observation. Please try again.'
+        );
+      });
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -496,6 +565,75 @@ describe('useSubmission', () => {
       expect(result.current.emailError).toBe('');
       expect(result.current.shareSuccessMessage).toBe('');
     });
+
+    it('should call resetForm and clearAllErrors only after successful submission', async () => {
+      const { result } = renderHook(() =>
+        useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
+      );
+
+      // Perform successful submission
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      await waitFor(() => {
+        expect(result.current.submissionState).toBe(SUBMISSION_STATES.SUCCESS);
+      });
+
+      // Reset mocks to verify handleClose calls
+      mockResetForm.mockClear();
+      mockClearAllErrors.mockClear();
+
+      // Close modal after success
+      act(() => {
+        result.current.handleClose();
+      });
+
+      // Should call reset functions after successful submission
+      expect(mockResetForm).toHaveBeenCalled();
+      expect(mockClearAllErrors).toHaveBeenCalled();
+    });
+
+    it('should NOT call resetForm/clearAllErrors after failed submission', async () => {
+      // Suppress expected console.error
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      // Mock submission failure
+      emailService.submitObservation.mockRejectedValueOnce(
+        new Error('Network error')
+      );
+
+      const { result } = renderHook(() =>
+        useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
+      );
+
+      // Attempt submission
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      await waitFor(() => {
+        expect(result.current.submissionState).toBe(SUBMISSION_STATES.ERROR);
+      });
+
+      // Reset mocks
+      mockResetForm.mockClear();
+      mockClearAllErrors.mockClear();
+
+      // Close modal after failure
+      act(() => {
+        result.current.handleClose();
+      });
+
+      // Should NOT call reset functions after failed submission
+      expect(mockResetForm).not.toHaveBeenCalled();
+      expect(mockClearAllErrors).not.toHaveBeenCalled();
+
+      // Restore spy
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe('handleEmailChange - Email validation', () => {
@@ -527,22 +665,41 @@ describe('useSubmission', () => {
   });
 
   describe('Cleanup', () => {
-    it('should clear timeout on unmount', () => {
+    it('should clear share success timeout on unmount', async () => {
       jest.useFakeTimers();
 
       const { result, unmount } = renderHook(() =>
         useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
       );
 
-      // Trigger share success which sets timeout
+      // First perform successful submission to get observationId
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      // Wait for success state
+      await waitFor(() => {
+        expect(result.current.submissionState).toBe(SUBMISSION_STATES.SUCCESS);
+      });
+
+      // Set valid email and trigger share to create the timeout
       act(() => {
-        result.current.handleOpen();
+        result.current.handleEmailChange('test@example.com');
+      });
+
+      await act(async () => {
+        await result.current.handleShare();
+      });
+
+      // Verify share was successful and timeout was set
+      await waitFor(() => {
+        expect(result.current.shareSuccessMessage).toBeTruthy();
       });
 
       // Unmount before timeout fires
       unmount();
 
-      // Advance timers - should not cause errors
+      // Advance timers - should not cause errors due to cleanup
       jest.runAllTimers();
 
       jest.useRealTimers();

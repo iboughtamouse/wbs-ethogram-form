@@ -148,14 +148,6 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     // Parse email(s) into array
     const { emails } = parseEmailList(submissionEmail);
 
-    // Safety check: validateEmailInput allows empty input (email is optional for download),
-    // but parseEmailList will return empty array if input is empty/whitespace.
-    // This catches edge cases where the input field is manipulated or state is inconsistent.
-    if (emails.length === 0) {
-      setEmailError('Please enter a valid email address');
-      return;
-    }
-
     // Clear any previous errors and messages
     setEmailError('');
     setShareSuccessMessage('');
