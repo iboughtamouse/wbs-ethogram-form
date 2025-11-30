@@ -84,18 +84,6 @@ describe('emailService', () => {
       );
     });
 
-    test('should return success result from API', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          submissionId: 'uuid-123',
-          message: 'Success',
-          emailsSent: 1,
-        }),
-      });
-    });
-
     it('should handle validation errors', async () => {
       global.fetch.mockResolvedValueOnce({
         ok: false,

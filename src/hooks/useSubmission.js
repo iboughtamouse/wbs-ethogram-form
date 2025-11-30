@@ -148,6 +148,9 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     // Parse email(s) into array
     const { emails } = parseEmailList(submissionEmail);
 
+    // Safety check: validateEmailInput allows empty input (email is optional for download),
+    // but parseEmailList will return empty array if input is empty/whitespace.
+    // This catches edge cases where the input field is manipulated or state is inconsistent.
     if (emails.length === 0) {
       setEmailError('Please enter a valid email address');
       return;
@@ -172,7 +175,10 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
         setShareSuccessMessage(message);
         setSubmissionEmail(''); // Clear email field
 
-        // Clear success message after 5 seconds (track timeout for cleanup)
+        // Clear success message after 5 seconds
+        // Track timeout ID to prevent memory leaks - if component unmounts before
+        // timeout fires, the cleanup in useEffect will clear it and prevent
+        // attempting to update state on an unmounted component
         if (shareSuccessTimeoutRef.current) {
           clearTimeout(shareSuccessTimeoutRef.current);
         }

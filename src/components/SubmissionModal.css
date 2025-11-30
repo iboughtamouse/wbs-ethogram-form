@@ -365,6 +365,14 @@
   .submission-actions .btn {
     width: 100%;
   }
+
+  .email-input-group {
+    flex-direction: column;
+  }
+
+  .email-input-group .btn {
+    width: 100%;
+  }
 }
 
 /* Share Section Styles */
