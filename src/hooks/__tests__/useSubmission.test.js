@@ -250,6 +250,26 @@ describe('useSubmission', () => {
       expect(emailService.shareObservation).not.toHaveBeenCalled();
     });
 
+    it('should prevent sharing with empty email', async () => {
+      const { result } = renderHook(() =>
+        useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
+      );
+
+      // Set up successful submission first
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      // Try to share without setting email (empty string)
+      await act(async () => {
+        await result.current.handleShare();
+      });
+
+      expect(result.current.emailError).toBeTruthy();
+      expect(result.current.emailError).toContain('required');
+      expect(emailService.shareObservation).not.toHaveBeenCalled();
+    });
+
     it('should successfully share observation via email', async () => {
       const { result } = renderHook(() =>
         useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)

@@ -145,8 +145,16 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
       return;
     }
 
-    // Parse email(s) into array
-    const { emails } = parseEmailList(submissionEmail);
+    // Parse email(s) into array and validate
+    const {
+      valid,
+      emails,
+      error: parseError,
+    } = parseEmailList(submissionEmail);
+    if (!valid) {
+      setEmailError(parseError || 'Invalid email address');
+      return;
+    }
 
     // Clear any previous errors and messages
     setEmailError('');
