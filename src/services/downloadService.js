@@ -4,7 +4,7 @@
  * Handles downloading observation Excel files from backend or generating locally
  */
 
-import { generateExcelBuffer } from './export/excelGenerator';
+import { generateExcelWorkbook } from './export/excelGenerator';
 import { getApiBaseUrl } from '../utils/envConfig.js';
 
 /**
@@ -61,8 +61,9 @@ export async function downloadLocally(formData, isOffline = false) {
         }
       : formData;
 
-    // Generate Excel buffer
-    const buffer = await generateExcelBuffer(dataToExport);
+    // Generate Excel workbook and convert to buffer
+    const workbook = await generateExcelWorkbook(dataToExport);
+    const buffer = await workbook.xlsx.writeBuffer();
 
     // Create blob and trigger download
     const blob = new Blob([buffer], {

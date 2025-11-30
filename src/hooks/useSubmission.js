@@ -135,12 +135,17 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
     // Parse email(s) into array
     const { emails } = parseEmailList(submissionEmail);
 
+    if (emails.length === 0) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
     // Clear any previous errors
     setEmailError('');
     setSubmissionError('');
 
     try {
-      // Share via backend
+      // Share via backend (supports multiple emails)
       const result = await shareObservation(observationId, emails);
 
       if (result.success) {

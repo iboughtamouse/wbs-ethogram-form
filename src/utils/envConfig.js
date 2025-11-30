@@ -16,30 +16,10 @@
  * @returns {string|undefined} Environment variable value
  */
 export function getEnv(key) {
-  // In test environment, use process.env
-  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-    return process.env[key];
-  }
-
-  // In Vite environment, try to use import.meta.env
-  // Using eval() to avoid Jest parse errors
-  try {
-    // eslint-disable-next-line no-eval
-    const importMeta = eval('import.meta');
-    if (importMeta && importMeta.env) {
-      return importMeta.env[key];
-    }
-  } catch (e) {
-    // import.meta not available
-    // Fall through to check process.env as backup
-  }
-
-  // Fallback to process.env (works in Node.js environments)
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key];
-  }
-
-  return undefined;
+  // Simple and straightforward: use Vite's import.meta.env
+  // This file is only imported by services that are mocked in tests,
+  // so we don't need to worry about Jest parsing errors
+  return import.meta.env[key];
 }
 
 /**

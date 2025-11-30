@@ -199,10 +199,10 @@ export function getErrorMessage(result) {
  * Share observation via email (after successful submission)
  *
  * @param {string} observationId - Observation ID from successful submission
- * @param {string} email - Email address to share with
+ * @param {string[]} emails - Array of email addresses to share with
  * @returns {Promise<{success: boolean, message: string, error?: string}>}
  */
-export async function shareObservation(observationId, email) {
+export async function shareObservation(observationId, emails) {
   try {
     const apiBaseUrl = getApiBaseUrl();
     const response = await fetch(
@@ -212,7 +212,7 @@ export async function shareObservation(observationId, email) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ emails }),
       }
     );
 
