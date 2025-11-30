@@ -28,90 +28,156 @@ describe('emailService', () => {
 
   const mockEmails = ['test@example.com'];
 
-  describe('submitObservation - Mock Implementation (Phase 1)', () => {
+  describe('submitObservation - Real API', () => {
     beforeEach(() => {
-      jest.spyOn(Math, 'random');
+      global.fetch = jest.fn();
     });
 
     afterEach(() => {
-      Math.random.mockRestore();
+      jest.resetAllMocks();
     });
 
-    it('should return success response with submission ID', async () => {
-      // Mock random to avoid simulated errors
-      Math.random.mockReturnValue(0.9);
+    it('should return success response from API', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Observation submitted successfully',
+            emailsSent: 1,
+          }),
+      });
 
       const result = await submitObservation(mockFormData, mockEmails);
 
       expect(result.success).toBe(true);
-      expect(result.submissionId).toBeTruthy();
-      expect(result.submissionId).toContain('mock-');
+      expect(result.submissionId).toBe('uuid-123');
       expect(result.message).toBe('Observation submitted successfully');
       expect(result.emailsSent).toBe(1);
     });
 
-    it('should include number of emails sent', async () => {
-      Math.random.mockReturnValue(0.9);
+    it('should call API with correct payload', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Success',
+            emailsSent: 1,
+          }),
+      });
 
-      const multipleEmails = ['test1@example.com', 'test2@example.com'];
-      const result = await submitObservation(mockFormData, multipleEmails);
-
-      expect(result.success).toBe(true);
-      expect(result.emailsSent).toBe(2);
-    });
-
-    it('should generate unique submission IDs', async () => {
-      Math.random.mockReturnValue(0.9);
-
-      const result1 = await submitObservation(mockFormData, mockEmails);
-      const result2 = await submitObservation(mockFormData, mockEmails);
-
-      expect(result1.submissionId).not.toBe(result2.submissionId);
-    });
-
-    it('should simulate network timeout error', async () => {
-      // Math.random() is called in this order:
-      // 1. For delay calculation (line 48)
-      // 2. For network error check (line 55)
-      Math.random.mockReturnValueOnce(0.5); // For delay calculation
-      Math.random.mockReturnValueOnce(0.01); // Trigger network error (<0.05)
-
-      const result = await submitObservation(mockFormData, mockEmails);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
-      expect(result.message).toContain('Network timeout');
-      expect(result.retryable).toBe(true);
-    });
-
-    it('should simulate server error', async () => {
-      // Math.random() is called in this order:
-      // 1. For delay calculation (line 48)
-      // 2. For network error check (line 55) - skip with >0.05
-      // 3. For server error check (line 64) - trigger with <0.03
-      Math.random.mockReturnValueOnce(0.5); // For delay calculation
-      Math.random.mockReturnValueOnce(0.1); // Skip network error (>0.05)
-      Math.random.mockReturnValueOnce(0.01); // Trigger server error (<0.03)
-
-      const result = await submitObservation(mockFormData, mockEmails);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
-      expect(result.message).toContain('Service temporarily unavailable');
-      expect(result.retryable).toBe(true);
-    });
-
-    it('should have network delay', async () => {
-      Math.random.mockReturnValue(0.9);
-
-      const startTime = Date.now();
       await submitObservation(mockFormData, mockEmails);
-      const endTime = Date.now();
 
-      const elapsed = endTime - startTime;
-      // Should take at least 1 second (1000ms base + random up to 1000ms)
-      expect(elapsed).toBeGreaterThanOrEqual(1000);
-      expect(elapsed).toBeLessThan(2500); // Upper bound with buffer
+      expect(global.fetch).toHaveBeenCalledWith('/api/observations/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          observation: mockFormData,
+          emails: mockEmails,
+        }),
+      });
+    });
+
+    it('should handle validation errors', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () =>
+          Promise.resolve({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: 'Validation failed',
+              details: [{ field: 'observerName', message: 'Required' }],
+            },
+          }),
+      });
+
+      const result = await submitObservation(mockFormData, mockEmails);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(ERROR_TYPES.VALIDATION);
+      expect(result.message).toBe('Validation failed');
+      expect(result.details).toEqual([
+        { field: 'observerName', message: 'Required' },
+      ]);
+    });
+
+    it('should handle server errors as transient', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: () =>
+          Promise.resolve({
+            success: false,
+            error: {
+              code: 'DATABASE_ERROR',
+              message: 'Database connection failed',
+            },
+          }),
+      });
+
+      const result = await submitObservation(mockFormData, mockEmails);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
+      expect(result.retryable).toBe(true);
+    });
+
+    it('should handle rate limiting as transient', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        json: () =>
+          Promise.resolve({
+            success: false,
+            error: {
+              code: 'RATE_LIMIT_EXCEEDED',
+              message: 'Too many requests',
+            },
+          }),
+      });
+
+      const result = await submitObservation(mockFormData, mockEmails);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
+      expect(result.retryable).toBe(true);
+    });
+
+    it('should handle network errors', async () => {
+      global.fetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const result = await submitObservation(mockFormData, mockEmails);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
+      expect(result.message).toBe('Network error');
+      expect(result.retryable).toBe(true);
+    });
+
+    it('should handle 4xx errors as permanent', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        json: () =>
+          Promise.resolve({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'Access denied',
+            },
+          }),
+      });
+
+      const result = await submitObservation(mockFormData, mockEmails);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(ERROR_TYPES.PERMANENT);
+      expect(result.retryable).toBe(false);
     });
   });
 
@@ -238,14 +304,25 @@ describe('emailService', () => {
 
   describe('Edge cases', () => {
     beforeEach(() => {
-      jest.spyOn(Math, 'random').mockReturnValue(0.9);
+      global.fetch = jest.fn();
     });
 
     afterEach(() => {
-      Math.random.mockRestore();
+      jest.resetAllMocks();
     });
 
     it('should handle empty email array', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Success',
+            emailsSent: 0,
+          }),
+      });
+
       const result = await submitObservation(mockFormData, []);
 
       expect(result.success).toBe(true);
@@ -253,6 +330,17 @@ describe('emailService', () => {
     });
 
     it('should handle large form data', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Success',
+            emailsSent: 1,
+          }),
+      });
+
       const largeFormData = {
         ...mockFormData,
         observations: Object.fromEntries(
@@ -275,6 +363,17 @@ describe('emailService', () => {
     });
 
     it('should handle special characters in form data', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Success',
+            emailsSent: 1,
+          }),
+      });
+
       const specialFormData = {
         ...mockFormData,
         metadata: {
