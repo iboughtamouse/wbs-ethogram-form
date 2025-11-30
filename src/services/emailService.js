@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from '../utils/envConfig.js';
+
 /**
  * Email submission service
  *
@@ -81,7 +83,8 @@ export const ERROR_TYPES = {
  */
 export async function submitObservation(formData, emails) {
   try {
-    const response = await fetch('/api/observations/submit', {
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await fetch(`${apiBaseUrl}/api/observations/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -190,4 +193,73 @@ export function getErrorMessage(result) {
     default:
       return 'An unexpected error occurred.';
   }
+}
+
+/**
+ * Share observation via email (after successful submission)
+ *
+ * @param {string} observationId - Observation ID from successful submission
+ * @param {string[]} emails - Array of email addresses to share with
+ * @returns {Promise<{success: boolean, message: string, error?: string}>}
+ */
+export async function shareObservation(observationId, emails) {
+  try {
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await fetch(
+      `${apiBaseUrl}/api/observations/${observationId}/share`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emails }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        return {
+          success: false,
+          error: 'rate_limit',
+          message: data.error?.message || 'Too many requests. Try again later.',
+        };
+      }
+
+      return {
+        success: false,
+        error: 'api_error',
+        message: data.error?.message || 'Failed to share observation',
+      };
+    }
+
+    return {
+      success: true,
+      message: data.message || 'Email sent successfully',
+    };
+  } catch (error) {
+    // Network error
+    return {
+      success: false,
+      error: 'network_error',
+      message: error.message || 'Network error. Please check your connection.',
+    };
+  }
+}
+
+/**
+ * Check if an error is a network error (vs API error)
+ * Network errors happen when fetch throws (can't reach server)
+ *
+ * @param {SubmissionResult} result - Submission result object
+ * @returns {boolean} True if this is a network error
+ */
+export function isNetworkError(result) {
+  return (
+    !result.success &&
+    result.error === ERROR_TYPES.TRANSIENT &&
+    !result.message.includes('Server')
+  );
 }

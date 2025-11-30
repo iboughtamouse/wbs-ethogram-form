@@ -31,3 +31,4 @@ notes/
 
 # Temporary helper files
 PR_DESCRIPTION.md
+.env

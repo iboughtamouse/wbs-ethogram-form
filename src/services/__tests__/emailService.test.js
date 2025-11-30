@@ -71,14 +71,17 @@ describe('emailService', () => {
 
       await submitObservation(mockFormData, mockEmails);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/observations/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          observation: mockFormData,
-          emails: mockEmails,
-        }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/observations/submit',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            observation: mockFormData,
+            emails: mockEmails,
+          }),
+        }
+      );
     });
 
     it('should handle validation errors', async () => {

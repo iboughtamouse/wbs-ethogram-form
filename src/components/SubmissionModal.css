@@ -178,6 +178,26 @@
   font-weight: 500;
 }
 
+.success-message {
+  display: block;
+  color: #27ae60;
+  font-size: 13px;
+  margin-top: 8px;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Action buttons */
 .submission-actions {
   display: flex;
@@ -345,6 +365,86 @@
   .submission-actions .btn {
     width: 100%;
   }
+
+  .email-input-group {
+    flex-direction: column;
+  }
+
+  .email-input-group .btn {
+    width: 100%;
+  }
+}
+
+/* Share Section Styles */
+.share-section {
+  margin-top: 24px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e1e8ed;
+  margin: 24px 0 20px 0;
+}
+
+.share-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.share-hint {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin: 0 0 16px 0;
+}
+
+.email-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.email-input-group .email-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #dfe6e9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.email-input-group .email-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.email-input-group .email-input.has-error {
+  border-color: #e74c3c;
+}
+
+.email-input-group .btn {
+  white-space: nowrap;
+}
+
+.modal-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e8ed;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-tertiary {
+  background: transparent;
+  color: #7f8c8d;
+  border: 1px solid #dfe6e9;
+}
+
+.btn-tertiary:hover {
+  background: #f8f9fa;
+  border-color: #b2bec3;
 }
 
 /* Accessibility */
