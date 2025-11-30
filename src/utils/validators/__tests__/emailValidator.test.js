@@ -135,45 +135,12 @@ describe('emailValidator', () => {
         expect(result.error).toBe('');
       });
 
-      it('should parse multiple comma-separated emails', () => {
-        const result = parseEmailList('user1@example.com,user2@example.com');
+      it('should trim whitespace around email', () => {
+        const result = parseEmailList('  user@example.com  ');
         expect(result.valid).toBe(true);
-        expect(result.emails).toEqual([
-          'user1@example.com',
-          'user2@example.com',
-        ]);
+        expect(result.emails).toEqual(['user@example.com']);
         expect(result.invalidEmails).toEqual([]);
         expect(result.error).toBe('');
-      });
-
-      it('should trim whitespace around emails', () => {
-        const result = parseEmailList(
-          '  user1@example.com , user2@example.com  '
-        );
-        expect(result.valid).toBe(true);
-        expect(result.emails).toEqual([
-          'user1@example.com',
-          'user2@example.com',
-        ]);
-      });
-
-      it('should handle trailing commas', () => {
-        const result = parseEmailList('user1@example.com,user2@example.com,');
-        expect(result.valid).toBe(true);
-        expect(result.emails).toEqual([
-          'user1@example.com',
-          'user2@example.com',
-        ]);
-      });
-
-      it('should parse up to maximum number of emails', () => {
-        const emails = Array(10)
-          .fill(0)
-          .map((_, i) => `user${i}@example.com`)
-          .join(',');
-        const result = parseEmailList(emails);
-        expect(result.valid).toBe(true);
-        expect(result.emails).toHaveLength(10);
       });
     });
 
@@ -200,54 +167,29 @@ describe('emailValidator', () => {
         expect(result.error).toBe('Email is required');
       });
 
-      it('should reject list with invalid email', () => {
-        const result = parseEmailList(
-          'user1@example.com,invalid-email,user2@example.com'
-        );
+      it('should reject invalid email format', () => {
+        const result = parseEmailList('invalid-email');
         expect(result.valid).toBe(false);
         expect(result.invalidEmails).toEqual(['invalid-email']);
         expect(result.error).toContain('Invalid email format');
         expect(result.error).toContain('invalid-email');
       });
 
-      it('should reject list with multiple invalid emails', () => {
-        const result = parseEmailList('invalid1,user@example.com,invalid2');
+      it('should reject comma-separated emails', () => {
+        const result = parseEmailList('user1@example.com,user2@example.com');
         expect(result.valid).toBe(false);
-        expect(result.invalidEmails).toContain('invalid1');
-        expect(result.invalidEmails).toContain('invalid2');
         expect(result.error).toContain('Invalid email format');
+        expect(result.invalidEmails).toEqual([
+          'user1@example.com,user2@example.com',
+        ]);
       });
 
-      it('should reject duplicate emails', () => {
-        const result = parseEmailList('user@example.com,user@example.com');
+      it('should include the invalid input in error message', () => {
+        const result = parseEmailList('not-an-email');
         expect(result.valid).toBe(false);
-        expect(result.error).toContain('Duplicate email address');
-        expect(result.error).toContain('user@example.com');
-      });
-
-      it('should detect duplicates case-insensitively', () => {
-        const result = parseEmailList('user@example.com,USER@EXAMPLE.COM');
-        expect(result.valid).toBe(false);
-        expect(result.error).toContain('Duplicate email address');
-      });
-
-      it('should reject too many recipients', () => {
-        const emails = Array(15)
-          .fill(0)
-          .map((_, i) => `user${i}@example.com`)
-          .join(',');
-        const result = parseEmailList(emails);
-        expect(result.valid).toBe(false);
-        expect(result.error).toContain('Too many recipients');
-        expect(result.error).toContain('max 10');
-      });
-
-      it('should return first invalid email in error message', () => {
-        const result = parseEmailList(
-          'valid@example.com,invalid,another-invalid'
-        );
-        expect(result.valid).toBe(false);
-        expect(result.error).toContain('invalid');
+        expect(result.error).toContain('Invalid email format');
+        expect(result.error).toContain('not-an-email');
+        expect(result.invalidEmails).toEqual(['not-an-email']);
       });
     });
   });
@@ -265,12 +207,6 @@ describe('emailValidator', () => {
         expect(validateEmailInput('user@example.com')).toBe('');
       });
 
-      it('should accept valid comma-separated emails', () => {
-        expect(validateEmailInput('user1@example.com,user2@example.com')).toBe(
-          ''
-        );
-      });
-
       it('should accept emails with whitespace around them', () => {
         expect(validateEmailInput('  user@example.com  ')).toBe('');
       });
@@ -283,33 +219,18 @@ describe('emailValidator', () => {
         expect(error).toContain('Invalid email format');
       });
 
-      it('should return error for duplicate emails', () => {
-        const error = validateEmailInput('user@example.com,user@example.com');
-        expect(error).toBeTruthy();
-        expect(error).toContain('Duplicate email address');
-      });
-
-      it('should return error for too many recipients', () => {
-        const emails = Array(15)
-          .fill(0)
-          .map((_, i) => `user${i}@example.com`)
-          .join(',');
-        const error = validateEmailInput(emails);
-        expect(error).toBeTruthy();
-        expect(error).toContain('Too many recipients');
-      });
-
-      it('should return error for mixed valid and invalid emails', () => {
-        const error = validateEmailInput('valid@example.com,invalid');
+      it('should return error for comma-separated emails', () => {
+        const error = validateEmailInput('user1@example.com,user2@example.com');
         expect(error).toBeTruthy();
         expect(error).toContain('Invalid email format');
       });
     });
 
     describe('Edge cases', () => {
-      it('should handle commas without emails', () => {
+      it('should reject emails with commas', () => {
         const error = validateEmailInput('user@example.com,,,');
-        expect(error).toBe(''); // Trailing commas ignored
+        expect(error).toBeTruthy();
+        expect(error).toContain('Invalid email format');
       });
 
       it('should handle very long email addresses', () => {

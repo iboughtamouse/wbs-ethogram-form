@@ -191,7 +191,8 @@ describe('SubmissionModal', () => {
       );
       const emailInput = screen.getByPlaceholderText(/enter email address/i);
       expect(emailInput).toBeInTheDocument();
-      expect(emailInput).toHaveAttribute('type', 'email');
+      expect(emailInput).toHaveAttribute('type', 'text');
+      expect(emailInput).toHaveAttribute('inputMode', 'email');
     });
 
     it('should disable Share button when email is empty', () => {

@@ -135,9 +135,10 @@ const SubmissionModal = ({
               </p>
               <div className="email-input-group">
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="email"
                   className={`email-input ${emailError ? 'has-error' : ''}`}
-                  placeholder="Enter email address(es)"
+                  placeholder="Enter email address"
                   value={email}
                   onChange={(e) => onEmailChange(e.target.value)}
                   aria-label="Email address"
