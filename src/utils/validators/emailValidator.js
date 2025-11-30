@@ -60,10 +60,10 @@ export const isValidEmail = (email) => {
 };
 
 /**
- * Parse and validate a comma-separated list of emails
- * Note: Phase 1 supports comma separation only. Semicolon support planned for Phase 2.
+ * Parse and validate a single email address
+ * Note: Only accepts one email address (comma-separated lists are not supported)
  *
- * @param {string} emailString - Comma-separated email addresses
+ * @param {string} emailString - Single email address
  * @returns {object} - { valid: boolean, emails: string[], invalidEmails: string[], error: string }
  */
 export const parseEmailList = (emailString) => {
@@ -87,59 +87,19 @@ export const parseEmailList = (emailString) => {
     };
   }
 
-  // Split by comma and trim each email
-  const emailList = trimmed
-    .split(',')
-    .map((email) => email.trim())
-    .filter((email) => email.length > 0);
-
-  // Check for duplicates (case-insensitive)
-  const seen = new Set();
-  const duplicates = [];
-  emailList.forEach((email) => {
-    const lower = email.toLowerCase();
-    if (seen.has(lower)) {
-      duplicates.push(email);
-    } else {
-      seen.add(lower);
-    }
-  });
-
-  if (duplicates.length > 0) {
+  // Validate the single email (comma will naturally fail regex validation)
+  if (!isValidEmail(trimmed)) {
     return {
       valid: false,
-      emails: emailList,
-      invalidEmails: duplicates,
-      error: `Duplicate email address: ${duplicates[0]}`,
-    };
-  }
-
-  // Validate each email
-  const invalidEmails = emailList.filter((email) => !isValidEmail(email));
-
-  if (invalidEmails.length > 0) {
-    return {
-      valid: false,
-      emails: emailList,
-      invalidEmails,
-      error: `Invalid email format: ${invalidEmails[0]}`,
-    };
-  }
-
-  // Check maximum number of recipients (reasonable limit)
-  const MAX_RECIPIENTS = 10;
-  if (emailList.length > MAX_RECIPIENTS) {
-    return {
-      valid: false,
-      emails: emailList,
-      invalidEmails: [],
-      error: `Too many recipients (max ${MAX_RECIPIENTS})`,
+      emails: [],
+      invalidEmails: [trimmed],
+      error: `Invalid email format: ${trimmed}`,
     };
   }
 
   return {
     valid: true,
-    emails: emailList,
+    emails: [trimmed],
     invalidEmails: [],
     error: '',
   };
@@ -151,10 +111,10 @@ export const parseEmailList = (emailString) => {
  *
  * Note: This function treats email as optional (returns '' for empty input),
  * while parseEmailList treats it as required. This separation of concerns is intentional:
- * - parseEmailList: parses required email lists (used when emails are provided)
+ * - parseEmailList: validates required single email (used when email is provided for sharing)
  * - validateEmailInput: validates optional UI input (handles empty case first)
  *
- * @param {string} emailInput - User's email input (can be empty, single, or comma-separated)
+ * @param {string} emailInput - User's email input (can be empty or single email)
  * @returns {string} - Error message if invalid, empty string if valid
  */
 export const validateEmailInput = (emailInput) => {

@@ -300,7 +300,7 @@ describe('useSubmission', () => {
       });
     });
 
-    it('should handle multiple emails', async () => {
+    it('should reject multiple comma-separated emails', async () => {
       const { result } = renderHook(() =>
         useSubmission(mockGetOutputData, mockResetForm, mockClearAllErrors)
       );
@@ -315,16 +315,16 @@ describe('useSubmission', () => {
         );
       });
 
+      // Should show validation error
+      expect(result.current.emailError).toBeTruthy();
+      expect(result.current.emailError).toContain('Invalid email format');
+
       await act(async () => {
         await result.current.handleShare();
       });
 
-      await waitFor(() => {
-        expect(emailService.shareObservation).toHaveBeenCalledWith(
-          'test-id-123',
-          ['test1@example.com', 'test2@example.com']
-        );
-      });
+      // Should not have called shareObservation due to validation error
+      expect(emailService.shareObservation).not.toHaveBeenCalled();
     });
 
     it('should handle share failures', async () => {
