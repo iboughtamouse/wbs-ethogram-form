@@ -7,7 +7,7 @@
  * Flow: Submit → Backend API → Success (show download/share) or Error (retry/fallback)
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { clearDraft } from '../utils/localStorageUtils';
 import {
   submitObservation,
@@ -44,6 +44,18 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   const [shareSuccessMessage, setShareSuccessMessage] = useState('');
   const [submissionError, setSubmissionError] = useState('');
   const [isTransientError, setIsTransientError] = useState(false);
+
+  // Track timeout ID for cleanup
+  const shareSuccessTimeoutRef = useRef(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (shareSuccessTimeoutRef.current) {
+        clearTimeout(shareSuccessTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Open submission modal and submit to backend immediately
@@ -160,8 +172,14 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
         setShareSuccessMessage(message);
         setSubmissionEmail(''); // Clear email field
 
-        // Clear success message after 5 seconds
-        setTimeout(() => setShareSuccessMessage(''), 5000);
+        // Clear success message after 5 seconds (track timeout for cleanup)
+        if (shareSuccessTimeoutRef.current) {
+          clearTimeout(shareSuccessTimeoutRef.current);
+        }
+        shareSuccessTimeoutRef.current = setTimeout(() => {
+          setShareSuccessMessage('');
+          shareSuccessTimeoutRef.current = null;
+        }, 5000);
       } else {
         // Error (could be rate limit or other issue)
         setEmailError(result.message || 'Failed to share observation');
@@ -175,11 +193,11 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   /**
    * Retry submission after error
    */
-  const handleRetry = () => {
+  const handleRetry = async () => {
     // Clear errors and retry submission
     setSubmissionError('');
     setEmailError('');
-    handleOpen();
+    await handleOpen();
   };
 
   /**
@@ -199,7 +217,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
       }
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Failed to download Excel file. Please try again.');
+      setSubmissionError('Failed to download Excel file. Please try again.');
     }
   };
 

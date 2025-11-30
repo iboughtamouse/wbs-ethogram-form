@@ -56,7 +56,7 @@ export async function downloadLocally(formData, isOffline = false) {
           ...formData,
           metadata: {
             ...formData.metadata,
-            _offlineNotice: 'Generated offline - not submitted to WBS',
+            offlineNotice: 'Generated offline - not submitted to WBS',
           },
         }
       : formData;

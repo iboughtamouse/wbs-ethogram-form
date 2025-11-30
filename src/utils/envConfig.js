@@ -5,20 +5,15 @@
 
 /**
  * Get environment variable value
- * In production: Uses Vite's import.meta.env
- * In tests: Uses process.env
  *
- * Note: We use eval() to access import.meta to avoid Jest parse errors.
- * Jest cannot parse import.meta syntax, so we evaluate it at runtime
- * when available. In test environments, we fall back to process.env.
+ * Uses Vite's import.meta.env to access environment variables.
+ * In tests, this module is globally mocked in jest.setup.js to return
+ * test-appropriate values.
  *
  * @param {string} key - Environment variable key
  * @returns {string|undefined} Environment variable value
  */
 export function getEnv(key) {
-  // Simple and straightforward: use Vite's import.meta.env
-  // This file is only imported by services that are mocked in tests,
-  // so we don't need to worry about Jest parsing errors
   return import.meta.env[key];
 }
 

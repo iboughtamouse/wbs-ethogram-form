@@ -52,9 +52,9 @@ describe('App Integration Tests', () => {
       emailsSent: 1,
     });
 
-    // Mock downloadService
-    downloadService.downloadFromBackend.mockResolvedValue({ success: true });
-    downloadService.downloadLocally.mockReturnValue({ success: true });
+    // Mock downloadService (both functions return void)
+    downloadService.downloadFromBackend.mockResolvedValue();
+    downloadService.downloadLocally.mockReturnValue();
   });
 
   // Helper function to fill in metadata completely

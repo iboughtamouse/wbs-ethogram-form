@@ -166,11 +166,15 @@ npm test
 
 ### Environment Variables
 
-The application requires the following environment variable:
+The application requires the following environment variables:
 
 - `VITE_WBS_EMAIL` - Email address to receive observation submissions
   - Development: Set to your test email address
   - Production: Configure in Vercel with the WBS research email
+
+- `VITE_API_BASE_URL` - Backend API URL
+  - Development: Point to local or deployed backend (e.g., `https://api-production-24be.up.railway.app`)
+  - Production: Configure in Vercel with the production API URL
 
 ### Documentation
 
