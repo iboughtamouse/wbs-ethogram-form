@@ -119,4 +119,15 @@ export default defineConfig(({ mode }) => ({
       // exceljs excluded - it's dynamically imported, no need to pre-bundle
     ],
   },
+
+  // Development server proxy
+  // Forwards /api requests to the backend server
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
 }));
