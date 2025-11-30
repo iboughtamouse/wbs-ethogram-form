@@ -274,14 +274,14 @@ describe('downloadService', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle backend unavailable fallback to local', async () => {
+    it('should allow local download when backend is unavailable', async () => {
       // Simulate backend download failure
       global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
       // Verify backend throws
       await expect(downloadFromBackend(mockObservationId)).rejects.toThrow();
 
-      // Verify local download still works (DOM is already mocked in beforeEach)
+      // Verify local download still works (jsdom provides DOM methods by default)
       await expect(downloadLocally(mockFormData, true)).resolves.not.toThrow();
     });
   });

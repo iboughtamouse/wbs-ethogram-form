@@ -132,13 +132,6 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
    * Only available when observationId exists
    */
   const handleShare = async () => {
-    // Validate email before sharing
-    const error = validateEmailInput(submissionEmail);
-    if (error) {
-      setEmailError(error);
-      return;
-    }
-
     // Must have observationId to share
     if (!observationId) {
       setEmailError('Cannot share: observation not submitted to server');
