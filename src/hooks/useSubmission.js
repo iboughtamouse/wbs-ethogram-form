@@ -132,27 +132,20 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
    * Only available when observationId exists
    */
   const handleShare = async () => {
-    // Validate email before sharing
-    const error = validateEmailInput(submissionEmail);
-    if (error) {
-      setEmailError(error);
-      return;
-    }
-
     // Must have observationId to share
     if (!observationId) {
       setEmailError('Cannot share: observation not submitted to server');
       return;
     }
 
-    // Parse email(s) into array
-    const { emails } = parseEmailList(submissionEmail);
-
-    // Safety check: validateEmailInput allows empty input (email is optional for download),
-    // but parseEmailList will return empty array if input is empty/whitespace.
-    // This catches edge cases where the input field is manipulated or state is inconsistent.
-    if (emails.length === 0) {
-      setEmailError('Please enter a valid email address');
+    // Parse email(s) into array and validate
+    const {
+      valid,
+      emails,
+      error: parseError,
+    } = parseEmailList(submissionEmail);
+    if (!valid) {
+      setEmailError(parseError || 'Invalid email address');
       return;
     }
 
