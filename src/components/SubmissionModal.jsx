@@ -41,10 +41,9 @@ const SubmissionModal = ({
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
-    // Only allow closing in certain states
+    // Only allow closing when not in SUBMITTING state
     if (
       e.target === e.currentTarget &&
-      submissionState !== SUBMISSION_STATES.GENERATING &&
       submissionState !== SUBMISSION_STATES.SUBMITTING
     ) {
       onClose();
@@ -52,10 +51,9 @@ const SubmissionModal = ({
   };
 
   const handleKeyDown = (e) => {
-    // Only allow ESC closing in certain states
+    // Only allow ESC closing when not in SUBMITTING state
     if (
       e.key === 'Escape' &&
-      submissionState !== SUBMISSION_STATES.GENERATING &&
       submissionState !== SUBMISSION_STATES.SUBMITTING
     ) {
       onClose();
