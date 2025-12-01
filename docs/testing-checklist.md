@@ -248,18 +248,21 @@ Test with any validated text input (observer name, "other" text fields, descript
 
 ### Temporary Errors (Retryable)
 
-- [ ] If submission fails with temporary error (server busy, timeout)
+To test: Disconnect from internet before submitting, or if server is temporarily down.
+
 - [ ] Error screen shows "Temporary Issue" title
+- [ ] Hint text mentions you can try again or download directly
 - [ ] "Try Again" button is visible
 - [ ] "Download Anyway" button is visible
 - [ ] Click "Try Again" → returns to loading state, retries submission
 
 ### Permanent Errors
 
-- [ ] If submission fails with permanent error (validation, server error)
+To test: These occur when server returns a validation or permanent error (harder to trigger manually).
+
 - [ ] Error screen shows "Submission Failed" title
 - [ ] "Download Anyway" button is visible (can still get your data)
-- [ ] "Close" button is visible (no retry option)
+- [ ] "Close" button is visible (no "Try Again" option)
 
 ---
 
