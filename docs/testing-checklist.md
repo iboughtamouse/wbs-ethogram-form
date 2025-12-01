@@ -286,7 +286,7 @@ To test: These occur when server returns a validation or permanent error (harder
 
 ### Multiple Time Slots
 
-- [ ] Create form with max time range (60 minutes = 12 slots)
+- [ ] Create form with max time range (60 minutes = 13 slots)
 - [ ] Fill out all slots with different behaviors
 - [ ] Verify validation works independently for each slot
 - [ ] Verify copy to next works across multiple slots
