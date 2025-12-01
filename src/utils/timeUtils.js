@@ -6,6 +6,20 @@ import {
 
 const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
 /**
+ * Convert minutes integer into a human-readable label.
+ * - 60 → "1 hour"
+ * - 120 → "2 hours"
+ * - 5 → "5 minutes"
+ */
+export const formatMinutesToLabel = (minutes) => {
+  if (minutes % 60 === 0) {
+    const h = minutes / 60;
+    return `${h} hour${h > 1 ? 's' : ''}`;
+  }
+
+  return `${minutes} minutes`;
+};
+/**
  * Utility functions for time handling
  */
 
@@ -96,10 +110,7 @@ export const validateTimeRange = (startTime, endTime) => {
 
   if (durationMinutes > MAX_OBSERVATION_MINUTES) {
     // Produce a human-friendly duration string based on the MAX_OBSERVATION_MINUTES constant
-    const maxText =
-      MAX_OBSERVATION_MINUTES % 60 === 0
-        ? `${MAX_OBSERVATION_MINUTES / 60} hour${MAX_OBSERVATION_MINUTES / 60 > 1 ? 's' : ''}`
-        : `${MAX_OBSERVATION_MINUTES} minutes`;
+    const maxText = formatMinutesToLabel(MAX_OBSERVATION_MINUTES);
     return { valid: false, error: `Time range cannot exceed ${maxText}` };
   }
 

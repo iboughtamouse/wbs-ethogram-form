@@ -39,8 +39,14 @@ export const VALID_PERCHES = [
   'W',
 ];
 
-// Generate time slots for one hour (0:00 to 0:55)
-export const TIME_SLOTS = Array.from({ length: 12 }, (_, i) => {
-  const minutes = i * 5;
-  return `0:${minutes.toString().padStart(2, '0')}`;
-});
+import { TIME_SLOT_STEP_SECONDS } from './ui';
+
+// Generate time slots for one hour (0:00 to 0:55) using configured step
+const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
+export const TIME_SLOTS = Array.from(
+  { length: Math.floor(60 / STEP_MINUTES) },
+  (_, i) => {
+    const minutes = i * STEP_MINUTES;
+    return `0:${minutes.toString().padStart(2, '0')}`;
+  }
+);

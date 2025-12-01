@@ -22,7 +22,7 @@ import {
 } from '../services/downloadService';
 import { validateEmailInput, parseEmailList } from '../utils/validators';
 import { getWBSEmail } from '../utils/envConfig';
-import { SUBMISSION_STATES } from '../constants/ui';
+import { SUBMISSION_STATES, SHARE_SUCCESS_TIMEOUT_MS } from '../constants/ui';
 
 /**
  * Hook for managing observation submission flow
@@ -178,7 +178,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
         shareSuccessTimeoutRef.current = setTimeout(() => {
           setShareSuccessMessage('');
           shareSuccessTimeoutRef.current = null;
-        }, 5000);
+        }, SHARE_SUCCESS_TIMEOUT_MS);
       } else {
         // Error (could be rate limit or other issue)
         setEmailError(result.message || 'Failed to share observation');

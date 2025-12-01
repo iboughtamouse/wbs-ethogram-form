@@ -20,12 +20,7 @@ export const DRAFT_LOCALSTORAGE_KEY = 'wbs-ethogram-draft';
 export const EXCEL_MIME_TYPE =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-export default {
-  SUBMISSION_STATES,
-  TIME_SLOT_STEP_SECONDS,
-  MIN_OBSERVATION_MINUTES,
-  MAX_OBSERVATION_MINUTES,
-  OFFLINE_FILE_PREFIX,
-  DRAFT_LOCALSTORAGE_KEY,
-  EXCEL_MIME_TYPE,
-};
+// UI message/display timeouts (in milliseconds)
+export const SHARE_SUCCESS_TIMEOUT_MS = 5000; // 5 seconds
+
+// no default export - use named imports for explicitness
