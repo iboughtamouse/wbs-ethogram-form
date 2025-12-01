@@ -46,16 +46,16 @@
 - [ ] Leave location blank → error shows immediately
 - [ ] Type invalid location "99" → error shows
 - [ ] Type valid location "5" → error clears immediately
-- [ ] Use React Select dropdown → select "Perch 5" → error clears
+- [ ] Use dropdown → select "Perch 5" → error clears
 - [ ] Clear selection (X button) → error shows immediately
-- [ ] Change to "Sleeping" behavior → location field disappears, no stale errors
+- [ ] Change to "Not Visible" behavior → location field disappears, no stale errors
 
 ### Mobile-Specific Location Testing
 
 - [ ] Select behavior requiring location on mobile
 - [ ] Tap location dropdown
 - [ ] Select "Ground"
-- [ ] Verify NO validation error appears (mobile timing bug should be fixed)
+- [ ] Verify NO validation error appears
 - [ ] Tap location again and change selection
 - [ ] Verify validation works correctly
 
@@ -65,59 +65,47 @@
 
 ### Object Interaction
 
-- [ ] Select "Interaction with object" → object select appears
+- [ ] Select "Interacting with Inanimate Object" → object dropdown appears
 - [ ] Leave object blank → submit → error shows
 - [ ] Select object → error clears immediately
-- [ ] Select object = "other" → objectOther text field appears
-- [ ] Leave objectOther blank → error shows after ~200ms (debounced)
-- [ ] Type in objectOther → error clears after ~200ms
-- [ ] Change object back to non-"other" → objectOther field disappears, no stale errors
+- [ ] Select object = "other" → text field appears for description
+- [ ] Leave text field blank → error shows after brief pause
+- [ ] Type in text field → error clears after brief pause
+- [ ] Change object back to non-"other" → text field disappears, no stale errors
 
 ### Animal Interaction
 
-- [ ] Select behavior requiring animal interaction → animal select appears
+- [ ] Select "Interacting with Other Animal" → animal dropdown appears
 - [ ] Leave animal blank → submit → error shows
 - [ ] Select animal → error clears immediately
-- [ ] Select animal = "other" → animalOther text field appears
-- [ ] Leave animalOther blank → error shows after ~200ms (debounced)
-- [ ] Type in animalOther → error clears after ~200ms
-- [ ] Change animal back to non-"other" → animalOther field disappears, no stale errors
+- [ ] Select animal = "other" → text field appears
+- [ ] Leave text field blank → error shows after brief pause
+- [ ] Type in text field → error clears after brief pause
+- [ ] Change animal back to non-"other" → text field disappears, no stale errors
 
 ### Interaction Type
 
-- [ ] When animal interaction selected → interactionType select appears
-- [ ] Leave interactionType blank → submit → error shows
-- [ ] Select interactionType → error clears immediately
-- [ ] Select interactionType = "other" → interactionTypeOther text field appears
-- [ ] Leave interactionTypeOther blank → error shows after ~200ms (debounced)
-- [ ] Type in interactionTypeOther → error clears after ~200ms
-- [ ] Change interactionType back to non-"other" → interactionTypeOther field disappears, no stale errors
+- [ ] When animal interaction selected → interaction type dropdown appears
+- [ ] Leave interaction type blank → submit → error shows
+- [ ] Select interaction type → error clears immediately
+- [ ] Select interaction type = "other" → text field appears
+- [ ] Leave text field blank → error shows after brief pause
+- [ ] Type in text field → error clears after brief pause
+- [ ] Change interaction type back to non-"other" → text field disappears, no stale errors
 
 ### Description Field
 
 - [ ] Select "Aggression or Defensive Posturing" → description field appears
-- [ ] Leave description blank → error shows after ~200ms (debounced)
-- [ ] Type in description → error clears after ~200ms
+- [ ] Leave description blank → error shows after brief pause
+- [ ] Type in description → error clears after brief pause
 - [ ] Type rapidly → no flickering validation errors
-- [ ] Change to behavior not requiring description → description field disappears, no stale errors
+- [ ] Change to behavior not requiring description → field disappears, no stale errors
 
 ---
 
-## 4. Text Field Debouncing
+## 4. Enter Key Behavior
 
-Test with any debounced text field (objectOther, animalOther, interactionTypeOther, description):
-
-- [ ] Type one character → wait → validation appears after ~200ms
-- [ ] Type rapidly without pausing → no validation errors appear while typing
-- [ ] Stop typing → wait 200ms → validation appears
-- [ ] Continue typing → validation updates after 200ms of no typing
-- [ ] No flickering or jumping validation messages
-
----
-
-## 5. Enter Key Behavior
-
-Test with any text input (observerName, objectOther, animalOther, interactionTypeOther, description, notes):
+Test with any validated text input (observer name, "other" text fields, description):
 
 - [ ] Type invalid value and press Enter → validation error shows for that field only
 - [ ] Type valid value and press Enter → no error shows for that field
@@ -126,7 +114,7 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 
 ---
 
-## 6. Copy to Next Slot
+## 5. Copy to Next Slot
 
 - [ ] Fill out first time slot completely (all required fields valid)
 - [ ] Click "Copy to next" button
@@ -136,9 +124,15 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 - [ ] Copy from middle slot → verify copies to next slot correctly
 - [ ] On last slot → "Copy to next" button should not appear
 
+### Copy with Invalid Data
+
+- [ ] Fill out slot with missing required field
+- [ ] Click "Copy to next" → should show error and NOT copy
+- [ ] Fix the error → click "Copy to next" → should work
+
 ---
 
-## 7. Perch Diagram Modal
+## 6. Perch Diagram Modal
 
 ### Opening/Closing
 
@@ -165,54 +159,138 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 
 ---
 
-## 8. Form Reset
+## 7. Form Reset
 
 - [ ] Fill out form with multiple time slots
 - [ ] Add some valid data, some invalid data
 - [ ] Click "Reset Form" button
 - [ ] Verify all fields clear to defaults
 - [ ] Verify all validation errors clear
-- [ ] Verify time slots reset to original range
+- [ ] Verify time range is cleared (no time slots shown)
 - [ ] Verify no stale data persists in any field
 
 ---
 
-## 9. Form Submission
+## 8. Form Submission & Backend
 
-### Validation on Submit
+### Validation Before Submit
 
-- [ ] Leave entire form blank → click submit → all required field errors appear
+- [ ] Leave entire form blank → click submit → all required field errors appear (form does NOT submit)
 - [ ] Fill some fields, leave others blank → submit → only blank required fields show errors
 - [ ] Fix errors one by one → verify errors clear as fields become valid
-- [ ] All fields valid → submit → no errors, output preview appears
 
-### Output Preview
+### Successful Submission
 
-- [ ] Submit valid form → JSON output appears
-- [ ] Verify all metadata fields present in output
-- [ ] Verify all observation slots present in output
-- [ ] Verify time conversions correct (if applicable)
-- [ ] Output is properly formatted and readable
+- [ ] All fields valid → click "Submit Observation"
+- [ ] Loading modal appears with "Submitting observation..." message
+- [ ] Cannot close modal while submitting (X button hidden, clicking outside does nothing)
+- [ ] After brief wait, success screen appears with checkmark
+- [ ] Success message confirms observation was saved and sent to WBS
+- [ ] "Download Excel" button is visible
+- [ ] "Share via Email" section is visible
+- [ ] "Done" button is visible at bottom
+
+### After Successful Submission
+
+- [ ] Click "Done" → modal closes, form resets to blank state
+- [ ] Draft is cleared from localStorage (no restore prompt on refresh)
 
 ---
 
-## 10. Edge Cases & Stress Testing
+## 9. Download Feature
+
+### Download After Submission
+
+- [ ] Submit form successfully → success screen appears
+- [ ] Click "Download Excel" button
+- [ ] Excel file downloads to your device
+- [ ] Open downloaded file → verify data matches what you entered
+- [ ] Filename format: `ethogram-observation-{id}.xlsx`
+
+### Download on Error (Offline Fallback)
+
+- [ ] Disconnect from internet (airplane mode or disable wifi)
+- [ ] Submit form → error screen appears
+- [ ] Error message mentions unable to reach server
+- [ ] "Download Anyway" button is visible
+- [ ] Click "Download Anyway" → Excel file downloads locally
+- [ ] Filename starts with "offline-" to indicate it wasn't sent to server
+
+---
+
+## 10. Share via Email
+
+### Email Input Validation
+
+- [ ] On success screen, email input is initially empty
+- [ ] Type invalid email (e.g., "abc") → error shows
+- [ ] Type valid email → error clears, Share button enables
+- [ ] Share button is disabled when email field is empty
+
+### Sending Email
+
+- [ ] Enter valid email address
+- [ ] Click "Share" button
+- [ ] Success message appears: "Successfully shared with {email}"
+- [ ] Success message disappears after a few seconds
+- [ ] Email field clears after successful share
+- [ ] Can send to another email address after first succeeds
+
+### Email Errors
+
+- [ ] Enter valid email, but with backend unavailable
+- [ ] Click "Share" → error message should appear
+- [ ] Can still use "Download Excel" as fallback
+
+---
+
+## 11. Error Handling
+
+### Temporary Errors (Retryable)
+
+To test: Disconnect from internet before submitting, or if server is temporarily down.
+
+- [ ] Error screen shows "Temporary Issue" title
+- [ ] Hint text mentions you can try again or download directly
+- [ ] "Try Again" button is visible
+- [ ] "Download Anyway" button is visible
+- [ ] Click "Try Again" → returns to loading state, retries submission
+
+### Permanent Errors
+
+To test: These occur when server returns a validation or permanent error (harder to trigger manually).
+
+- [ ] Error screen shows "Submission Failed" title
+- [ ] "Download Anyway" button is visible (can still get your data)
+- [ ] "Close" button is visible (no "Try Again" option)
+
+---
+
+## 12. Draft Recovery (Autosave)
+
+- [ ] Fill out form partially
+- [ ] Close browser tab or refresh page
+- [ ] Reopen form → "Draft found!" notice appears with timestamp
+- [ ] Click "Resume Draft" → previous data is restored
+- [ ] Click "Start Fresh" → form stays blank, draft is deleted
+
+### Draft Not Restored After Submission
+
+- [ ] Submit form successfully
+- [ ] Refresh page
+- [ ] No restore prompt appears (draft was cleared on successful submit)
+
+---
+
+## 13. Edge Cases & Stress Testing
 
 ### Multiple Time Slots
 
-- [ ] Create form with max time range (60 minutes = 12 slots)
+- [ ] Create form with max time range (60 minutes = 13 slots)
 - [ ] Fill out all slots with different behaviors
 - [ ] Verify validation works independently for each slot
 - [ ] Verify copy to next works across multiple slots
 - [ ] Verify form submission includes all slots
-
-### Browser Back/Forward
-
-- [ ] Fill out form
-- [ ] Navigate away (if possible in SPA context)
-- [ ] Use browser back button
-- [ ] Verify localStorage restores form data
-- [ ] Verify no validation errors appear on restore
 
 ### Rapid Interaction
 
@@ -232,39 +310,39 @@ Test with any text input (observerName, objectOther, animalOther, interactionTyp
 
 ---
 
-## 11. Accessibility (Quick Check)
+## 14. Accessibility (Quick Check)
 
 - [ ] Tab through form with keyboard only
 - [ ] Verify focus indicators visible
 - [ ] Verify Enter key in select dropdowns works
-- [ ] Verify Escape closes modal
-- [ ] Verify error messages are announced (if using screen reader)
+- [ ] Verify Escape closes modals
+- [ ] Loading spinner has proper accessibility label
 
 ---
 
-## 12. Performance
+## 15. Performance
 
 - [ ] Form loads quickly (< 1 second)
 - [ ] No lag when typing in fields
 - [ ] Validation doesn't cause noticeable delays
-- [ ] Modal opens/closes smoothly
-- [ ] No memory leaks (check DevTools if available)
+- [ ] Modals open/close smoothly
+- [ ] Submission modal appears immediately when clicking submit
 
 ---
 
-## Known Issues
+## Known Issues & Limitations
 
-_(Document any known issues or limitations here)_
-
-- None currently documented
+- **Offline mode**: If you submit while offline, you can download a local Excel file, but it won't be saved to the WBS database. The filename will start with "offline-" to indicate it wasn't sent to server.
+- **Email sharing**: Requires successful backend submission first. If submission failed, email sharing won't be available.
 
 ---
 
 ## Notes for Testers
 
-- **Debounced validation**: Text fields (objectOther, animalOther, interactionTypeOther, description) have a 200ms delay before validation appears. This is intentional to avoid flickering while typing.
-- **onChange validation**: Most fields now validate immediately on change, not on blur. This is intentional to fix mobile timing issues and provide better UX.
-- **Enter key**: Pressing Enter in text inputs validates that field but does NOT submit the form. This is intentional to prevent accidental submissions on mobile.
+- **Delayed validation**: Only these text fields have a brief delay (~200ms) before showing errors: "Other" description fields (when you select "other" for object, animal, or interaction type) and the Description field (for behaviors like aggression). This prevents flickering while you type.
+- **Immediate validation**: All dropdowns and other fields validate immediately when changed.
+- **Enter key safety**: Pressing Enter in text inputs validates that field but does NOT submit the form. This prevents accidental submissions on mobile.
+- **Modal blocking**: You cannot close the submission modal while it's actively submitting. This prevents data loss.
 
 ---
 
