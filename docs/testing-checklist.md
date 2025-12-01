@@ -205,7 +205,7 @@ Test with any validated text input (observer name, "other" text fields, descript
 - [ ] Click "Download Excel" button
 - [ ] Excel file downloads to your device
 - [ ] Open downloaded file → verify data matches what you entered
-- [ ] Filename includes observer name and date
+- [ ] Filename format: `ethogram-observation-{id}.xlsx`
 
 ### Download on Error (Offline Fallback)
 
