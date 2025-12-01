@@ -32,7 +32,7 @@ describe('MetadataSection', () => {
       );
 
       expect(
-        screen.getByPlaceholderText(/Enter your Discord username/i)
+        screen.getByPlaceholderText(/Enter your name/i)
       ).toBeInTheDocument();
       expect(
         screen.getByDisplayValue(defaultMetadata.date)
@@ -171,7 +171,7 @@ describe('MetadataSection', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const input = screen.getByPlaceholderText(/Enter your name/i);
       fireEvent.change(input, { target: { value: 'TestUser' } });
 
       expect(mockOnChange).toHaveBeenCalledWith(
@@ -190,7 +190,7 @@ describe('MetadataSection', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const input = screen.getByPlaceholderText(/Enter your name/i);
       fireEvent.keyDown(input, { key: 'Enter' });
 
       // onChange should be called with the current value
@@ -218,7 +218,7 @@ describe('MetadataSection', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/Enter your Discord username/i);
+      const input = screen.getByPlaceholderText(/Enter your name/i);
       expect(input).toHaveClass('error');
     });
   });

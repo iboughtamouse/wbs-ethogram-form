@@ -84,14 +84,17 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
       <div className="metadata-grid">
         <div className="form-group">
           <label>
-            Discord Username <span className="required">*</span>
+            Your Name <span className="required">*</span>
           </label>
+          <div className="label-help-text">
+            Discord, Twitch, or any name you prefer.
+          </div>
           <input
             type="text"
             value={metadata.observerName}
             onChange={(e) => onChange('observerName', e.target.value, true)}
             onKeyDown={handleKeyDown('observerName')}
-            placeholder="Enter your Discord username"
+            placeholder="Enter your name"
             className={fieldErrors.observerName ? 'error' : ''}
           />
           {fieldErrors.observerName && (
@@ -121,7 +124,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               : 'VOD Time Range'}{' '}
             <span className="required">*</span>
           </label>
-          <div className="time-range-help-text">{timeRangeHelpText}</div>
+          <div className="label-help-text">{timeRangeHelpText}</div>
           <div className="time-range-inputs">
             <input
               type="time"
