@@ -166,7 +166,7 @@ Test with any validated text input (observer name, "other" text fields, descript
 - [ ] Click "Reset Form" button
 - [ ] Verify all fields clear to defaults
 - [ ] Verify all validation errors clear
-- [ ] Verify time slots reset to original range
+- [ ] Verify time range is cleared (no time slots shown)
 - [ ] Verify no stale data persists in any field
 
 ---
