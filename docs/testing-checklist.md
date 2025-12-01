@@ -270,9 +270,9 @@ To test: These occur when server returns a validation or permanent error (harder
 
 - [ ] Fill out form partially
 - [ ] Close browser tab or refresh page
-- [ ] Reopen form → "Restore draft?" prompt appears
-- [ ] Click "Restore" → previous data is restored
-- [ ] Click "Discard" → form stays blank, draft is deleted
+- [ ] Reopen form → "Draft found!" notice appears with timestamp
+- [ ] Click "Resume Draft" → previous data is restored
+- [ ] Click "Start Fresh" → form stays blank, draft is deleted
 
 ### Draft Not Restored After Submission
 
