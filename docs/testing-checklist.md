@@ -65,7 +65,7 @@
 
 ### Object Interaction
 
-- [ ] Select "Interaction with object" → object dropdown appears
+- [ ] Select "Interacting with Inanimate Object" → object dropdown appears
 - [ ] Leave object blank → submit → error shows
 - [ ] Select object → error clears immediately
 - [ ] Select object = "other" → text field appears for description
@@ -75,7 +75,7 @@
 
 ### Animal Interaction
 
-- [ ] Select behavior requiring animal interaction → animal dropdown appears
+- [ ] Select "Interacting with Other Animal" → animal dropdown appears
 - [ ] Leave animal blank → submit → error shows
 - [ ] Select animal → error clears immediately
 - [ ] Select animal = "other" → text field appears
