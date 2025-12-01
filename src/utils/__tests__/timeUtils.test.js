@@ -4,6 +4,7 @@ import {
   validateTimeRange,
   roundToNearestFiveMinutes,
   formatMinutesToLabel,
+  formatIntervalLabel,
 } from '../timeUtils';
 
 describe('timeUtils', () => {
@@ -229,6 +230,24 @@ describe('timeUtils', () => {
     it('should format other minute values as minutes', () => {
       expect(formatMinutesToLabel(5)).toBe('5 minutes');
       expect(formatMinutesToLabel(15)).toBe('15 minutes');
+    });
+  });
+
+  describe('formatIntervalLabel', () => {
+    it('should format 5 minutes as 5-minute', () => {
+      expect(formatIntervalLabel(5)).toBe('5-minute');
+    });
+
+    it('should format 60 minutes as 1-hour', () => {
+      expect(formatIntervalLabel(60)).toBe('1-hour');
+    });
+
+    it('should format 30 minutes as 30-minute', () => {
+      expect(formatIntervalLabel(30)).toBe('30-minute');
+    });
+
+    it('should format 120 minutes as 2-hour', () => {
+      expect(formatIntervalLabel(120)).toBe('2-hour');
     });
   });
 });

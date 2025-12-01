@@ -19,6 +19,21 @@ export const formatMinutesToLabel = (minutes) => {
 
   return `${minutes} minutes`;
 };
+
+/**
+ * Returns a hyphenated interval label for the given number of minutes.
+ * Examples:
+ * 5 => '5-minute'
+ * 60 => '1-hour'
+ */
+export const formatIntervalLabel = (minutes) => {
+  if (minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return `${hours}-hour`;
+  }
+
+  return `${minutes}-minute`;
+};
 /**
  * Utility functions for time handling
  */
