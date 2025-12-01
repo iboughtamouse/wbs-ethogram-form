@@ -105,7 +105,7 @@
 
 ## 4. Enter Key Behavior
 
-Test with any text input (observer name, description fields, notes):
+Test with any validated text input (observer name, "other" text fields, description):
 
 - [ ] Type invalid value and press Enter → validation error shows for that field only
 - [ ] Type valid value and press Enter → no error shows for that field
