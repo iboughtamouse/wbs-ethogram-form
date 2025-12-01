@@ -3,7 +3,8 @@
  * Prevents data loss from accidental page refresh/close during observation sessions
  */
 
-const DRAFT_KEY = 'wbs-ethogram-draft';
+import { DRAFT_LOCALSTORAGE_KEY } from '../constants/ui';
+const DRAFT_KEY = DRAFT_LOCALSTORAGE_KEY;
 
 /**
  * Save current form state to localStorage

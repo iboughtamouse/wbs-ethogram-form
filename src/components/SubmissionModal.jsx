@@ -1,14 +1,6 @@
 import PropTypes from 'prop-types';
 import './SubmissionModal.css';
-
-/**
- * Submission states for the modal
- */
-export const SUBMISSION_STATES = {
-  SUBMITTING: 'submitting', // Backend submission in progress
-  SUCCESS: 'success', // Successfully submitted to backend
-  ERROR: 'error', // Error occurred during submission
-};
+import { SUBMISSION_STATES } from '../constants/ui';
 
 /**
  * SubmissionModal - Modal for handling backend submission with download/share options

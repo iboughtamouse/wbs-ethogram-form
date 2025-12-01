@@ -3,6 +3,7 @@ import {
   validateTimeRange,
   roundToNearestFiveMinutes,
 } from '../utils/timeUtils';
+import { TIME_SLOT_STEP_SECONDS } from '../constants/ui';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   const handleTimeChange = (field, value) => {
@@ -131,7 +132,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               value={metadata.startTime}
               onChange={(e) => handleTimeChange('startTime', e.target.value)}
               className={timeRangeError || fieldErrors.startTime ? 'error' : ''}
-              step="300"
+              step={TIME_SLOT_STEP_SECONDS}
             />
             <span className="time-range-divider">to</span>
             <input
@@ -139,7 +140,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               value={metadata.endTime}
               onChange={(e) => handleTimeChange('endTime', e.target.value)}
               className={timeRangeError || fieldErrors.endTime ? 'error' : ''}
-              step="300"
+              step={TIME_SLOT_STEP_SECONDS}
             />
           </div>
           {timeRangeError && (

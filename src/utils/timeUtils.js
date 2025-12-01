@@ -1,3 +1,10 @@
+import {
+  TIME_SLOT_STEP_SECONDS,
+  MIN_OBSERVATION_MINUTES,
+  MAX_OBSERVATION_MINUTES,
+} from '../constants/ui';
+
+const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
 /**
  * Utility functions for time handling
  */
@@ -40,11 +47,11 @@ export const generateTimeSlots = (startTime, endTime) => {
     endTotalMinutes += 24 * 60; // Add 1440 minutes (24 hours)
   }
 
-  // Generate slots every 5 minutes, including the end time
+  // Generate slots every STEP_MINUTES (configurable), including the end time
   for (
     let minutes = startTotalMinutes;
     minutes <= endTotalMinutes;
-    minutes += 5
+    minutes += STEP_MINUTES
   ) {
     const hours = Math.floor(minutes / 60) % 24; // Use modulo to wrap around midnight
     const mins = minutes % 60;
@@ -80,11 +87,14 @@ export const validateTimeRange = (startTime, endTime) => {
 
   const durationMinutes = endTotalMinutes - startTotalMinutes;
 
-  if (durationMinutes < 5) {
-    return { valid: false, error: 'Time range must be at least 5 minutes' };
+  if (durationMinutes < MIN_OBSERVATION_MINUTES) {
+    return {
+      valid: false,
+      error: `Time range must be at least ${MIN_OBSERVATION_MINUTES} minutes`,
+    };
   }
 
-  if (durationMinutes > 60) {
+  if (durationMinutes > MAX_OBSERVATION_MINUTES) {
     return { valid: false, error: 'Time range cannot exceed 1 hour' };
   }
 
@@ -100,7 +110,7 @@ export const roundToNearestFiveMinutes = (timeString) => {
   if (!timeString) return '';
 
   const [hours, minutes] = timeString.split(':').map(Number);
-  const roundedMinutes = Math.round(minutes / 5) * 5;
+  const roundedMinutes = Math.round(minutes / STEP_MINUTES) * STEP_MINUTES;
 
   // Handle case where rounding goes to 60 minutes
   if (roundedMinutes === 60) {

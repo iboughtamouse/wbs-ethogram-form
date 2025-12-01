@@ -9,7 +9,7 @@ import { useSubmission } from '../useSubmission';
 import * as emailService from '../../services/emailService';
 import * as downloadService from '../../services/downloadService';
 import * as localStorageUtils from '../../utils/localStorageUtils';
-import { SUBMISSION_STATES } from '../../components/SubmissionModal';
+import { SUBMISSION_STATES } from '../../constants/ui';
 
 // Mock all dependencies
 jest.mock('../../services/emailService');

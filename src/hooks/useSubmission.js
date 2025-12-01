@@ -22,7 +22,7 @@ import {
 } from '../services/downloadService';
 import { validateEmailInput, parseEmailList } from '../utils/validators';
 import { getWBSEmail } from '../utils/envConfig';
-import { SUBMISSION_STATES } from '../components/SubmissionModal';
+import { SUBMISSION_STATES } from '../constants/ui';
 
 /**
  * Hook for managing observation submission flow
