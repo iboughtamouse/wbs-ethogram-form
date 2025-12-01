@@ -95,7 +95,12 @@ export const validateTimeRange = (startTime, endTime) => {
   }
 
   if (durationMinutes > MAX_OBSERVATION_MINUTES) {
-    return { valid: false, error: 'Time range cannot exceed 1 hour' };
+    // Produce a human-friendly duration string based on the MAX_OBSERVATION_MINUTES constant
+    const maxText =
+      MAX_OBSERVATION_MINUTES % 60 === 0
+        ? `${MAX_OBSERVATION_MINUTES / 60} hour${MAX_OBSERVATION_MINUTES / 60 > 1 ? 's' : ''}`
+        : `${MAX_OBSERVATION_MINUTES} minutes`;
+    return { valid: false, error: `Time range cannot exceed ${maxText}` };
   }
 
   return { valid: true, error: null };
