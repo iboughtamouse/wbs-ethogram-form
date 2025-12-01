@@ -1,14 +1,6 @@
 import PropTypes from 'prop-types';
 import './SubmissionModal.css';
-
-/**
- * Submission states for the modal
- */
-export const SUBMISSION_STATES = {
-  SUBMITTING: 'submitting', // Backend submission in progress
-  SUCCESS: 'success', // Successfully submitted to backend
-  ERROR: 'error', // Error occurred during submission
-};
+import { SUBMISSION_STATES } from '../constants/ui';
 
 /**
  * SubmissionModal - Modal for handling backend submission with download/share options
@@ -49,10 +41,9 @@ const SubmissionModal = ({
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
-    // Only allow closing in certain states
+    // Only allow closing when not in SUBMITTING state
     if (
       e.target === e.currentTarget &&
-      submissionState !== SUBMISSION_STATES.GENERATING &&
       submissionState !== SUBMISSION_STATES.SUBMITTING
     ) {
       onClose();
@@ -60,10 +51,9 @@ const SubmissionModal = ({
   };
 
   const handleKeyDown = (e) => {
-    // Only allow ESC closing in certain states
+    // Only allow ESC closing when not in SUBMITTING state
     if (
       e.key === 'Escape' &&
-      submissionState !== SUBMISSION_STATES.GENERATING &&
       submissionState !== SUBMISSION_STATES.SUBMITTING
     ) {
       onClose();

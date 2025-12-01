@@ -170,6 +170,17 @@ describe('App Integration Tests', () => {
     });
   });
 
+  describe('UI: Observation Header', () => {
+    test('shows minute-based interval label by default', () => {
+      render(<App />);
+      expect(
+        screen.getByText(/Observations \(5-minute intervals\)/i)
+      ).toBeInTheDocument();
+    });
+
+    // NOTE: Hour-based branch covered in timeUtils tests to avoid module isolation
+  });
+
   describe('Metadata State Management', () => {
     test('updates metadata state when observer name changes', () => {
       render(<App />);

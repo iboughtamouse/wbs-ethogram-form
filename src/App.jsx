@@ -10,6 +10,8 @@ import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import SubmissionModal from './components/SubmissionModal';
 import './App.css';
+import { STEP_MINUTES } from './constants/ui';
+import { formatIntervalLabel } from './utils/timeUtils';
 
 function App() {
   const [showOutput, setShowOutput] = useState(false);
@@ -97,6 +99,9 @@ function App() {
     }
   };
 
+  // Compute interval label for the observation header
+  const intervalLabel = formatIntervalLabel(STEP_MINUTES);
+
   return (
     <div className="app">
       <header>
@@ -143,7 +148,9 @@ function App() {
           />
 
           <section className="section">
-            <h2 className="section-title">Observations (5-minute intervals)</h2>
+            <h2 className="section-title">
+              Observations ({intervalLabel} intervals)
+            </h2>
             {timeSlots.length === 0 ? (
               <div
                 style={{

@@ -6,6 +6,7 @@
 
 import { generateExcelWorkbook } from './export/excelGenerator';
 import { getApiBaseUrl } from '../utils/envConfig.js';
+import { OFFLINE_FILE_PREFIX, EXCEL_MIME_TYPE } from '../constants/ui';
 
 /**
  * Download Excel file from backend
@@ -67,7 +68,7 @@ export async function downloadLocally(formData, isOffline = false) {
 
     // Create blob and trigger download
     const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      type: EXCEL_MIME_TYPE,
     });
 
     const url = window.URL.createObjectURL(blob);
@@ -76,7 +77,7 @@ export async function downloadLocally(formData, isOffline = false) {
 
     // Generate filename with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const prefix = isOffline ? 'offline' : 'ethogram';
+    const prefix = isOffline ? OFFLINE_FILE_PREFIX : 'ethogram';
     a.download = `${prefix}-observation-${timestamp}.xlsx`;
 
     document.body.appendChild(a);

@@ -3,7 +3,7 @@
  * Prevents data loss from accidental page refresh/close during observation sessions
  */
 
-const DRAFT_KEY = 'wbs-ethogram-draft';
+import { DRAFT_LOCALSTORAGE_KEY } from '../constants/ui';
 
 /**
  * Save current form state to localStorage
@@ -18,7 +18,7 @@ export function saveDraft(metadata, observations) {
       observations,
       savedAt: new Date().toISOString(),
     };
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    localStorage.setItem(DRAFT_LOCALSTORAGE_KEY, JSON.stringify(draft));
     return true;
   } catch (error) {
     console.error('Failed to save draft to localStorage:', error);
@@ -32,7 +32,7 @@ export function saveDraft(metadata, observations) {
  */
 export function loadDraft() {
   try {
-    const draftJson = localStorage.getItem(DRAFT_KEY);
+    const draftJson = localStorage.getItem(DRAFT_LOCALSTORAGE_KEY);
     if (!draftJson) {
       return null;
     }
@@ -50,7 +50,7 @@ export function loadDraft() {
  */
 export function clearDraft() {
   try {
-    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(DRAFT_LOCALSTORAGE_KEY);
     return true;
   } catch (error) {
     console.error('Failed to clear draft from localStorage:', error);
@@ -64,7 +64,7 @@ export function clearDraft() {
  */
 export function hasDraft() {
   try {
-    const draftJson = localStorage.getItem(DRAFT_KEY);
+    const draftJson = localStorage.getItem(DRAFT_LOCALSTORAGE_KEY);
     return draftJson !== null && draftJson !== undefined;
   } catch (error) {
     console.error('Failed to check for draft in localStorage:', error);

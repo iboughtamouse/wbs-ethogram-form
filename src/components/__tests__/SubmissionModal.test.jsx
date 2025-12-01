@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SubmissionModal, { SUBMISSION_STATES } from '../SubmissionModal';
+import SubmissionModal from '../SubmissionModal';
+import { SUBMISSION_STATES } from '../../constants/ui';
 
 describe('SubmissionModal', () => {
   const mockOnClose = jest.fn();
