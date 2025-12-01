@@ -174,7 +174,7 @@ The application requires the following environment variables:
   - Production: Configure in Vercel with the WBS research email
 
 - `VITE_API_BASE_URL` - Backend API URL
-  - Development: Point to local or deployed backend (e.g., `https://api-production-24be.up.railway.app`)
+  - Development: Point to local or deployed backend (e.g., `http://localhost:3000` or `https://your-app.up.railway.app`)
   - Production: Configure in Vercel with the production API URL
 
 ### Documentation
