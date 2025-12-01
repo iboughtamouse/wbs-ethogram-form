@@ -46,11 +46,12 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
   - Notes field for additional context
   - Copy-to-next button to duplicate observations across time slots
 
-- **Easy Submission**: Multiple ways to submit your data
-  - **Email submission**: Enter email address(es) to receive Excel file automatically
-  - **Direct download**: Download Excel file to submit manually
-  - **Status tracking**: Real-time feedback during submission (generating, sending, success)
-  - **Error recovery**: Retry button for temporary failures, download fallback for permanent errors
+- **Easy Submission**: Multiple ways to get your data to WBS
+  - **Automatic**: Click submit and your observation is sent directly to WBS
+  - **Share via email**: Send a copy to yourself or others after submission
+  - **Download Excel**: Download a local copy for your records
+  - **Status tracking**: Real-time feedback (submitting, success, or error)
+  - **Error recovery**: Retry button for temporary failures, local download fallback
 
 ### Interaction Sub-fields
 
@@ -81,22 +82,22 @@ When certain behaviors are selected, additional structured fields appear:
    - Use "Copy to next" to quickly duplicate observations across time slots
 
 4. **Submit**: Click the "Submit Observation" button
-   - The form will validate all required fields
-   - If valid, a submission modal will open
+   - The form validates all required fields
+   - Your observation is automatically sent to WBS
 
-5. **Choose submission method**:
-   - **Email**: Enter email address(es) to receive the Excel file automatically
-   - **Download**: Click "Download Excel" to save locally and submit manually
-   - The modal shows real-time status (generating, submitting, success, or error)
+5. **After submission**:
+   - **Success**: Download a copy or share via email to yourself/others
+   - **Error**: Retry the submission or download locally as a fallback
 
 Your work is automatically saved as you type, so don't worry if you need to take a break!
 
 ## 🔒 Privacy & Data
 
-- All data stays in your browser until you choose to copy and submit it
-- Autosave uses browser localStorage (no server storage)
-- No account or login required
-- No tracking or analytics
+- **Before submission**: Data is saved to your browser's localStorage as you type (autosave)
+- **On submission**: Observations are sent to the WBS backend API and stored securely
+- **What's stored**: Observer name, date, times, behaviors, locations, and notes
+- **No account required**: Anonymous submissions are supported
+- **No tracking or analytics**: We don't track your browsing behavior
 
 ## 📊 Data Output Example
 
@@ -188,14 +189,16 @@ Interested in contributing or learning more? Check out:
 
 **Recently Completed:**
 
+- [x] Backend API integration ✅ (November 2025)
+- [x] Email submission (auto-sends Excel to WBS) ✅ (November 2025)
+- [x] Share observation via email ✅ (November 2025)
 - [x] Copy-to-next validation ✅ (November 2025)
-- [x] Excel file export ✅ (Phase 6, November 2025)
+- [x] Excel file export ✅ (November 2025)
 - [x] Accessible loading indicators ✅ (November 2025)
 
 **Upcoming Features:**
 
 - [ ] Discord OAuth authentication
-- [ ] Email submission integration
 - [ ] Extended observation periods (24+ hours)
 - [ ] Data aggregation & analysis tools
 - [ ] Inter-rater reliability calculations
