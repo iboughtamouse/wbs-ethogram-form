@@ -3,6 +3,7 @@ import {
   generateTimeSlots,
   validateTimeRange,
   roundToNearestFiveMinutes,
+  formatMinutesToLabel,
 } from '../timeUtils';
 
 describe('timeUtils', () => {
@@ -213,6 +214,21 @@ describe('timeUtils', () => {
 
     it('should pad hours with leading zero', () => {
       expect(roundToNearestFiveMinutes('08:58')).toBe('09:00');
+    });
+  });
+
+  describe('formatMinutesToLabel', () => {
+    it('should format 60 minutes as 1 hour', () => {
+      expect(formatMinutesToLabel(60)).toBe('1 hour');
+    });
+
+    it('should format 120 minutes as 2 hours', () => {
+      expect(formatMinutesToLabel(120)).toBe('2 hours');
+    });
+
+    it('should format other minute values as minutes', () => {
+      expect(formatMinutesToLabel(5)).toBe('5 minutes');
+      expect(formatMinutesToLabel(15)).toBe('15 minutes');
     });
   });
 });
