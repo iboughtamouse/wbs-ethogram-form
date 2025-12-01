@@ -1,3 +1,5 @@
+import { TIME_SLOT_STEP_SECONDS } from './ui';
+
 // Valid perch numbers from the diagrams
 export const VALID_PERCHES = [
   1,
@@ -38,8 +40,6 @@ export const VALID_PERCHES = [
   'G',
   'W',
 ];
-
-import { TIME_SLOT_STEP_SECONDS } from './ui';
 
 // Generate time slots for one hour (0:00 to 0:55) using configured step
 const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
