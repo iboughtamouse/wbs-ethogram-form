@@ -1,10 +1,9 @@
 import {
-  TIME_SLOT_STEP_SECONDS,
+  STEP_MINUTES,
   MIN_OBSERVATION_MINUTES,
   MAX_OBSERVATION_MINUTES,
 } from '../constants/ui';
 
-const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
 /**
  * Convert minutes integer into a human-readable label.
  * - 60 → "1 hour"
@@ -34,9 +33,6 @@ export const formatIntervalLabel = (minutes) => {
 
   return `${minutes}-minute`;
 };
-/**
- * Utility functions for time handling
- */
 
 /**
  * Formats a time string to 12-hour format

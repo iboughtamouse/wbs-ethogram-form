@@ -10,7 +10,7 @@ import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import SubmissionModal from './components/SubmissionModal';
 import './App.css';
-import { TIME_SLOT_STEP_SECONDS } from './constants/ui';
+import { STEP_MINUTES } from './constants/ui';
 import { formatIntervalLabel } from './utils/timeUtils';
 
 function App() {
@@ -99,8 +99,7 @@ function App() {
     }
   };
 
-  // Compute time step label for the observation header
-  const STEP_MINUTES = TIME_SLOT_STEP_SECONDS / 60;
+  // Compute interval label for the observation header
   const intervalLabel = formatIntervalLabel(STEP_MINUTES);
 
   return (
