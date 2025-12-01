@@ -103,19 +103,7 @@
 
 ---
 
-## 4. Text Field Validation Timing
-
-Text fields have a brief delay before showing errors (to avoid flickering while typing):
-
-- [ ] Type one character → wait → validation appears after ~200ms
-- [ ] Type rapidly without pausing → no validation errors appear while typing
-- [ ] Stop typing → wait briefly → validation appears
-- [ ] Continue typing → validation updates after you stop
-- [ ] No flickering or jumping validation messages
-
----
-
-## 5. Enter Key Behavior
+## 4. Enter Key Behavior
 
 Test with any text input (observer name, description fields, notes):
 
@@ -126,7 +114,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 6. Copy to Next Slot
+## 5. Copy to Next Slot
 
 - [ ] Fill out first time slot completely (all required fields valid)
 - [ ] Click "Copy to next" button
@@ -144,7 +132,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 7. Perch Diagram Modal
+## 6. Perch Diagram Modal
 
 ### Opening/Closing
 
@@ -171,7 +159,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 8. Form Reset
+## 7. Form Reset
 
 - [ ] Fill out form with multiple time slots
 - [ ] Add some valid data, some invalid data
@@ -183,7 +171,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 9. Form Submission & Backend
+## 8. Form Submission & Backend
 
 ### Validation Before Submit
 
@@ -209,7 +197,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 10. Download Feature
+## 9. Download Feature
 
 ### Download After Submission
 
@@ -230,7 +218,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 11. Share via Email
+## 10. Share via Email
 
 ### Email Input Validation
 
@@ -256,7 +244,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 12. Error Handling
+## 11. Error Handling
 
 ### Temporary Errors (Retryable)
 
@@ -275,7 +263,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 13. Draft Recovery (Autosave)
+## 12. Draft Recovery (Autosave)
 
 - [ ] Fill out form partially
 - [ ] Close browser tab or refresh page
@@ -291,7 +279,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 14. Edge Cases & Stress Testing
+## 13. Edge Cases & Stress Testing
 
 ### Multiple Time Slots
 
@@ -319,7 +307,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 15. Accessibility (Quick Check)
+## 14. Accessibility (Quick Check)
 
 - [ ] Tab through form with keyboard only
 - [ ] Verify focus indicators visible
@@ -329,7 +317,7 @@ Test with any text input (observer name, description fields, notes):
 
 ---
 
-## 16. Performance
+## 15. Performance
 
 - [ ] Form loads quickly (< 1 second)
 - [ ] No lag when typing in fields
@@ -348,8 +336,8 @@ Test with any text input (observer name, description fields, notes):
 
 ## Notes for Testers
 
-- **Text field validation delay**: Text fields have a ~200ms delay before showing errors. This prevents flickering while you type.
-- **Immediate validation**: Dropdowns and most fields validate immediately when changed.
+- **Delayed validation**: Only these text fields have a brief delay (~200ms) before showing errors: "Other" description fields (when you select "other" for object, animal, or interaction type) and the Description field (for behaviors like aggression). This prevents flickering while you type.
+- **Immediate validation**: All dropdowns and other fields validate immediately when changed.
 - **Enter key safety**: Pressing Enter in text inputs validates that field but does NOT submit the form. This prevents accidental submissions on mobile.
 - **Modal blocking**: You cannot close the submission modal while it's actively submitting. This prevents data loss.
 
