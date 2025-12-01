@@ -225,15 +225,15 @@ Test with any validated text input (observer name, "other" text fields, descript
 - [ ] On success screen, email input is initially empty
 - [ ] Type invalid email (e.g., "abc") → error shows
 - [ ] Type valid email → error clears, Share button enables
-- [ ] Multiple emails: type "a@b.com, c@d.com" → should be valid
-- [ ] Invalid in list: type "a@b.com, invalid" → error shows
+- [ ] Share button is disabled when email field is empty
 
 ### Sending Email
 
 - [ ] Enter valid email address
 - [ ] Click "Share" button
-- [ ] Success message appears: "Sent to [email]!"
+- [ ] Success message appears: "Successfully shared with {email}"
 - [ ] Success message disappears after a few seconds
+- [ ] Email field clears after successful share
 - [ ] Can send to another email address after first succeeds
 
 ### Email Errors
