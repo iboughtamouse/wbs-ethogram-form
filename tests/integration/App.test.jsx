@@ -59,9 +59,7 @@ describe('App Integration Tests', () => {
 
   // Helper function to fill in metadata completely
   const fillMetadata = async (observerName = 'TestObserver') => {
-    const observerInput = screen.getByPlaceholderText(
-      /Enter your Discord username/i
-    );
+    const observerInput = screen.getByPlaceholderText(/Enter your name/i);
     fireEvent.change(observerInput, { target: { value: observerName } });
 
     // Date is pre-filled with today by default, so we're good
@@ -176,9 +174,7 @@ describe('App Integration Tests', () => {
     test('updates metadata state when observer name changes', () => {
       render(<App />);
 
-      const observerInput = screen.getByPlaceholderText(
-        /Enter your Discord username/i
-      );
+      const observerInput = screen.getByPlaceholderText(/Enter your name/i);
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
       expect(observerInput).toHaveValue('TestObserver');
@@ -626,9 +622,7 @@ describe('App Integration Tests', () => {
     test('saves draft when metadata changes', async () => {
       render(<App />);
 
-      const observerInput = screen.getByPlaceholderText(
-        /Enter your Discord username/i
-      );
+      const observerInput = screen.getByPlaceholderText(/Enter your name/i);
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
       // Wait for autosave effect to trigger
@@ -734,9 +728,7 @@ describe('App Integration Tests', () => {
 
       // Data should be restored
       await waitFor(() => {
-        const observerInput = screen.getByPlaceholderText(
-          /Enter your Discord username/i
-        );
+        const observerInput = screen.getByPlaceholderText(/Enter your name/i);
         expect(observerInput).toHaveValue('SavedObserver');
       });
     });
@@ -812,9 +804,7 @@ describe('App Integration Tests', () => {
       render(<App />);
 
       // Fill in some data
-      const observerInput = screen.getByPlaceholderText(
-        /Enter your Discord username/i
-      );
+      const observerInput = screen.getByPlaceholderText(/Enter your name/i);
       fireEvent.change(observerInput, { target: { value: 'TestObserver' } });
 
       const container = screen
