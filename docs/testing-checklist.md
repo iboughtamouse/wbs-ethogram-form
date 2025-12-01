@@ -48,7 +48,7 @@
 - [ ] Type valid location "5" → error clears immediately
 - [ ] Use dropdown → select "Perch 5" → error clears
 - [ ] Clear selection (X button) → error shows immediately
-- [ ] Change to "Sleeping" behavior → location field disappears, no stale errors
+- [ ] Change to "Not Visible" behavior → location field disappears, no stale errors
 
 ### Mobile-Specific Location Testing
 
