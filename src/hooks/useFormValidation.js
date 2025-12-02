@@ -248,21 +248,6 @@ export const useFormValidation = () => {
     setFieldErrors({});
   };
 
-  const applyServerValidationErrors = (details) => {
-    if (!Array.isArray(details) || details.length === 0) return;
-    setFieldErrors((prev) => {
-      const newErrors = { ...prev };
-      details.forEach((d) => {
-        if (d && d.field) {
-          // Use the server's field name as the key; front-end forms typically expect camelCase
-          // Convert server field if needed. We'll keep server field name as-is (e.g., 'date').
-          newErrors[d.field] = d.message || 'Invalid value';
-        }
-      });
-      return newErrors;
-    });
-  };
-
   /**
    * Validate all required fields for a single observation slot
    * Used before copying to next slot to ensure valid data
@@ -299,6 +284,6 @@ export const useFormValidation = () => {
     validateObservationSlot,
     clearFieldError,
     clearAllErrors,
-    applyServerValidationErrors,
+    // applyServerValidationErrors removed; out-of-scope for date validation PR
   };
 };

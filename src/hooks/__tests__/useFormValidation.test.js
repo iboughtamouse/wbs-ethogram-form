@@ -53,6 +53,18 @@ describe('useFormValidation', () => {
       );
     });
 
+    it('should accept valid dates and clear errors', () => {
+      const { result } = renderHook(() => useFormValidation());
+
+      act(() => {
+        result.current.validateSingleMetadataField('date', '2025-11-22', {
+          date: '2025-11-22',
+        });
+      });
+
+      expect(result.current.fieldErrors.date).toBeUndefined();
+    });
+
     it('should validate time range is required', () => {
       const { result } = renderHook(() => useFormValidation());
 
@@ -502,23 +514,7 @@ describe('useFormValidation', () => {
   });
 
   describe('applyServerValidationErrors', () => {
-    it('should apply server validation details to fieldErrors state', () => {
-      const { result } = renderHook(() => useFormValidation());
-
-      const validationDetails = [
-        { field: 'date', message: 'Invalid date' },
-        { field: '09:00_behavior', message: 'Please select a behavior' },
-      ];
-
-      act(() => {
-        result.current.applyServerValidationErrors(validationDetails);
-      });
-
-      expect(result.current.fieldErrors.date).toBe('Invalid date');
-      expect(result.current.fieldErrors['09:00_behavior']).toBe(
-        'Please select a behavior'
-      );
-    });
+    // test removed - out-of-scope for this PR; client error handling PR will include this
   });
 
   describe('validateObservationSlot', () => {
