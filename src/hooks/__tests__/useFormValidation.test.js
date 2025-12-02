@@ -39,6 +39,20 @@ describe('useFormValidation', () => {
       expect(result.current.fieldErrors.date).toBe('Date is required');
     });
 
+    it('should validate malformed date and reject it', () => {
+      const { result } = renderHook(() => useFormValidation());
+
+      act(() => {
+        result.current.validateSingleMetadataField('date', '99/99/9999', {
+          date: '99/99/9999',
+        });
+      });
+
+      expect(result.current.fieldErrors.date).toBe(
+        'Date must be a valid YYYY-MM-DD'
+      );
+    });
+
     it('should validate time range is required', () => {
       const { result } = renderHook(() => useFormValidation());
 
@@ -484,6 +498,26 @@ describe('useFormValidation', () => {
       });
 
       expect(Object.keys(result.current.fieldErrors)).toHaveLength(0);
+    });
+  });
+
+  describe('applyServerValidationErrors', () => {
+    it('should apply server validation details to fieldErrors state', () => {
+      const { result } = renderHook(() => useFormValidation());
+
+      const validationDetails = [
+        { field: 'date', message: 'Invalid date' },
+        { field: '09:00_behavior', message: 'Please select a behavior' },
+      ];
+
+      act(() => {
+        result.current.applyServerValidationErrors(validationDetails);
+      });
+
+      expect(result.current.fieldErrors.date).toBe('Invalid date');
+      expect(result.current.fieldErrors['09:00_behavior']).toBe(
+        'Please select a behavior'
+      );
     });
   });
 

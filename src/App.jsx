@@ -37,6 +37,7 @@ function App() {
     validateObservationSlot,
     clearFieldError,
     clearAllErrors,
+    applyServerValidationErrors,
   } = useFormValidation();
 
   // Draft management and autosave
@@ -57,7 +58,12 @@ function App() {
   };
 
   // Submission management
-  const submission = useSubmission(getOutputData, resetForm, clearAllErrors);
+  const submission = useSubmission(
+    getOutputData,
+    resetForm,
+    clearAllErrors,
+    applyServerValidationErrors
+  );
 
   // Form handlers
   const {
