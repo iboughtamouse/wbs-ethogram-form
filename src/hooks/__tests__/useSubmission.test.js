@@ -173,6 +173,45 @@ describe('useSubmission', () => {
       });
     });
 
+    it('should call onValidationError callback when server returns details with VALIDATION_ERROR', async () => {
+      const validationDetails = [
+        { field: 'date', message: 'Invalid date' },
+        { field: 'startTime', message: 'Invalid start time' },
+      ];
+
+      emailService.submitObservation.mockResolvedValueOnce({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Validation failed',
+          details: validationDetails,
+        },
+      });
+
+      emailService.isRetryableError.mockReturnValue(false);
+      emailService.getErrorMessage.mockReturnValue('Validation failed');
+
+      const mockOnValidationError = jest.fn();
+
+      const { result } = renderHook(() =>
+        useSubmission(
+          mockGetOutputData,
+          mockResetForm,
+          mockClearAllErrors,
+          mockOnValidationError
+        )
+      );
+
+      await act(async () => {
+        await result.current.handleOpen();
+      });
+
+      await waitFor(() => {
+        expect(mockOnValidationError).toHaveBeenCalledWith(validationDetails);
+        expect(result.current.submissionState).toBe(SUBMISSION_STATES.ERROR);
+      });
+    });
+
     it('should handle retryable errors', async () => {
       emailService.submitObservation.mockResolvedValueOnce({
         success: false,

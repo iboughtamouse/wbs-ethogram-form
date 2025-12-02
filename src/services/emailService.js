@@ -105,6 +105,7 @@ export async function submitObservation(formData, emails) {
         success: false,
         error: errorType,
         message: errorObj.message || 'Submission failed',
+        status: response.status,
         retryable: errorType === ERROR_TYPES.TRANSIENT,
         ...(errorObj.details && { details: errorObj.details }),
       };
@@ -118,6 +119,7 @@ export async function submitObservation(formData, emails) {
       error: ERROR_TYPES.TRANSIENT,
       message: error.message || 'Network error. Please check your connection.',
       retryable: true,
+      status: null,
     };
   }
 }
@@ -257,9 +259,6 @@ export async function shareObservation(observationId, emails) {
  * @returns {boolean} True if this is a network error
  */
 export function isNetworkError(result) {
-  return (
-    !result.success &&
-    result.error === ERROR_TYPES.TRANSIENT &&
-    !result.message.includes('Server')
-  );
+  // This is a network-level error if we have no HTTP status (fetch threw)
+  return !result.success && result.status == null;
 }
