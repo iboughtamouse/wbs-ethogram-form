@@ -39,6 +39,32 @@ describe('useFormValidation', () => {
       expect(result.current.fieldErrors.date).toBe('Date is required');
     });
 
+    it('should validate malformed date and reject it', () => {
+      const { result } = renderHook(() => useFormValidation());
+
+      act(() => {
+        result.current.validateSingleMetadataField('date', '99/99/9999', {
+          date: '99/99/9999',
+        });
+      });
+
+      expect(result.current.fieldErrors.date).toBe(
+        'Date must be a valid YYYY-MM-DD'
+      );
+    });
+
+    it('should accept valid dates and clear errors', () => {
+      const { result } = renderHook(() => useFormValidation());
+
+      act(() => {
+        result.current.validateSingleMetadataField('date', '2025-11-22', {
+          date: '2025-11-22',
+        });
+      });
+
+      expect(result.current.fieldErrors.date).toBeUndefined();
+    });
+
     it('should validate time range is required', () => {
       const { result } = renderHook(() => useFormValidation());
 
@@ -485,6 +511,10 @@ describe('useFormValidation', () => {
 
       expect(Object.keys(result.current.fieldErrors)).toHaveLength(0);
     });
+  });
+
+  describe('applyServerValidationErrors', () => {
+    // test removed - out-of-scope for this PR; client error handling PR will include this
   });
 
   describe('validateObservationSlot', () => {

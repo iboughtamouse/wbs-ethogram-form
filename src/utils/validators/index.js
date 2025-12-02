@@ -10,3 +10,4 @@ export {
   looksLikeDiscordUsername,
   looksLikeTwitchUsername,
 } from './observerNameValidator';
+export { isValidISODate, validateDate } from './dateValidator';

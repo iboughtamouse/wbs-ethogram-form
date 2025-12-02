@@ -7,7 +7,11 @@ import {
   requiresDescription,
 } from '../constants';
 import { validateTimeRange } from '../utils/timeUtils';
-import { validateLocation, validateObserverName } from '../utils/validators';
+import {
+  validateLocation,
+  validateObserverName,
+  validateDate,
+} from '../utils/validators';
 
 // Fields to validate in observations (all except 'notes' which is always optional)
 const OBSERVATION_FIELDS_TO_VALIDATE = [
@@ -32,11 +36,14 @@ export const useFormValidation = () => {
       case 'observerName':
         error = validateObserverName(value);
         break;
-      case 'date':
-        if (!value) {
-          error = 'Date is required';
+      case 'date': {
+        // Use a shared validator so we centralize date semantics
+        const dateError = validateDate(value);
+        if (dateError) {
+          error = dateError;
         }
         break;
+      }
       case 'startTime':
       case 'endTime':
         // Validate time range when either start or end time changes
@@ -277,5 +284,6 @@ export const useFormValidation = () => {
     validateObservationSlot,
     clearFieldError,
     clearAllErrors,
+    // applyServerValidationErrors removed; out-of-scope for date validation PR
   };
 };
