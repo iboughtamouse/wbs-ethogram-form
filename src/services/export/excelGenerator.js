@@ -129,27 +129,55 @@ export const generateExcelWorkbook = async (formData) => {
   // Generate time slots using existing utility function
   const timeSlots = generateTimeSlots(metadata.startTime, metadata.endTime);
 
+  // Set column widths for readability (match server's formatting)
+  worksheet.getColumn('A').width = 35.0;
+  worksheet.getColumn('B').width = 8.0;
+  for (let col = 3; col <= timeSlots.length + 1; col++) {
+    worksheet.getColumn(col).width = 13.0;
+  }
+  worksheet.getColumn('J').width = 15.0;
+
   // Row 1: Title, Date, Time Window
-  worksheet.getCell('A1').value = 'Rehabilitation Raptor Ethogram';
-  worksheet.getCell('B1').value = 'Date:';
+  const titleCell = worksheet.getCell('A1');
+  titleCell.value = 'Rehabilitation Raptor Ethogram';
+  titleCell.font = { bold: true };
+
+  const dateLabel = worksheet.getCell('B1');
+  dateLabel.value = 'Date:';
+  dateLabel.font = { bold: true };
   worksheet.getCell('C1').value = metadata.date;
-  worksheet.getCell('J1').value = 'Time Window:';
+
+  const timeWindowLabel = worksheet.getCell('J1');
+  timeWindowLabel.value = 'Time Window:';
+  timeWindowLabel.font = { bold: true };
   worksheet.getCell('K1').value = `${metadata.startTime} - ${metadata.endTime}`;
 
   // Row 2: Aviary, Patient, Observer
-  worksheet.getCell('A2').value = `Aviary: ${metadata.aviary}`;
-  worksheet.getCell('B2').value = `Patient(s): ${metadata.patient}`;
-  worksheet.getCell('J2').value = 'Observer:';
+  const aviaryCell = worksheet.getCell('A2');
+  aviaryCell.value = `Aviary: ${metadata.aviary}`;
+  aviaryCell.font = { bold: true };
+
+  const patientCell = worksheet.getCell('B2');
+  patientCell.value = `Patient(s): ${metadata.patient}`;
+  patientCell.font = { bold: true };
+
+  const observerLabel = worksheet.getCell('J2');
+  observerLabel.value = 'Observer:';
+  observerLabel.font = { bold: true };
   worksheet.getCell('K2').value = metadata.observerName;
 
   // Row 3: "Time:" label
-  worksheet.getCell('B3').value = 'Time:';
+  const timeLabelCell = worksheet.getCell('B3');
+  timeLabelCell.value = 'Time:';
+  timeLabelCell.font = { bold: true };
 
   // Row 4: Time slot headers (relative format)
   timeSlots.forEach((time, index) => {
     const relativeTime = convertToRelativeTime(time, metadata.startTime);
     const columnIndex = index + 2; // Column B is index 2
-    worksheet.getCell(4, columnIndex).value = relativeTime;
+    const headerCell = worksheet.getCell(4, columnIndex);
+    headerCell.value = relativeTime;
+    headerCell.font = { bold: true };
   });
 
   // Rows 5+: Behavior labels and observation marks
@@ -158,8 +186,10 @@ export const generateExcelWorkbook = async (formData) => {
     const rowIndex = 5 + index;
     const behaviorLabel = BEHAVIOR_ROW_MAPPING[behaviorValue];
 
-    // Column A: Behavior label
-    worksheet.getCell(rowIndex, 1).value = behaviorLabel;
+    // Column A: Behavior label with wrapText for long labels
+    const labelCell = worksheet.getCell(rowIndex, 1);
+    labelCell.value = behaviorLabel;
+    labelCell.alignment = { wrapText: true, vertical: 'top' };
 
     // Check each time slot for this behavior
     timeSlots.forEach((time, timeIndex) => {
@@ -179,6 +209,11 @@ export const generateExcelWorkbook = async (formData) => {
   const commentsRowIndex = 5 + behaviorRows.length + 2;
   worksheet.getCell(commentsRowIndex, 1).value =
     'Comments (Abnormal Environmental Factors, Plant Growth, Etc):';
+
+  // Freeze panes at B5 (freeze top 4 rows and column A), matching server format
+  worksheet.views = [
+    { state: 'frozen', xSplit: 1, ySplit: 4, topLeftCell: 'B5' },
+  ];
 
   return workbook;
 };
