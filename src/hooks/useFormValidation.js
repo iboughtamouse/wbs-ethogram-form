@@ -7,7 +7,11 @@ import {
   requiresDescription,
 } from '../constants';
 import { validateTimeRange } from '../utils/timeUtils';
-import { validateLocation, validateObserverName } from '../utils/validators';
+import {
+  validateLocation,
+  validateObserverName,
+  validateDate,
+} from '../utils/validators';
 
 // Fields to validate in observations (all except 'notes' which is always optional)
 const OBSERVATION_FIELDS_TO_VALIDATE = [
@@ -32,11 +36,14 @@ export const useFormValidation = () => {
       case 'observerName':
         error = validateObserverName(value);
         break;
-      case 'date':
-        if (!value) {
-          error = 'Date is required';
+      case 'date': {
+        // Use a shared validator so we centralize date semantics
+        const dateError = validateDate(value);
+        if (dateError) {
+          error = dateError;
         }
         break;
+      }
       case 'startTime':
       case 'endTime':
         // Validate time range when either start or end time changes
@@ -241,6 +248,21 @@ export const useFormValidation = () => {
     setFieldErrors({});
   };
 
+  const applyServerValidationErrors = (details) => {
+    if (!Array.isArray(details) || details.length === 0) return;
+    setFieldErrors((prev) => {
+      const newErrors = { ...prev };
+      details.forEach((d) => {
+        if (d && d.field) {
+          // Use the server's field name as the key; front-end forms typically expect camelCase
+          // Convert server field if needed. We'll keep server field name as-is (e.g., 'date').
+          newErrors[d.field] = d.message || 'Invalid value';
+        }
+      });
+      return newErrors;
+    });
+  };
+
   /**
    * Validate all required fields for a single observation slot
    * Used before copying to next slot to ensure valid data
@@ -277,5 +299,6 @@ export const useFormValidation = () => {
     validateObservationSlot,
     clearFieldError,
     clearAllErrors,
+    applyServerValidationErrors,
   };
 };
