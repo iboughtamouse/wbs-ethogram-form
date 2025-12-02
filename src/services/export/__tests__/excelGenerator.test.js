@@ -85,6 +85,31 @@ describe('excelGenerator', () => {
       expect(worksheet.name).toBe('Ethogram Data');
     });
 
+    it('should apply formatting: column widths, bold headers, and freeze panes', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Column widths similar to server defaults
+      expect(worksheet.getColumn('A').width).toBeCloseTo(35.0);
+      expect(worksheet.getColumn('B').width).toBeCloseTo(8.0);
+      expect(worksheet.getColumn(3).width).toBeCloseTo(13.0);
+
+      // Header cells are bold
+      expect(worksheet.getCell('A1').font.bold).toBe(true);
+      expect(worksheet.getCell('B1').font.bold).toBe(true);
+      expect(worksheet.getCell('J1').font.bold).toBe(true);
+      expect(worksheet.getCell('J2').font.bold).toBe(true);
+
+      // Freeze panes at B5
+      expect(worksheet.views).toBeDefined();
+      expect(worksheet.views[0]).toEqual({
+        state: 'frozen',
+        xSplit: 1,
+        ySplit: 4,
+        topLeftCell: 'B5',
+      });
+    });
+
     it('should include metadata in header rows', async () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);

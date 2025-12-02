@@ -103,6 +103,7 @@ describe('emailService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(ERROR_TYPES.VALIDATION);
+      expect(result.status).toBe(400);
       expect(result.message).toBe('Validation failed');
       expect(result.details).toEqual([
         { field: 'observerName', message: 'Required' },
@@ -127,6 +128,7 @@ describe('emailService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
+      expect(result.status).toBe(500);
       expect(result.retryable).toBe(true);
     });
 
@@ -148,6 +150,7 @@ describe('emailService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
+      expect(result.status).toBe(429);
       expect(result.retryable).toBe(true);
     });
 
@@ -159,6 +162,7 @@ describe('emailService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe(ERROR_TYPES.TRANSIENT);
       expect(result.message).toBe('Network error');
+      expect(result.status).toBeNull();
       expect(result.retryable).toBe(true);
     });
 
@@ -180,6 +184,7 @@ describe('emailService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(ERROR_TYPES.PERMANENT);
+      expect(result.status).toBe(403);
       expect(result.retryable).toBe(false);
     });
   });

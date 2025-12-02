@@ -32,7 +32,12 @@ import { SUBMISSION_STATES, SHARE_SUCCESS_TIMEOUT_MS } from '../constants/ui';
  * @param {Function} clearAllErrors - Function to clear all validation errors
  * @returns {Object} Submission state and handlers
  */
-export function useSubmission(getOutputData, resetForm, clearAllErrors) {
+export function useSubmission(
+  getOutputData,
+  resetForm,
+  clearAllErrors,
+  onValidationError
+) {
   // Modal and submission state
   const [showModal, setShowModal] = useState(false);
   const [submissionState, setSubmissionState] = useState(
@@ -92,6 +97,21 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
         setIsTransientError(false);
         clearDraft();
       } else {
+        // If validation errors were returned by server, map them into fieldErrors
+        // Normalize both cases: emailService returns 'validation' type, but tests
+        // may also be mocking a server error object (e.g., { code: 'VALIDATION_ERROR', details: [...] })
+        const isValidationError =
+          result.error === 'validation' ||
+          result.error?.code === 'VALIDATION_ERROR';
+        const details = result.details ?? result.error?.details;
+
+        if (isValidationError && details && onValidationError) {
+          try {
+            onValidationError(details);
+          } catch (e) {
+            console.error('applyServerValidationErrors failed', e);
+          }
+        }
         // API error - check if it's a network issue for local fallback
         if (isNetworkError(result)) {
           // Network error - offer local Excel generation
