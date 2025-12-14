@@ -27,7 +27,7 @@ coverage
 *.sw?
 
 # Internal notes and planning docs
-# notes/
+notes/
 
 # Temporary helper files
 PR_DESCRIPTION.md
