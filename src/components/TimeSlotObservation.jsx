@@ -1,22 +1,22 @@
-import { useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useRef } from 'react';
 import {
+  requiresAnimal,
+  requiresDescription,
+  requiresInteraction,
   requiresLocation,
   requiresObject,
-  requiresAnimal,
-  requiresInteraction,
-  requiresDescription,
 } from '../constants';
-import { formatTo12Hour } from '../utils/timeUtils';
 import { debounce } from '../utils/debounce';
+import { formatTo12Hour } from '../utils/timeUtils';
 import {
-  NotesField,
-  DescriptionField,
-  BehaviorSelect,
-  LocationInput,
-  ObjectSelect,
   AnimalSelect,
+  BehaviorSelect,
+  DescriptionField,
   InteractionTypeSelect,
+  LocationInput,
+  NotesField,
+  ObjectSelect,
 } from './form';
 
 const TimeSlotObservation = ({
@@ -161,32 +161,6 @@ const TimeSlotObservation = ({
     .flatMap((group) => group.options)
     .find((option) => option.value === observation.location);
 
-  // Custom styles for React Select to match our form styling
-  const selectStyles = {
-    control: (base, state) => ({
-      ...base,
-      borderColor: locationError
-        ? '#e74c3c'
-        : state.isFocused
-          ? '#3498db'
-          : '#ddd',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: locationError
-          ? '#e74c3c'
-          : state.isFocused
-            ? '#3498db'
-            : '#ddd',
-      },
-      minHeight: '38px',
-      fontSize: '14px',
-    }),
-    menu: (base) => ({
-      ...base,
-      fontSize: '14px',
-    }),
-  };
-
   // Convert 24-hour time to 12-hour format for display
   const displayTime = formatTo12Hour(time);
 
@@ -220,7 +194,6 @@ const TimeSlotObservation = ({
           behaviorValue={observation.behavior}
           perchOptions={perchOptions}
           selectedLocationOption={selectedLocationOption}
-          selectStyles={selectStyles}
         />
       )}
 

@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import TimeSlotObservation from '../../src/components/TimeSlotObservation';
 
 // Mock the form components
@@ -146,6 +145,21 @@ describe('TimeSlotObservation', () => {
   const mockOnValidate = jest.fn();
   const mockOnCopyToNext = jest.fn();
 
+  // Helper to render TimeSlotObservation with default props
+  const renderTimeSlotObservation = (props = {}) => {
+    return render(
+      <TimeSlotObservation
+        time="15:00"
+        observation={defaultObservation}
+        onChange={mockOnChange}
+        onValidate={mockOnValidate}
+        onCopyToNext={mockOnCopyToNext}
+        isLastSlot={false}
+        {...props}
+      />
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
@@ -158,16 +172,7 @@ describe('TimeSlotObservation', () => {
 
   describe('Rendering', () => {
     test('renders time slot header with formatted time', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       expect(screen.getByText('3:00 PM')).toBeInTheDocument();
     });
