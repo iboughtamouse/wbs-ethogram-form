@@ -42,8 +42,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 3px solid rgba(52, 152, 219, 0.2); /* Light blue background */
-  border-top-color: #3498db; /* Primary blue */
+  border: 3px solid var(--color-bg-tertiary);
+  border-top-color: var(--color-accent-primary);
   animation: spinner-rotate 0.8s linear infinite;
 }
 
@@ -69,11 +69,12 @@
 
 /* Loading message */
 .loading-message {
-  color: #2c3e50; /* Dark gray for good contrast */
+  color: var(--color-text-primary);
   font-size: 14px;
   font-weight: 500;
   text-align: center;
   line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
 /* Reduced motion support - accessibility for users with motion sensitivity */
@@ -97,14 +98,4 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .spinner-circle {
-    border-color: rgba(100, 181, 246, 0.3);
-    border-top-color: #64b5f6;
-  }
-
-  .loading-message {
-    color: #ecf0f1;
-  }
-}
+/* Dark mode support - now handled by CSS variables */

@@ -1,20 +1,25 @@
 import { useState } from 'react';
-import { useFormValidation } from './hooks/useFormValidation';
-import { useFormState } from './hooks/useFormState';
-import { useAutoSave } from './hooks/useAutoSave';
-import { useSubmission } from './hooks/useSubmission';
-import { useFormHandlers } from './hooks/useFormHandlers';
-import { prepareOutputData } from './services/formSubmission';
+import './App.css';
 import MetadataSection from './components/MetadataSection';
-import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import SubmissionModal from './components/SubmissionModal';
-import './App.css';
+import ThemeToggle from './components/ThemeToggle';
+import TimeSlotObservation from './components/TimeSlotObservation';
 import { STEP_MINUTES } from './constants/ui';
+import { useAutoSave } from './hooks/useAutoSave';
+import { useFormHandlers } from './hooks/useFormHandlers';
+import { useFormState } from './hooks/useFormState';
+import { useFormValidation } from './hooks/useFormValidation';
+import { useSubmission } from './hooks/useSubmission';
+import { useTheme } from './hooks/useTheme';
+import { prepareOutputData } from './services/formSubmission';
 import { formatIntervalLabel } from './utils/timeUtils';
 
 function App() {
   const [showOutput, setShowOutput] = useState(false);
+
+  // Theme management
+  const { theme, toggleTheme } = useTheme();
 
   // Form state management
   const {
@@ -105,7 +110,19 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>WBS Ethogram Data Entry</h1>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '10px',
+          }}
+        >
+          <div>
+            <h1>WBS Ethogram Data Entry</h1>
+          </div>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
         <p className="subtitle">
           Rehabilitation Raptor Ethogram - One Hour Section
         </p>
@@ -152,13 +169,7 @@ function App() {
               Observations ({intervalLabel} intervals)
             </h2>
             {timeSlots.length === 0 ? (
-              <div
-                style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#7f8c8d',
-                }}
-              >
+              <div className="empty-state">
                 Please select a time range above to begin entering observations.
               </div>
             ) : (

@@ -16,9 +16,19 @@
 
 /* Make disabled inputs look distinct */
 input:disabled {
-  background-color: #f8f9fa;
+  background-color: var(--color-input-disabled-bg);
   cursor: not-allowed;
-  color: #6c757d;
+  color: var(--color-input-disabled-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Empty state message */
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-text-secondary);
 }
 
 /* Mode Selector Styles */
@@ -30,22 +40,23 @@ input:disabled {
 
 .mode-option {
   flex: 1;
-  border: 2px solid #ddd;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s;
   display: block;
+  background-color: var(--color-bg-primary);
 }
 
 .mode-option:hover {
-  border-color: #3498db;
-  background-color: #f8f9fa;
+  border-color: var(--color-accent-primary);
+  background-color: var(--color-bg-secondary);
 }
 
 .mode-option.selected {
-  border-color: #3498db;
-  background-color: #e3f2fd;
+  border-color: var(--color-accent-primary);
+  background-color: var(--color-bg-secondary);
 }
 
 .mode-option input[type='radio'] {
@@ -67,13 +78,15 @@ input:disabled {
 .mode-text strong {
   display: block;
   margin-bottom: 0.25rem;
-  color: #2c3e50;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .mode-text p {
   margin: 0;
   font-size: 0.875rem;
-  color: #7f8c8d;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* Draft Notice Styles */
@@ -188,15 +201,16 @@ input:disabled {
 }
 
 .perch-modal {
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 12px;
   max-width: 95vw;
   max-height: 95vh;
   width: 1000px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px var(--color-shadow-strong);
   animation: modalSlideIn 0.2s ease-out;
+  transition: background-color 0.3s ease;
 }
 
 @keyframes modalSlideIn {
@@ -215,20 +229,22 @@ input:disabled {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: border-color 0.3s ease;
 }
 
 .perch-modal-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #2c3e50;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .perch-modal-close {
   background: none;
   border: none;
   font-size: 2rem;
-  color: #7f8c8d;
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -242,15 +258,16 @@ input:disabled {
 }
 
 .perch-modal-close:hover {
-  background-color: #f0f0f0;
-  color: #2c3e50;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .perch-modal-tabs {
   display: flex;
   gap: 0;
   padding: 0 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: border-color 0.3s ease;
 }
 
 .perch-tab {
@@ -258,7 +275,7 @@ input:disabled {
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #7f8c8d;
+  color: var(--color-text-secondary);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -266,13 +283,13 @@ input:disabled {
 }
 
 .perch-tab:hover {
-  color: #2c3e50;
-  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
 }
 
 .perch-tab.active {
-  color: #3498db;
-  border-bottom-color: #3498db;
+  color: var(--color-accent-primary);
+  border-bottom-color: var(--color-accent-primary);
 }
 
 .perch-modal-content {
@@ -338,16 +355,20 @@ input:disabled {
 
 .perch-modal-footer {
   padding: 0.75rem 1.5rem;
-  border-top: 1px solid #eee;
-  background-color: #f8f9fa;
+  border-top: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-secondary);
   border-radius: 0 0 12px 12px;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .perch-modal-hint {
   margin: 0;
-  color: #7f8c8d;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 /* View Perch Map Button */
