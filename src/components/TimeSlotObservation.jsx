@@ -22,6 +22,7 @@ import {
 
 const TimeSlotObservation = ({
   time,
+  theme,
   observation,
   behaviorError,
   locationError,
@@ -156,9 +157,6 @@ const TimeSlotObservation = ({
       onValidate(time, field, e.target.value);
     }
   };
-
-  // Get current theme to trigger re-computation of select styles
-  const { theme } = useTheme();
 
   // Find the currently selected option for React Select
   const selectedLocationOption = perchOptions
@@ -340,6 +338,7 @@ const TimeSlotObservation = ({
 
 TimeSlotObservation.propTypes = {
   time: PropTypes.string.isRequired,
+  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
   observation: PropTypes.shape({
     behavior: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,

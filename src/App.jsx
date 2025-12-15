@@ -188,6 +188,7 @@ function App() {
                     <TimeSlotObservation
                       key={time}
                       time={time}
+                      theme={theme}
                       observation={observations[time]}
                       behaviorError={fieldErrors[`${time}_behavior`]}
                       locationError={fieldErrors[`${time}_location`]}

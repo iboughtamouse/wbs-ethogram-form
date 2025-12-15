@@ -142,9 +142,33 @@ describe('TimeSlotObservation', () => {
     description: '',
   };
 
+  const defaultProps = {
+    theme: 'light',
+    onChange: jest.fn(),
+    onValidate: jest.fn(),
+    onCopyToNext: jest.fn(),
+    isLastSlot: false,
+  };
+
   const mockOnChange = jest.fn();
   const mockOnValidate = jest.fn();
   const mockOnCopyToNext = jest.fn();
+
+  // Helper to render TimeSlotObservation with default props
+  const renderTimeSlotObservation = (props = {}) => {
+    return render(
+      <TimeSlotObservation
+        time="15:00"
+        theme="light"
+        observation={defaultObservation}
+        onChange={mockOnChange}
+        onValidate={mockOnValidate}
+        onCopyToNext={mockOnCopyToNext}
+        isLastSlot={false}
+        {...props}
+      />
+    );
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -158,16 +182,7 @@ describe('TimeSlotObservation', () => {
 
   describe('Rendering', () => {
     test('renders time slot header with formatted time', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       expect(screen.getByText('3:00 PM')).toBeInTheDocument();
     });
