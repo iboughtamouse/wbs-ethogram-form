@@ -4,17 +4,22 @@ import { useFormState } from './hooks/useFormState';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useSubmission } from './hooks/useSubmission';
 import { useFormHandlers } from './hooks/useFormHandlers';
+import { useTheme } from './hooks/useTheme';
 import { prepareOutputData } from './services/formSubmission';
 import MetadataSection from './components/MetadataSection';
 import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import SubmissionModal from './components/SubmissionModal';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 import { STEP_MINUTES } from './constants/ui';
 import { formatIntervalLabel } from './utils/timeUtils';
 
 function App() {
   const [showOutput, setShowOutput] = useState(false);
+
+  // Theme management
+  const { theme, toggleTheme } = useTheme();
 
   // Form state management
   const {
@@ -105,7 +110,19 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>WBS Ethogram Data Entry</h1>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '10px',
+          }}
+        >
+          <div>
+            <h1>WBS Ethogram Data Entry</h1>
+          </div>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
         <p className="subtitle">
           Rehabilitation Raptor Ethogram - One Hour Section
         </p>
