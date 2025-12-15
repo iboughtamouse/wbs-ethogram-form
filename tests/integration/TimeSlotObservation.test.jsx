@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import TimeSlotObservation from '../../src/components/TimeSlotObservation';
 
 // Mock the form components
@@ -159,7 +158,6 @@ describe('TimeSlotObservation', () => {
     return render(
       <TimeSlotObservation
         time="15:00"
-        theme="light"
         observation={defaultObservation}
         onChange={mockOnChange}
         onValidate={mockOnValidate}

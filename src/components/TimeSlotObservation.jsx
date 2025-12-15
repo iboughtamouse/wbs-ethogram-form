@@ -1,28 +1,26 @@
-import { useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { useTheme } from '../hooks/useTheme';
+import { useRef } from 'react';
 import {
+  requiresAnimal,
+  requiresDescription,
+  requiresInteraction,
   requiresLocation,
   requiresObject,
-  requiresAnimal,
-  requiresInteraction,
-  requiresDescription,
 } from '../constants';
-import { formatTo12Hour } from '../utils/timeUtils';
 import { debounce } from '../utils/debounce';
+import { formatTo12Hour } from '../utils/timeUtils';
 import {
-  NotesField,
-  DescriptionField,
-  BehaviorSelect,
-  LocationInput,
-  ObjectSelect,
   AnimalSelect,
+  BehaviorSelect,
+  DescriptionField,
   InteractionTypeSelect,
+  LocationInput,
+  NotesField,
+  ObjectSelect,
 } from './form';
 
 const TimeSlotObservation = ({
   time,
-  theme,
   observation,
   behaviorError,
   locationError,
@@ -163,88 +161,6 @@ const TimeSlotObservation = ({
     .flatMap((group) => group.options)
     .find((option) => option.value === observation.location);
 
-  // Custom styles for React Select to match our form styling and theme
-  // Memoized to recompute when theme or locationError changes
-  const selectStyles = useMemo(() => {
-    // Get computed CSS variable values for react-select styling
-    const rootStyles = getComputedStyle(document.documentElement);
-    const colorBorder = rootStyles.getPropertyValue('--color-border').trim();
-    const colorBorderFocus = rootStyles
-      .getPropertyValue('--color-border-focus')
-      .trim();
-    const colorError = rootStyles.getPropertyValue('--color-error').trim();
-    const colorBgPrimary = rootStyles
-      .getPropertyValue('--color-bg-primary')
-      .trim();
-    const colorTextPrimary = rootStyles
-      .getPropertyValue('--color-text-primary')
-      .trim();
-    const colorBgSecondary = rootStyles
-      .getPropertyValue('--color-bg-secondary')
-      .trim();
-    const colorAccentPrimary = rootStyles
-      .getPropertyValue('--color-accent-primary')
-      .trim();
-
-    return {
-      control: (base, state) => ({
-        ...base,
-        backgroundColor: colorBgPrimary,
-        borderColor: locationError
-          ? colorError
-          : state.isFocused
-            ? colorBorderFocus
-            : colorBorder,
-        color: colorTextPrimary,
-        boxShadow: 'none',
-        '&:hover': {
-          borderColor: locationError
-            ? colorError
-            : state.isFocused
-              ? colorBorderFocus
-              : colorBorder,
-        },
-        minHeight: '38px',
-        fontSize: '14px',
-      }),
-      menu: (base) => ({
-        ...base,
-        backgroundColor: colorBgPrimary,
-        fontSize: '14px',
-      }),
-      option: (base, state) => ({
-        ...base,
-        backgroundColor: state.isSelected
-          ? colorAccentPrimary
-          : state.isFocused
-            ? colorBgSecondary
-            : colorBgPrimary,
-        color: state.isSelected ? 'white' : colorTextPrimary,
-        '&:active': {
-          backgroundColor: colorAccentPrimary,
-        },
-      }),
-      singleValue: (base) => ({
-        ...base,
-        color: colorTextPrimary,
-      }),
-      input: (base) => ({
-        ...base,
-        color: colorTextPrimary,
-      }),
-      placeholder: (base) => ({
-        ...base,
-        color: colorTextPrimary,
-        opacity: 0.5,
-      }),
-      groupHeading: (base) => ({
-        ...base,
-        color: colorTextPrimary,
-        fontWeight: 600,
-      }),
-    };
-  }, [theme, locationError]);
-
   // Convert 24-hour time to 12-hour format for display
   const displayTime = formatTo12Hour(time);
 
@@ -278,7 +194,6 @@ const TimeSlotObservation = ({
           behaviorValue={observation.behavior}
           perchOptions={perchOptions}
           selectedLocationOption={selectedLocationOption}
-          selectStyles={selectStyles}
         />
       )}
 
@@ -338,7 +253,6 @@ const TimeSlotObservation = ({
 
 TimeSlotObservation.propTypes = {
   time: PropTypes.string.isRequired,
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
   observation: PropTypes.shape({
     behavior: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,

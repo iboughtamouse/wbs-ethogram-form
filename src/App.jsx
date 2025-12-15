@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { useFormValidation } from './hooks/useFormValidation';
-import { useFormState } from './hooks/useFormState';
-import { useAutoSave } from './hooks/useAutoSave';
-import { useSubmission } from './hooks/useSubmission';
-import { useFormHandlers } from './hooks/useFormHandlers';
-import { useTheme } from './hooks/useTheme';
-import { prepareOutputData } from './services/formSubmission';
+import './App.css';
 import MetadataSection from './components/MetadataSection';
-import TimeSlotObservation from './components/TimeSlotObservation';
 import OutputPreview from './components/OutputPreview';
 import SubmissionModal from './components/SubmissionModal';
 import ThemeToggle from './components/ThemeToggle';
-import './App.css';
+import TimeSlotObservation from './components/TimeSlotObservation';
 import { STEP_MINUTES } from './constants/ui';
+import { useAutoSave } from './hooks/useAutoSave';
+import { useFormHandlers } from './hooks/useFormHandlers';
+import { useFormState } from './hooks/useFormState';
+import { useFormValidation } from './hooks/useFormValidation';
+import { useSubmission } from './hooks/useSubmission';
+import { useTheme } from './hooks/useTheme';
+import { prepareOutputData } from './services/formSubmission';
 import { formatIntervalLabel } from './utils/timeUtils';
 
 function App() {
@@ -188,7 +188,6 @@ function App() {
                     <TimeSlotObservation
                       key={time}
                       time={time}
-                      theme={theme}
                       observation={observations[time]}
                       behaviorError={fieldErrors[`${time}_behavior`]}
                       locationError={fieldErrors[`${time}_location`]}

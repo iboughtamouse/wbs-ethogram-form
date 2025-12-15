@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import Select from 'react-select';
 import PerchDiagramModal from '../PerchDiagramModal';
 
@@ -9,7 +9,6 @@ const LocationInput = ({
   behaviorValue,
   perchOptions,
   selectedLocationOption,
-  selectStyles,
 }) => {
   const [isPerchModalOpen, setIsPerchModalOpen] = useState(false);
 
@@ -29,7 +28,10 @@ const LocationInput = ({
             onChange={onChange}
             placeholder="Type or select..."
             isClearable
-            styles={selectStyles}
+            classNamePrefix="react-select"
+            className={
+              error ? 'react-select-container--error' : 'react-select-container'
+            }
           />
         </div>
         <button
@@ -70,7 +72,6 @@ LocationInput.propTypes = {
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   }),
-  selectStyles: PropTypes.objectOf(PropTypes.func).isRequired,
 };
 
 export default LocationInput;

@@ -379,3 +379,88 @@ button {
     color 0.3s ease,
     background-color 0.3s ease;
 }
+
+/* React Select Styling */
+.react-select__control {
+  background-color: var(--color-bg-primary) !important;
+  border-color: var(--color-border) !important;
+  min-height: 38px !important;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.2s ease !important;
+}
+
+.react-select__control:hover {
+  border-color: var(--color-border) !important;
+}
+
+.react-select__control--is-focused {
+  border-color: var(--color-border-focus) !important;
+  box-shadow: none !important;
+}
+
+.react-select-container--error .react-select__control {
+  border-color: var(--color-error) !important;
+}
+
+.react-select__menu {
+  background-color: var(--color-bg-primary) !important;
+  transition: background-color 0.3s ease;
+}
+
+.react-select__option {
+  background-color: var(--color-bg-primary) !important;
+  color: var(--color-text-primary) !important;
+  transition:
+    background-color 0.2s ease,
+    color 0.3s ease;
+}
+
+.react-select__option--is-focused {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.react-select__option--is-selected {
+  background-color: var(--color-accent-primary) !important;
+  color: white !important;
+}
+
+.react-select__single-value {
+  color: var(--color-text-primary) !important;
+  transition: color 0.3s ease;
+}
+
+.react-select__input-container {
+  color: var(--color-text-primary) !important;
+}
+
+.react-select__placeholder {
+  color: var(--color-text-primary) !important;
+  opacity: 0.5;
+}
+
+.react-select__group-heading {
+  color: var(--color-text-primary) !important;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.react-select__indicator-separator {
+  background-color: var(--color-border) !important;
+  transition: background-color 0.3s ease;
+}
+
+.react-select__dropdown-indicator {
+  color: var(--color-text-secondary) !important;
+  transition: color 0.3s ease;
+}
+
+.react-select__clear-indicator {
+  color: var(--color-text-secondary) !important;
+  transition: color 0.3s ease;
+}
+
+.react-select__clear-indicator:hover,
+.react-select__dropdown-indicator:hover {
+  color: var(--color-text-primary) !important;
+}
