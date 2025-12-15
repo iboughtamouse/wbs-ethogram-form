@@ -24,6 +24,13 @@ input:disabled {
     color 0.3s ease;
 }
 
+/* Empty state message */
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
 /* Mode Selector Styles */
 .mode-selector {
   display: flex;

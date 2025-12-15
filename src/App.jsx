@@ -169,13 +169,7 @@ function App() {
               Observations ({intervalLabel} intervals)
             </h2>
             {timeSlots.length === 0 ? (
-              <div
-                style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#7f8c8d',
-                }}
-              >
+              <div className="empty-state">
                 Please select a time range above to begin entering observations.
               </div>
             ) : (

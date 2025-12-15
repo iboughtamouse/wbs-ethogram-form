@@ -141,14 +141,6 @@ describe('TimeSlotObservation', () => {
     description: '',
   };
 
-  const defaultProps = {
-    theme: 'light',
-    onChange: jest.fn(),
-    onValidate: jest.fn(),
-    onCopyToNext: jest.fn(),
-    isLastSlot: false,
-  };
-
   const mockOnChange = jest.fn();
   const mockOnValidate = jest.fn();
   const mockOnCopyToNext = jest.fn();
