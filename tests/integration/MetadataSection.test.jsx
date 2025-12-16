@@ -284,7 +284,7 @@ describe('MetadataSection', () => {
     });
 
     test('calls onChange with rounded time for startTime', () => {
-      render(
+      const { rerender } = render(
         <MetadataSection
           metadata={defaultMetadata}
           fieldErrors={defaultFieldErrors}
@@ -299,12 +299,29 @@ describe('MetadataSection', () => {
       const startTimeInput = timeInputs[0];
       fireEvent.change(startTimeInput, { target: { value: '15:03' } });
 
-      // Time should be rounded to nearest 5 minutes (15:05)
+      // onChange should be called without validation
+      expect(mockOnChange).toHaveBeenCalledWith('startTime', '15:03', false);
+
+      // Simulate parent updating the metadata state
+      const updatedMetadata = { ...defaultMetadata, startTime: '15:03' };
+      rerender(
+        <MetadataSection
+          metadata={updatedMetadata}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // Blur should round and validate
+      mockOnChange.mockClear();
+      const updatedTimeInputs =
+        container.querySelectorAll('input[type="time"]');
+      fireEvent.blur(updatedTimeInputs[0]);
       expect(mockOnChange).toHaveBeenCalledWith('startTime', '15:05', true);
     });
 
     test('calls onChange with rounded time for endTime', () => {
-      render(
+      const { rerender } = render(
         <MetadataSection
           metadata={defaultMetadata}
           fieldErrors={defaultFieldErrors}
@@ -319,7 +336,24 @@ describe('MetadataSection', () => {
       const endTimeInput = timeInputs[1];
       fireEvent.change(endTimeInput, { target: { value: '15:28' } });
 
-      // Time should be rounded to nearest 5 minutes (15:30)
+      // onChange should be called without validation
+      expect(mockOnChange).toHaveBeenCalledWith('endTime', '15:28', false);
+
+      // Simulate parent updating the metadata state
+      const updatedMetadata = { ...defaultMetadata, endTime: '15:28' };
+      rerender(
+        <MetadataSection
+          metadata={updatedMetadata}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // Blur should round and validate
+      mockOnChange.mockClear();
+      const updatedTimeInputs =
+        container.querySelectorAll('input[type="time"]');
+      fireEvent.blur(updatedTimeInputs[1]);
       expect(mockOnChange).toHaveBeenCalledWith('endTime', '15:30', true);
     });
 

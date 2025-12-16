@@ -112,7 +112,11 @@ The "Copy to next" button validates the source observation before copying:
 
 ### Patterns and gotchas for edits
 
-- **Validation timing**: Most dropdowns validate onChange for immediate feedback. Text fields (objectOther, animalOther, interactionTypeOther, description) use debounced validation (200ms) to avoid flickering while typing. Preserve these patterns when refactoring.
+- **Validation timing**:
+  - Dropdowns validate onChange for immediate feedback
+  - Text fields (objectOther, animalOther, interactionTypeOther, description) use debounced validation (200ms) to avoid flickering while typing
+  - Time inputs (startTime, endTime) validate onBlur only (not onChange) to prevent data loss during multi-step edits
+  - Preserve these patterns when refactoring
 - **Enter key handling**: Text inputs validate on Enter but do NOT submit the form (prevents accidental mobile submissions).
 - **Conditional field clearing**: When behavior changes, all conditional fields (object, animal, interactionType, description, etc.) are cleared to prevent orphaned data.
 - Time strings are used as keys in state and in error keys — renaming the format will cascade across state, validation, and UI. Avoid changing this unless updating all usages.

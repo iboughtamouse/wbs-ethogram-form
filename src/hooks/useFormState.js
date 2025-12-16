@@ -48,12 +48,11 @@ export const useFormState = () => {
           observations
         );
         setObservations(newObservations);
-      } else {
-        // Invalid time range - clear slots and observations
-        setTimeSlots([]);
-        setObservations({});
       }
+      // Note: On invalid range, we preserve existing slots and observations
+      // rather than clearing them. This prevents data loss during editing.
     } else {
+      // Only clear when fields are completely empty
       setTimeSlots([]);
       setObservations({});
     }

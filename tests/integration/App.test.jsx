@@ -101,7 +101,7 @@ describe('App Integration Tests', () => {
       expect(screen.getByText('10:20 AM')).toBeInTheDocument();
     });
 
-    test('clears time slots when time range becomes invalid', async () => {
+    test('preserves time slots when time range becomes invalid (no longer auto-clears)', async () => {
       render(<App />);
 
       const container = screen
@@ -111,7 +111,9 @@ describe('App Integration Tests', () => {
 
       // First create valid slots
       fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
+      fireEvent.blur(timeInputs[0]);
       fireEvent.change(timeInputs[1], { target: { value: '10:20' } });
+      fireEvent.blur(timeInputs[1]);
 
       await waitFor(() => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument();
@@ -119,14 +121,16 @@ describe('App Integration Tests', () => {
 
       // Now make range invalid (end before start)
       fireEvent.change(timeInputs[1], { target: { value: '09:00' } });
+      fireEvent.blur(timeInputs[1]);
 
-      // Slots should be cleared - only the helper text should remain
+      // Bug fix: Slots should be PRESERVED (not cleared) to prevent data loss
+      // Validation error should appear, but existing slots remain
       await waitFor(() => {
-        expect(screen.queryByText('10:00 AM')).not.toBeInTheDocument();
+        expect(
+          screen.getByText(/time range cannot exceed 1 hour/i)
+        ).toBeInTheDocument();
       });
-      expect(
-        screen.getByText(/Please select a time range above/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText('10:00 AM')).toBeInTheDocument();
     });
 
     test('preserves observation data when time range is extended', async () => {
