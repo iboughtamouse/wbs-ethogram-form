@@ -9,7 +9,6 @@ import {
 import '@testing-library/jest-dom';
 import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
-import * as timezoneUtils from '../../src/utils/timezoneUtils';
 import { requiresLocation } from '../../src/constants/behaviors';
 
 // Mock localStorage utilities

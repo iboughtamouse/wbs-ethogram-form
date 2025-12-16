@@ -142,6 +142,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               value={metadata.startTime}
               onChange={(e) => handleTimeChange('startTime', e.target.value)}
               onBlur={handleTimeBlur('startTime')}
+              onKeyDown={handleKeyDown('startTime')}
               className={timeRangeError || fieldErrors.startTime ? 'error' : ''}
               step={TIME_SLOT_STEP_SECONDS}
             />
@@ -151,6 +152,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               value={metadata.endTime}
               onChange={(e) => handleTimeChange('endTime', e.target.value)}
               onBlur={handleTimeBlur('endTime')}
+              onKeyDown={handleKeyDown('endTime')}
               className={timeRangeError || fieldErrors.endTime ? 'error' : ''}
               step={TIME_SLOT_STEP_SECONDS}
             />
