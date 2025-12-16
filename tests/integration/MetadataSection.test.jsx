@@ -197,6 +197,32 @@ describe('MetadataSection', () => {
       expect(mockOnChange).toHaveBeenCalledWith('observerName', '', true);
     });
 
+    test('does not apply time rounding to observer name on Enter key', () => {
+      render(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, observerName: 'John Doe' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      const input = screen.getByPlaceholderText(/Enter your name/i);
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      // Should validate with the text value, NOT apply time rounding (which would result in NaN:NaN)
+      expect(mockOnChange).toHaveBeenCalledWith(
+        'observerName',
+        'John Doe',
+        true
+      );
+      // Verify it was NOT called with rounded time result
+      expect(mockOnChange).not.toHaveBeenCalledWith(
+        'observerName',
+        'NaN:NaN',
+        true
+      );
+    });
+
     test('displays validation error when present', () => {
       render(
         <MetadataSection
