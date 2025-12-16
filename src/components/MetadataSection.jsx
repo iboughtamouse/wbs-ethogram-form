@@ -7,17 +7,36 @@ import { TIME_SLOT_STEP_SECONDS } from '../constants/ui';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
   const handleTimeChange = (field, value) => {
-    // Round to nearest 5-minute interval and validate immediately
-    const roundedTime = value ? roundToNearestFiveMinutes(value) : '';
+    // Update state without validation - just track the raw value as user types
+    onChange(field, value, false);
+  };
+
+  const handleTimeBlur = (field) => (e) => {
+    // Round to nearest 5-minute interval and validate when user leaves the field
+    const roundedTime = e.target.value
+      ? roundToNearestFiveMinutes(e.target.value)
+      : '';
     onChange(field, roundedTime, true);
   };
 
-  // Prevent Enter key from submitting form, but trigger validation
-  const handleKeyDown = (field) => (e) => {
+  // Prevent Enter key from submitting form (for text inputs like observerName)
+  const handleTextKeyDown = (field) => (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // Trigger validation with current value
+      // Just validate, no rounding needed for non-time fields
       onChange(field, e.target.value, true);
+    }
+  };
+
+  // Prevent Enter key from submitting form (for time inputs specifically)
+  const handleTimeKeyDown = (field) => (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Round and validate with current value
+      const roundedTime = e.target.value
+        ? roundToNearestFiveMinutes(e.target.value)
+        : '';
+      onChange(field, roundedTime, true);
     }
   };
 
@@ -94,7 +113,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
             type="text"
             value={metadata.observerName}
             onChange={(e) => onChange('observerName', e.target.value, true)}
-            onKeyDown={handleKeyDown('observerName')}
+            onKeyDown={handleTextKeyDown('observerName')}
             placeholder="Enter your name"
             className={fieldErrors.observerName ? 'error' : ''}
           />
@@ -131,6 +150,8 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               type="time"
               value={metadata.startTime}
               onChange={(e) => handleTimeChange('startTime', e.target.value)}
+              onBlur={handleTimeBlur('startTime')}
+              onKeyDown={handleTimeKeyDown('startTime')}
               className={timeRangeError || fieldErrors.startTime ? 'error' : ''}
               step={TIME_SLOT_STEP_SECONDS}
             />
@@ -139,6 +160,8 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               type="time"
               value={metadata.endTime}
               onChange={(e) => handleTimeChange('endTime', e.target.value)}
+              onBlur={handleTimeBlur('endTime')}
+              onKeyDown={handleTimeKeyDown('endTime')}
               className={timeRangeError || fieldErrors.endTime ? 'error' : ''}
               step={TIME_SLOT_STEP_SECONDS}
             />
