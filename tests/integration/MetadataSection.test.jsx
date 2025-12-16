@@ -461,6 +461,65 @@ describe('MetadataSection', () => {
       expect(startTimeInput).toHaveAttribute('step', '300'); // 300 seconds = 5 minutes
       expect(endTimeInput).toHaveAttribute('step', '300');
     });
+
+    test('rounds and validates time input on Enter key', () => {
+      render(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, startTime: '10:03' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
+      const timeInputs = container.querySelectorAll('input[type="time"]');
+      const startTimeInput = timeInputs[0];
+
+      // Press Enter on time input with non-rounded value
+      fireEvent.keyDown(startTimeInput, { key: 'Enter' });
+
+      // Should round to nearest 5 minutes and validate
+      expect(mockOnChange).toHaveBeenCalledWith('startTime', '10:05', true);
+    });
+
+    test('handles clearing time input on blur', () => {
+      const { rerender } = render(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, startTime: '10:00' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      const container = screen.getByText('Observation Time Range').parentElement
+        .parentElement;
+      const timeInputs = container.querySelectorAll('input[type="time"]');
+      const startTimeInput = timeInputs[0];
+
+      // Simulate user clearing the input
+      fireEvent.change(startTimeInput, { target: { value: '' } });
+
+      // Rerender with cleared value to simulate state update
+      rerender(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, startTime: '' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // Clear mock from the change event
+      mockOnChange.mockClear();
+
+      // Trigger blur with empty value
+      const updatedTimeInputs =
+        container.querySelectorAll('input[type="time"]');
+      fireEvent.blur(updatedTimeInputs[0]);
+
+      // Should validate with empty string (not crash or pass undefined)
+      expect(mockOnChange).toHaveBeenCalledWith('startTime', '', true);
+    });
   });
 
   describe('Label Changes Based on Mode', () => {
