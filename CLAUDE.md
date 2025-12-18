@@ -174,7 +174,7 @@ src/services/
 
 src/utils/
 ├── timeUtils.js - Time rounding, slot generation, formatting
-├── timezoneUtils.js - Timezone conversion (America/Chicago)
+├── timezoneUtils.js - Deprecated (WBS_TIMEZONE constant only, no conversion)
 ├── localStorageUtils.js - Draft save/load/clear
 ├── observationUtils.js - Observation helpers
 ├── debounce.js - Debounce utility (200ms for text inputs)
@@ -1328,6 +1328,19 @@ if (!isNaN(perchNumber) && VALID_PERCHES.includes(perchNumber)) { ... }
 | How do users use this form? | [README.md](README.md)                    |
 | What features exist?        | [README.md](README.md) - Features section |
 | What's the roadmap?         | [README.md](README.md) - Roadmap section  |
+
+### Related Repositories
+
+| Repository         | Purpose                                      | AI Guidance                                                                                                  |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **ethogram-api**   | Node.js/TypeScript REST API for observations | [CLAUDE.md](../ethogram-api/CLAUDE.md), [copilot](../ethogram-api/.github/copilot-instructions.md)           |
+| **ethogram-notes** | Project documentation and study feedback     | [README.md](../ethogram-notes/README.md), [24hr-study-feedback.md](../ethogram-notes/24hr-study-feedback.md) |
+
+**Cross-repository coordination needed for:**
+
+- **Behavior changes** (Items 5-9 in study feedback): Update `src/constants/behaviors.js` (frontend) + `src/services/excel.ts` BEHAVIOR_ROW_MAPPING (backend)
+- **Timezone simplification** (Item 11): Remove conversion in `src/utils/timezoneUtils.js` (frontend only)
+- **Multi-subject support** (Phase 4): State management refactor (frontend) + remove data transformation (backend)
 
 ---
 

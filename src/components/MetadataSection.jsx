@@ -46,15 +46,33 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
       ? validateTimeRange(metadata.startTime, metadata.endTime).error
       : null;
 
-  // Mode-specific help text
+  // Help text for time entry (same for both modes)
   const timeRangeHelpText =
-    metadata.mode === 'live'
-      ? "Enter times in YOUR local time. We'll convert to WBS time automatically."
-      : 'Enter times exactly as shown on stream (top left corner). These are already in WBS time.';
+    'Enter times exactly as shown on the video timestamp (top-left corner).';
 
   return (
     <section className="section">
       <h2 className="section-title">Observer Information</h2>
+
+      {/* Temporary migration notice - can be removed after Feb 2026 */}
+      {metadata.mode === 'live' && (
+        <div
+          className="notice-banner"
+          style={{
+            gridColumn: '1 / -1',
+            padding: '12px 16px',
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: '4px',
+            marginBottom: '16px',
+          }}
+        >
+          <strong>📢 Updated:</strong> For live streams, please use the
+          timestamp shown on the video (top-left corner), not your local time.
+          This ensures all observations align correctly regardless of stream
+          delay.
+        </div>
+      )}
 
       {/* Observation Mode Selector */}
       <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -76,7 +94,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               <span className="mode-icon">🔴</span>
               <div className="mode-text">
                 <strong>Live Stream</strong>
-                <p>Watching now - use your local time</p>
+                <p>Watching now - use video timestamps</p>
               </div>
             </div>
           </label>

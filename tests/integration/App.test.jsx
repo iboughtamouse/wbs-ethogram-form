@@ -212,9 +212,9 @@ describe('App Integration Tests', () => {
       fireEvent.click(vodRadio);
 
       expect(vodRadio).toBeChecked();
-      // VOD mode should show different help text
+      // Both modes use video timestamps (no timezone conversion)
       expect(
-        screen.getByText(/Enter times exactly as shown on stream/i)
+        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
       ).toBeInTheDocument();
     });
   });
@@ -556,15 +556,8 @@ describe('App Integration Tests', () => {
     });
   });
 
-  describe('Timezone Conversion', () => {
-    test('converts times to WBS timezone in live mode', async () => {
-      // Mock conversion function to return different time
-      timezoneUtils.convertToWBSTime.mockImplementation((date, time) => {
-        if (time === '10:00') return '11:00';
-        if (time === '10:05') return '11:05';
-        return time;
-      });
-
+  describe('Time Handling', () => {
+    test('both live and VOD modes preserve times unchanged', async () => {
       render(<App />);
 
       // Fill in metadata in live mode (default)
@@ -585,51 +578,18 @@ describe('App Integration Tests', () => {
       const submitButton = screen.getByText(/Submit Observation/i);
       fireEvent.click(submitButton);
 
-      // Check that convertToWBSTime was called
-      await waitFor(() => {
-        expect(timezoneUtils.convertToWBSTime).toHaveBeenCalled();
-      });
-
-      // Output should show converted times
-      const outputPreview = screen
-        .getByText(/Data Preview/i)
-        .closest('.output-preview');
-      expect(outputPreview.textContent).toContain('11:00');
-      expect(outputPreview.textContent).toContain('observerTimezone');
-    });
-
-    test('does not convert times in VOD mode', async () => {
-      timezoneUtils.convertToWBSTime.mockClear();
-
-      render(<App />);
-
-      // Switch to VOD mode
-      const vodRadio = screen.getByRole('radio', { name: /Recorded Video/i });
-      fireEvent.click(vodRadio);
-
-      // Fill in metadata
-      await fillMetadata('TestObserver');
-
-      const container = screen
-        .getByText('VOD Time Range')
-        .closest('.form-group');
-      const timeInputs = container.querySelectorAll('input[type="time"]');
-      fireEvent.change(timeInputs[0], { target: { value: '10:00' } });
-      fireEvent.change(timeInputs[1], { target: { value: '10:05' } });
-
-      // Fill in ALL observation slots
-      await fillTimeSlot('10:00 AM', 'drinking');
-      await fillTimeSlot('10:05 AM', 'drinking');
-
-      // Submit form
-      const submitButton = screen.getByText(/Submit Observation/i);
-      fireEvent.click(submitButton);
-
-      // convertToWBSTime should not be called in VOD mode
+      // Output should show original times (no conversion)
       await waitFor(() => {
         expect(screen.getByText(/Data Preview/i)).toBeInTheDocument();
       });
-      expect(timezoneUtils.convertToWBSTime).not.toHaveBeenCalled();
+
+      const outputPreview = screen
+        .getByText(/Data Preview/i)
+        .closest('.output-preview');
+      expect(outputPreview.textContent).toContain('10:00');
+      expect(outputPreview.textContent).toContain('10:05');
+      // No observerTimezone field should be present
+      expect(outputPreview.textContent).not.toContain('observerTimezone');
     });
   });
 

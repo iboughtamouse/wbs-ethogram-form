@@ -54,6 +54,8 @@ export const formatTo12Hour = (timeString) => {
  * @param {string} startTime - Start time in "HH:MM" format
  * @param {string} endTime - End time in "HH:MM" format
  * @returns {string[]} - Array of time strings in "HH:MM" format
+ * @note END-INCLUSIVE: Both start and end times are included in the output
+ * @example generateTimeSlots("14:00", "14:15") → ["14:00", "14:05", "14:10", "14:15"]
  * @note Handles times crossing midnight (e.g., 23:55 to 00:15)
  */
 export const generateTimeSlots = (startTime, endTime) => {
@@ -72,7 +74,8 @@ export const generateTimeSlots = (startTime, endTime) => {
     endTotalMinutes += 24 * 60; // Add 1440 minutes (24 hours)
   }
 
-  // Generate slots every STEP_MINUTES (configurable), including the end time
+  // Generate slots every STEP_MINUTES (configurable)
+  // Uses <= to include end time (end-inclusive behavior)
   for (
     let minutes = startTotalMinutes;
     minutes <= endTotalMinutes;

@@ -60,7 +60,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 
 ### Project-specific behaviours to respect
 
-- Time granularity: every 5 minutes. `generateTimeSlots(start, end)` generates slots from start inclusive to end exclusive. Rounding is done via `roundToNearestFiveMinutes` and inputs use `step="300"`.
+- Time granularity: every 5 minutes. `generateTimeSlots(start, end)` generates slots from start inclusive to end inclusive (e.g., 14:00-14:15 → [14:00, 14:05, 14:10, 14:15]). Rounding is done via `roundToNearestFiveMinutes` and inputs use `step="300"`.
 - Maximum duration: 60 minutes (enforced in `validateTimeRange`). Do not change time validation semantics without updating UI hints and tests.
 - Location validation accepts numbers (1-31), special codes (`BB1`, `BB2`, `F1`, `F2`, `G`, `W`) and the literal `GROUND` (case-insensitive); the authority for valid values is `VALID_PERCHES` in `src/constants/locations.js`.
 - `BEHAVIORS` items (in `src/constants/behaviors.js`) include conditional requirement flags — UI and validation rely on these:
@@ -120,7 +120,7 @@ The "Copy to next" button validates the source observation before copying:
 - **Enter key handling**: Text inputs validate on Enter but do NOT submit the form (prevents accidental mobile submissions).
 - **Conditional field clearing**: When behavior changes, all conditional fields (object, animal, interactionType, description, etc.) are cleared to prevent orphaned data.
 - Time strings are used as keys in state and in error keys — renaming the format will cascade across state, validation, and UI. Avoid changing this unless updating all usages.
-- `generateTimeSlots` uses end-exclusive iteration. Tests or UI that assume end-inclusive will break.
+- `generateTimeSlots` uses end-inclusive iteration (includes both start and end times). Time strings are used as keys in state and error keys — renaming the format will cascade across state, validation, and UI.
 - `useFormValidation` uppercases and trims location values when validating — downstream code that reads `observations` may need to handle case differences.
 
 ### Files to inspect first for any change
@@ -145,7 +145,7 @@ The "Copy to next" button validates the source observation before copying:
 - Test coverage includes:
   - E2E integration tests (`tests/integration/App.test.jsx`, `TimeSlotObservation.test.jsx`, `FormComponents.test.jsx`, `MetadataSection.test.jsx`)
   - Feature tests (`tests/copyToNextSlot.test.js`)
-  - Utility tests (`timeUtils.js`, `timezoneUtils.js`, `localStorageUtils.js`)
+  - Utility tests (`timeUtils.js`, `localStorageUtils.js`)
   - Hook tests (`useFormValidation.js`, `useFormState.js`, `useAutoSave.js`)
   - Service tests (`formStateManager.js`, `formSubmission.js`, `draftManager.js`, `excelGenerator.js`)
 - When adding new features, add corresponding tests in `__tests__` or `tests/integration/` directories

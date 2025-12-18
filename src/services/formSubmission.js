@@ -1,54 +1,28 @@
 /**
  * Form Submission Service
  *
- * Handles output data preparation and timezone conversion for form submission.
- * Prepares data for export/submission with appropriate timezone handling.
+ * Handles output data preparation for form submission.
+ * All times are stream timestamps (WBS time) - no conversion needed.
+ *
+ * As of December 2025, timezone conversion has been removed.
+ * Both Live and VOD modes now use stream timestamps directly.
  */
 
-import { convertToWBSTime, getUserTimezone } from '../utils/timezoneUtils';
-
 /**
- * Prepares form data for output/submission with timezone conversion
+ * Prepares form data for output/submission
  *
- * For "live" mode:
- * - Converts all times to WBS timezone (America/Chicago)
- * - Includes observer's timezone in metadata
- * - Converts observation timestamps to WBS time
- *
- * For "vod" mode:
- * - Times are already in correct timezone (from video timestamp)
- * - No timezone conversion needed
+ * All observation modes use stream timestamps directly (top-left corner of video).
+ * No timezone conversion is performed.
  *
  * @param {Object} metadata - Form metadata (observer, date, times, etc.)
  * @param {Object} observations - Observations keyed by time slot
  * @returns {Object} Output data with metadata, observations, and timestamp
  */
 export const prepareOutputData = (metadata, observations) => {
-  // Create copies to avoid mutation
-  let outputMetadata = { ...metadata };
-  let outputObservations = observations;
-
-  // Apply timezone conversion for live mode
-  if (metadata.mode === 'live') {
-    // Convert times to WBS timezone
-    outputMetadata.startTime = convertToWBSTime(
-      metadata.date,
-      metadata.startTime
-    );
-    outputMetadata.endTime = convertToWBSTime(metadata.date, metadata.endTime);
-    outputMetadata.observerTimezone = getUserTimezone();
-
-    // Convert observation timestamps to WBS timezone
-    outputObservations = {};
-    Object.entries(observations).forEach(([localTime, observation]) => {
-      const wbsTime = convertToWBSTime(metadata.date, localTime);
-      outputObservations[wbsTime] = observation;
-    });
-  }
-
+  // All times are stream timestamps (WBS time) - no conversion needed
   return {
-    metadata: outputMetadata,
-    observations: outputObservations,
+    metadata: { ...metadata },
+    observations,
     submittedAt: new Date().toISOString(),
   };
 };

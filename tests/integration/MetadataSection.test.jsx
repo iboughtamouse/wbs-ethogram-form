@@ -88,7 +88,7 @@ describe('MetadataSection', () => {
       expect(patientInput).toBeDisabled();
     });
 
-    test('shows live mode help text when mode is live', () => {
+    test('shows video timestamp help text for live mode', () => {
       render(
         <MetadataSection
           metadata={defaultMetadata}
@@ -98,11 +98,11 @@ describe('MetadataSection', () => {
       );
 
       expect(
-        screen.getByText(/Enter times in YOUR local time/i)
+        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
       ).toBeInTheDocument();
     });
 
-    test('shows VOD mode help text when mode is vod', () => {
+    test('shows same help text for VOD mode', () => {
       render(
         <MetadataSection
           metadata={{ ...defaultMetadata, mode: 'vod' }}
@@ -111,8 +111,9 @@ describe('MetadataSection', () => {
         />
       );
 
+      // Both modes show identical help text (no timezone conversion)
       expect(
-        screen.getByText(/Enter times exactly as shown on stream/i)
+        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
       ).toBeInTheDocument();
     });
   });
