@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 /**
  * OutputPreview displays a read-only JSON preview of the observation data.
  *
- * Note: In Phase 1, the download functionality was moved to SubmissionModal.
+ * Note: Download functionality was moved to SubmissionModal (November 2025).
  * This component now serves purely as a data preview for debugging/verification.
  */
 

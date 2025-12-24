@@ -2,9 +2,9 @@
 
 > **Purpose**: This document provides AI coding assistants (like Claude) with essential context about the WBS Ethogram Form codebase, its architecture, conventions, and development workflows.
 >
-> **Last Updated**: November 22, 2025
-> **Codebase Version**: Post-Phase 6 + Email Submission (Phase 1 Complete)
-> **Status**: Production-ready, email submission ready for Phase 2 backend integration
+> **Last Updated**: December 24, 2025
+> **Codebase Version**: Production (backend integrated November 2025, timezone simplified December 2025)
+> **Status**: Production-ready, actively deployed
 
 ---
 
@@ -73,10 +73,8 @@ If you're working on this codebase for the first time:
 
 ```
 User fills form → Data stored in React state → Validates on change →
-Autosaves to localStorage → On submit: opens submission modal →
-User chooses email delivery OR direct download →
-Email: Mock submission (Phase 1) or Real API (Phase 2) →
-Download: Generates Excel file locally
+Autosaves to localStorage → On submit: submits to backend API →
+Backend stores + emails Excel to WBS → Success modal offers download/share
 ```
 
 ### Development Commands

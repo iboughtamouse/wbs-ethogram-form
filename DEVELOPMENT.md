@@ -1,5 +1,7 @@
 # Development Guide
 
+> **Last Updated:** December 24, 2025
+
 Technical documentation for developers working on the WBS Ethogram Form.
 
 > **📖 For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)**
@@ -19,13 +21,13 @@ Technical documentation for developers working on the WBS Ethogram Form.
 
 ## 🏗️ Architecture Overview
 
-This is a client-side single-page application (SPA) built with React and Vite. There is no backend - all data processing happens in the browser, and output is provided as JSON for manual submission.
+This is a client-side single-page application (SPA) built with React and Vite, with a backend API for data persistence.
 
 ### Key Design Decisions
 
-- **No backend**: Reduces complexity, hosting costs, and maintenance burden
-- **Browser-only storage**: localStorage for autosave (no server persistence)
-- **Timezone handling**: Converts local times to WBS timezone (America/Chicago) for live streams
+- **Backend integrated**: Submissions stored in PostgreSQL, Excel files emailed via Resend (November 2025)
+- **Browser-only storage for drafts**: localStorage for autosave (no server persistence until submit)
+- **Stream timestamps only**: All observers use video timestamp regardless of mode (December 2025)
 - **Flat data structure**: Observation fields are not nested to simplify Excel export
 - **Validation-first**: Centralized validation prevents bad data entry
 
@@ -37,7 +39,6 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 - **ExcelJS 4.4.0** - Excel file generation (dynamically imported)
 - **Jest + React Testing Library** - Comprehensive test suite (all passing)
 - **Native Browser APIs**:
-  - `Intl.DateTimeFormat` - Timezone conversion
   - `localStorage` - Autosave functionality
   - `navigator.clipboard` - Copy-to-clipboard
 

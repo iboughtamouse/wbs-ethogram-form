@@ -3,8 +3,8 @@ import { getApiBaseUrl } from '../utils/envConfig.js';
 /**
  * Email submission service
  *
- * Phase 1: Mock implementation for frontend development
- * Phase 2: Real backend integration with API calls
+ * Implemented November 2025 with production backend integration.
+ * Submits observations to API and sends email notifications via Resend.
  */
 
 /**
