@@ -134,11 +134,11 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);
 
-      // 09:00 -> 0:00 (column B), eating_food_platform (row 5)
+      // 09:00 (column B), eating_food_platform (row 5)
       const cell1 = worksheet.getCell('B5');
       expect(cell1.value).toBe('x');
 
-      // 09:05 -> 0:05 (column C), preening (row should be calculated)
+      // 09:05 (column C), preening (row should be calculated)
       // Need to find the preening row - it's around row 14 based on the screenshot
     });
 
