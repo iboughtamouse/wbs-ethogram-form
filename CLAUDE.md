@@ -2,9 +2,9 @@
 
 > **Purpose**: This document provides AI coding assistants (like Claude) with essential context about the WBS Ethogram Form codebase, its architecture, conventions, and development workflows.
 >
-> **Last Updated**: November 22, 2025
-> **Codebase Version**: Post-Phase 6 + Email Submission (Phase 1 Complete)
-> **Status**: Production-ready, email submission ready for Phase 2 backend integration
+> **Last Updated**: December 24, 2025
+> **Codebase Version**: Production (backend integrated November 2025, timezone simplified December 2025)
+> **Status**: Production-ready, actively deployed
 
 ---
 
@@ -31,9 +31,9 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 
 ### Key Characteristics
 
-- **Client-side only**: No backend, all processing happens in the browser
-- **Data output**: JSON and Excel file downloads (manual submission to WBS)
-- **Autosave**: Browser localStorage prevents data loss
+- **Backend integrated**: Submissions stored in PostgreSQL, Excel emailed via Resend (November 2025)
+- **Autosave**: Browser localStorage prevents data loss before submission
+- **Stream timestamps**: All modes use video timestamp directly (December 2025)
 - **Mobile-first**: Responsive design for desktop and mobile observers
 - **Well-tested**: Comprehensive test suite with all tests passing
 - **Clean architecture**: Result of 6 refactoring phases (Phase 0-6 complete)
@@ -73,10 +73,8 @@ If you're working on this codebase for the first time:
 
 ```
 User fills form → Data stored in React state → Validates on change →
-Autosaves to localStorage → On submit: opens submission modal →
-User chooses email delivery OR direct download →
-Email: Mock submission (Phase 1) or Real API (Phase 2) →
-Download: Generates Excel file locally
+Autosaves to localStorage → On submit: submits to backend API →
+Backend stores + emails Excel to WBS → Success modal offers download/share
 ```
 
 ### Development Commands

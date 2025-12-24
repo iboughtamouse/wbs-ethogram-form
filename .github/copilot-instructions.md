@@ -31,7 +31,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
   - `src/components/TimeSlotObservation.jsx` — per-slot container that coordinates form field components; handles conditional visibility based on behavior.
   - `src/components/form/` — extracted form field components (BehaviorSelect, LocationInput, ObjectSelect, AnimalSelect, InteractionTypeSelect, DescriptionField, NotesField).
   - `src/components/PerchDiagramModal.jsx` — modal with tabbed perch diagram images (NE/SW halves) for visual reference.
-  - `src/components/SubmissionModal.jsx` — modal for email submission with 5 states (GENERATING, READY, SUBMITTING, SUCCESS, ERROR).
+  - `src/components/SubmissionModal.jsx` — modal for backend submission with 3 states (SUBMITTING, SUCCESS, ERROR). Implemented November 2025.
   - `src/components/OutputPreview.jsx` — JSON preview of submission (download moved to modal).
 
 ### Data shapes and naming conventions (important)
