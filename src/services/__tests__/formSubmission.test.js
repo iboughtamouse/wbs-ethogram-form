@@ -1,13 +1,5 @@
 import { prepareOutputData } from '../formSubmission';
 
-// Mock timezone utilities
-jest.mock('../../utils/timezoneUtils', () => ({
-  convertToWBSTime: jest.fn((date, time) => `WBS_${time}`),
-  getUserTimezone: jest.fn(() => 'America/New_York'),
-}));
-
-import { convertToWBSTime, getUserTimezone } from '../../utils/timezoneUtils';
-
 describe('formSubmission', () => {
   describe('prepareOutputData', () => {
     const metadata = {
@@ -47,10 +39,6 @@ describe('formSubmission', () => {
       },
     };
 
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
     it('should include metadata, observations, and submittedAt timestamp', () => {
       const result = prepareOutputData(metadata, observations);
 
@@ -62,67 +50,38 @@ describe('formSubmission', () => {
       ); // ISO format
     });
 
-    it('should convert times to WBS timezone when mode is "live"', () => {
-      const result = prepareOutputData(
+    it('should preserve times unchanged for both live and vod modes', () => {
+      const liveResult = prepareOutputData(
         { ...metadata, mode: 'live' },
         observations
       );
-
-      expect(convertToWBSTime).toHaveBeenCalledWith('2025-01-15', '09:00');
-      expect(convertToWBSTime).toHaveBeenCalledWith('2025-01-15', '10:00');
-
-      expect(result.metadata.startTime).toBe('WBS_09:00');
-      expect(result.metadata.endTime).toBe('WBS_10:00');
-    });
-
-    it('should include observerTimezone in metadata when mode is "live"', () => {
-      const result = prepareOutputData(
-        { ...metadata, mode: 'live' },
-        observations
-      );
-
-      expect(getUserTimezone).toHaveBeenCalled();
-      expect(result.metadata.observerTimezone).toBe('America/New_York');
-    });
-
-    it('should convert observation timestamps to WBS timezone when mode is "live"', () => {
-      const result = prepareOutputData(
-        { ...metadata, mode: 'live' },
-        observations
-      );
-
-      expect(convertToWBSTime).toHaveBeenCalledWith('2025-01-15', '09:00');
-      expect(convertToWBSTime).toHaveBeenCalledWith('2025-01-15', '09:05');
-
-      expect(result.observations).toHaveProperty('WBS_09:00');
-      expect(result.observations).toHaveProperty('WBS_09:05');
-      expect(result.observations['WBS_09:00']).toEqual(observations['09:00']);
-      expect(result.observations['WBS_09:05']).toEqual(observations['09:05']);
-    });
-
-    it('should NOT convert times when mode is "vod"', () => {
-      const result = prepareOutputData(
+      const vodResult = prepareOutputData(
         { ...metadata, mode: 'vod' },
         observations
       );
 
-      expect(convertToWBSTime).not.toHaveBeenCalled();
-      expect(getUserTimezone).not.toHaveBeenCalled();
+      // Both modes work identically - no timezone conversion
+      expect(liveResult.metadata.startTime).toBe('09:00');
+      expect(liveResult.metadata.endTime).toBe('10:00');
+      expect(vodResult.metadata.startTime).toBe('09:00');
+      expect(vodResult.metadata.endTime).toBe('10:00');
 
-      expect(result.metadata.startTime).toBe('09:00');
-      expect(result.metadata.endTime).toBe('10:00');
-      expect(result.metadata).not.toHaveProperty('observerTimezone');
+      // Observations preserved unchanged
+      expect(liveResult.observations).toEqual(observations);
+      expect(vodResult.observations).toEqual(observations);
+
+      // No observerTimezone field added
+      expect(liveResult.metadata).not.toHaveProperty('observerTimezone');
+      expect(vodResult.metadata).not.toHaveProperty('observerTimezone');
     });
 
-    it('should preserve original observations when mode is "vod"', () => {
-      const result = prepareOutputData(
-        { ...metadata, mode: 'vod' },
-        observations
-      );
+    it('should preserve observation timestamps unchanged', () => {
+      const result = prepareOutputData(metadata, observations);
 
-      expect(result.observations).toEqual(observations);
       expect(result.observations).toHaveProperty('09:00');
       expect(result.observations).toHaveProperty('09:05');
+      expect(result.observations['09:00']).toEqual(observations['09:00']);
+      expect(result.observations['09:05']).toEqual(observations['09:05']);
     });
 
     it('should not mutate original metadata object', () => {

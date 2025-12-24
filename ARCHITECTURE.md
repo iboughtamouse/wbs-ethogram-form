@@ -130,13 +130,13 @@ App.jsx - Root coordinator component
 
 Business logic extracted from App.jsx into testable pure functions:
 
-| Service                | Size | Purpose                                       | Key Functions                                                    |
-| ---------------------- | ---- | --------------------------------------------- | ---------------------------------------------------------------- |
-| **formStateManager**   | 97L  | Observation state management                  | `generateObservationsForSlots()`, `updateObservationField()`     |
-| **formSubmission**     | 50L  | Output data preparation & timezone conversion | `prepareOutputData()`                                            |
-| **draftManager**       | 31L  | Autosave decision logic                       | `shouldAutosave()`                                               |
-| **excelGenerator**     | 212L | Excel workbook generation & download          | `generateExcelWorkbook()`, `downloadExcelFile()`                 |
-| **emailService** [NEW] | 246L | Email submission with mock/real backend       | `submitObservation()`, `isRetryableError()`, `getErrorMessage()` |
+| Service                | Size | Purpose                                 | Key Functions                                                    |
+| ---------------------- | ---- | --------------------------------------- | ---------------------------------------------------------------- |
+| **formStateManager**   | 97L  | Observation state management            | `generateObservationsForSlots()`, `updateObservationField()`     |
+| **formSubmission**     | 27L  | Output data preparation (pass-through)  | `prepareOutputData()`                                            |
+| **draftManager**       | 31L  | Autosave decision logic                 | `shouldAutosave()`                                               |
+| **excelGenerator**     | 212L | Excel workbook generation & download    | `generateExcelWorkbook()`, `downloadExcelFile()`                 |
+| **emailService** [NEW] | 246L | Email submission with mock/real backend | `submitObservation()`, `isRetryableError()`, `getErrorMessage()` |
 
 **Key Benefits:**
 
@@ -251,7 +251,7 @@ graph TD
 | `constants/behaviors.js`                          | Config    | BEHAVIORS + helpers                       |
 | `utils/timeUtils.js`                              | Utility   | Time operations                           |
 | `components/PerchDiagramModal.jsx`                | Component | Perch map modal                           |
-| `utils/timezoneUtils.js`                          | Utility   | Timezone conversion                       |
+| `utils/timezoneUtils.js`                          | Utility   | Deprecated (WBS_TIMEZONE constant only)   |
 | `components/form/LocationInput.jsx`               | Component | Location select + map                     |
 | `utils/localStorageUtils.js`                      | Utility   | Autosave logic                            |
 | `components/form/ObjectSelect.jsx`                | Component | Object dropdown + "other"                 |

@@ -145,7 +145,7 @@ The "Copy to next" button validates the source observation before copying:
 - Test coverage includes:
   - E2E integration tests (`tests/integration/App.test.jsx`, `TimeSlotObservation.test.jsx`, `FormComponents.test.jsx`, `MetadataSection.test.jsx`)
   - Feature tests (`tests/copyToNextSlot.test.js`)
-  - Utility tests (`timeUtils.js`, `timezoneUtils.js`, `localStorageUtils.js`)
+  - Utility tests (`timeUtils.js`, `localStorageUtils.js`)
   - Hook tests (`useFormValidation.js`, `useFormState.js`, `useAutoSave.js`)
   - Service tests (`formStateManager.js`, `formSubmission.js`, `draftManager.js`, `excelGenerator.js`)
 - When adding new features, add corresponding tests in `__tests__` or `tests/integration/` directories
