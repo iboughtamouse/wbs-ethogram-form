@@ -31,9 +31,9 @@ The **WBS Ethogram Form** is a client-side single-page React application for rec
 
 ### Key Characteristics
 
-- **Client-side only**: No backend, all processing happens in the browser
-- **Data output**: JSON and Excel file downloads (manual submission to WBS)
-- **Autosave**: Browser localStorage prevents data loss
+- **Backend integrated**: Submissions stored in PostgreSQL, Excel emailed via Resend (November 2025)
+- **Autosave**: Browser localStorage prevents data loss before submission
+- **Stream timestamps**: All modes use video timestamp directly (December 2025)
 - **Mobile-first**: Responsive design for desktop and mobile observers
 - **Well-tested**: Comprehensive test suite with all tests passing
 - **Clean architecture**: Result of 6 refactoring phases (Phase 0-6 complete)
