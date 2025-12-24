@@ -5,7 +5,7 @@ import { SUBMISSION_STATES } from '../constants/ui';
 /**
  * SubmissionModal - Modal for handling backend submission with download/share options
  *
- * New Workflow (Backend Integration):
+ * Workflow (implemented November 2025):
  * 1. SUBMITTING: Backend submission in progress (shows loading)
  * 2. SUCCESS: Successfully saved to backend (shows download/share options)
  * 3. ERROR: Submission failed (shows error + retry or local download fallback)

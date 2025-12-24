@@ -1,10 +1,10 @@
 # Architecture Documentation
 
-> **Last Updated**: November 23, 2025 (Phase 1: Email submission feature complete)
+> **Last Updated**: December 24, 2025
 > **Test Coverage**: Comprehensive coverage (run `npm test` for current count)
 > **Architecture**: Component-based React app with custom hooks and pure function services
 > **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
-> **Recent Changes**: Email submission modal, observer name validation (Discord/Twitch)
+> **Recent Changes**: Backend integration (November 2025), timezone simplification (December 2025)
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## High-Level Overview
 
-WBS Ethogram Form is a **client-side single-page application** (SPA) with no backend. All state lives in React, with localStorage providing autosave functionality. The architecture prioritizes:
+WBS Ethogram Form is a **client-side single-page application** (SPA) with backend API integration. State lives in React, with localStorage providing autosave functionality. On submission, data is sent to a Node.js/Fastify backend which stores it in PostgreSQL and emails Excel files via Resend. The architecture prioritizes:
 
 - **Data quality**: Centralized validation prevents bad data entry
 - **User experience**: Real-time validation, autosave, mobile-friendly

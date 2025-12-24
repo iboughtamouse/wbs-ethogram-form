@@ -1,5 +1,7 @@
 # Development Guide
 
+> **Last Updated:** December 24, 2025
+
 Technical documentation for developers working on the WBS Ethogram Form.
 
 > **📖 For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)**
@@ -19,13 +21,13 @@ Technical documentation for developers working on the WBS Ethogram Form.
 
 ## 🏗️ Architecture Overview
 
-This is a client-side single-page application (SPA) built with React and Vite. There is no backend - all data processing happens in the browser, and output is provided as JSON for manual submission.
+This is a client-side single-page application (SPA) built with React and Vite, with a backend API for data persistence.
 
 ### Key Design Decisions
 
-- **No backend**: Reduces complexity, hosting costs, and maintenance burden
-- **Browser-only storage**: localStorage for autosave (no server persistence)
-- **Timezone handling**: Converts local times to WBS timezone (America/Chicago) for live streams
+- **Backend integrated**: Submissions stored in PostgreSQL, Excel files emailed via Resend (November 2025)
+- **Browser-only storage for drafts**: localStorage for autosave (no server persistence until submit)
+- **Stream timestamps only**: All observers use video timestamp regardless of mode (December 2025)
 - **Flat data structure**: Observation fields are not nested to simplify Excel export
 - **Validation-first**: Centralized validation prevents bad data entry
 
@@ -37,7 +39,6 @@ This is a client-side single-page application (SPA) built with React and Vite. T
 - **ExcelJS 4.4.0** - Excel file generation (dynamically imported)
 - **Jest + React Testing Library** - Comprehensive test suite (all passing)
 - **Native Browser APIs**:
-  - `Intl.DateTimeFormat` - Timezone conversion
   - `localStorage` - Autosave functionality
   - `navigator.clipboard` - Copy-to-clipboard
 
@@ -66,7 +67,7 @@ ethogram-form/
 │   │       └── useFormValidation.test.js
 │   ├── utils/
 │   │   ├── timeUtils.js              # Time rounding, generation, formatting
-│   │   ├── timezoneUtils.js          # Timezone conversion utilities
+│   │   ├── timezoneUtils.js          # [Deprecated Dec 2025] WBS_TIMEZONE constant only
 │   │   ├── localStorageUtils.js      # Autosave/draft management
 │   │   ├── observationUtils.js       # Observation data utilities
 │   │   ├── validators/               # Pure validator functions
@@ -154,14 +155,14 @@ const [fieldErrors, setFieldErrors] = useState({});
 | `form/DescriptionField.jsx`       | Description text input field                                                      |
 | `form/NotesField.jsx`             | Notes textarea field                                                              |
 | `PerchDiagramModal.jsx`           | Perch map viewer with NE/SW tabs                                                  |
-| `OutputPreview.jsx`               | JSON display, copy-to-clipboard, timezone conversion                              |
+| `OutputPreview.jsx`               | JSON display for debugging/verification                                           |
 | `useFormValidation.js`            | Validation logic for all fields, uses helper functions                            |
 | `constants/behaviors.js`          | BEHAVIORS array + helper functions (requiresLocation, etc.)                       |
 | `constants/locations.js`          | VALID_PERCHES, TIME_SLOTS constants                                               |
 | `constants/interactions.js`       | Objects, animals, interaction types constants                                     |
 | `validators/locationValidator.js` | Pure location validation function                                                 |
 | `timeUtils.js`                    | Time manipulation, rounding, slot generation                                      |
-| `timezoneUtils.js`                | Convert times between timezones                                                   |
+| `timezoneUtils.js`                | [Deprecated] WBS_TIMEZONE constant only (conversion removed Dec 2025)             |
 | `localStorageUtils.js`            | Save/load/clear draft data                                                        |
 
 ## 🔄 Key Workflows
@@ -177,20 +178,19 @@ generateTimeSlots(startTime, endTime);
 // - End is exclusive (15:00-15:30 generates 15:00, 15:05, 15:10, 15:15, 15:20, 15:25)
 ```
 
-### Timezone Conversion (Live Mode)
+### Stream Timestamps (All Modes)
 
 ```javascript
-// From timezoneUtils.js
-const WBS_TIMEZONE = 'America/Chicago';
+// As of December 2025: No timezone conversion
+// All observers use video timestamp (top-left corner) regardless of mode
 
-// When mode='live':
-// 1. User enters local time (e.g., 3:00 PM PST)
-// 2. Times stored as 24-hour strings ("15:00")
-// 3. On output, convert observation keys to WBS timezone
-// 4. Metadata times remain in local time (for reference)
+// Times stored as 24-hour strings ("15:00")
+// User enters stream time: "14:05"
+// Stored as-is: "14:05" (WBS time)
+// No conversion on output
 
-convertTimeToTimezone(dateStr, timeStr, fromTz, toTz);
-// Returns: time string in target timezone
+// timezoneUtils.js kept only for WBS_TIMEZONE constant reference
+const WBS_TIMEZONE = 'America/Chicago'; // For documentation purposes
 ```
 
 ### Validation Flow
@@ -472,12 +472,6 @@ This project auto-deploys to Vercel:
 - Check that onChange is calling with `shouldValidate: false`
 - Verify onBlur is passing current value directly
 
-**Timezone conversion issues:**
-
-- Check browser timezone (affects `new Date()`)
-- Verify mode is set correctly ('live' vs 'vod')
-- Check WBS_TIMEZONE constant
-
 **localStorage not working:**
 
 - Check browser privacy settings
@@ -575,7 +569,6 @@ useEffect(() => {
 **Phase 1 - PropTypes & Type Safety:**
 
 - Added PropTypes to all 4 main components for runtime type validation
-- Fixed timezone test to handle UTC format in CI/Docker environments
 - Improved PropTypes specificity (objectOf, shape) per code review feedback
 - All tests passing
 
