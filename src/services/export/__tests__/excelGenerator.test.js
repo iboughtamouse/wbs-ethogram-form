@@ -112,10 +112,10 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);
 
-      // Time slots start at column B (column 2)
-      expect(worksheet.getCell('B4').value).toBe('0:00');
-      expect(worksheet.getCell('C4').value).toBe('0:05');
-      expect(worksheet.getCell('D4').value).toBe('0:10');
+      // Time slots start at column B (column 2) with actual timestamps
+      expect(worksheet.getCell('B4').value).toBe('09:00');
+      expect(worksheet.getCell('C4').value).toBe('09:05');
+      expect(worksheet.getCell('D4').value).toBe('09:10');
     });
 
     it('should place behavior labels in column A starting at row 5', async () => {
@@ -258,16 +258,16 @@ describe('excelGenerator', () => {
       expect(hasCommentsSection).toBe(true);
     });
 
-    it('should convert time slots to relative format (0:00, 0:05, etc)', async () => {
+    it('should use actual timestamps in time slot headers (not relative format)', async () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);
 
-      // 09:00 start time should become 0:00
-      expect(worksheet.getCell('B4').value).toBe('0:00');
-      // 09:05 should become 0:05
-      expect(worksheet.getCell('C4').value).toBe('0:05');
-      // 09:10 should become 0:10
-      expect(worksheet.getCell('D4').value).toBe('0:10');
+      // Time slots should use actual timestamps (HH:MM format)
+      expect(worksheet.getCell('B4').value).toBe('09:00');
+      // 09:05 remains as 09:05
+      expect(worksheet.getCell('C4').value).toBe('09:05');
+      // 09:10 remains as 09:10
+      expect(worksheet.getCell('D4').value).toBe('09:10');
     });
 
     it('should handle hour-long observations correctly', async () => {
@@ -313,9 +313,9 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(longData);
       const worksheet = workbook.getWorksheet(1);
 
-      // Should have columns for all 5-minute intervals
-      expect(worksheet.getCell('B4').value).toBe('0:00');
-      expect(worksheet.getCell('M4').value).toBe('0:55'); // 12th column (B + 11)
+      // Should have columns for all 5-minute intervals with actual timestamps
+      expect(worksheet.getCell('B4').value).toBe('09:00');
+      expect(worksheet.getCell('M4').value).toBe('09:55'); // 12th column (B + 11)
     });
 
     it('should handle midnight crossing observations (23:55 to 00:00)', async () => {
@@ -364,9 +364,9 @@ describe('excelGenerator', () => {
       // Time window should show actual times
       expect(worksheet.getCell('K1').value).toBe('23:55 - 00:00');
 
-      // Relative time headers should show 0:00 and 0:05
-      expect(worksheet.getCell('B4').value).toBe('0:00');
-      expect(worksheet.getCell('C4').value).toBe('0:05');
+      // Time headers should show actual timestamps: 23:55 and 00:00
+      expect(worksheet.getCell('B4').value).toBe('23:55');
+      expect(worksheet.getCell('C4').value).toBe('00:00');
 
       // Both observations should be marked
       const rows = worksheet.getRows(5, 25);
@@ -392,13 +392,13 @@ describe('excelGenerator', () => {
 
       // Check that observations are in the right columns
       if (restingRow) {
-        const cell = worksheet.getCell(restingRow, 2); // Column B = 23:55 = 0:00
+        const cell = worksheet.getCell(restingRow, 2); // Column B = 23:55
         expect(cell.value).toBeTruthy();
         expect(cell.value).toContain('Loc: 1');
       }
 
       if (vocalizingRow) {
-        const cell = worksheet.getCell(vocalizingRow, 3); // Column C = 00:00 = 0:05
+        const cell = worksheet.getCell(vocalizingRow, 3); // Column C = 00:00
         expect(cell.value).toBeTruthy();
       }
     });
@@ -421,12 +421,12 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(fullHourData);
       const worksheet = workbook.getWorksheet(1);
 
-      // Should have 13 time slots (0:00, 0:05, ..., 1:00)
-      expect(worksheet.getCell('B4').value).toBe('0:00');
-      expect(worksheet.getCell('G4').value).toBe('0:25'); // 6th column (23:55)
-      expect(worksheet.getCell('H4').value).toBe('0:30'); // 7th column (00:00)
-      expect(worksheet.getCell('M4').value).toBe('0:55'); // 12th column (00:25)
-      expect(worksheet.getCell('N4').value).toBe('1:00'); // 13th column (00:30)
+      // Should have 13 time slots with actual timestamps (23:30, 23:35, ..., 00:30)
+      expect(worksheet.getCell('B4').value).toBe('23:30'); // Start at 23:30
+      expect(worksheet.getCell('G4').value).toBe('23:55'); // 6th column
+      expect(worksheet.getCell('H4').value).toBe('00:00'); // 7th column (crosses midnight)
+      expect(worksheet.getCell('M4').value).toBe('00:25'); // 12th column
+      expect(worksheet.getCell('N4').value).toBe('00:30'); // 13th column (end)
     });
 
     it('should handle "other" animal value correctly', async () => {
@@ -515,6 +515,146 @@ describe('excelGenerator', () => {
         expect(cell.value).toContain('Interaction: chasing');
         expect(cell.value).not.toContain('Interaction: other');
       }
+    });
+
+    // Formatting tests
+    it('should apply column width settings', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Column A: Behavior labels (35.0)
+      expect(worksheet.getColumn('A').width).toBe(35.0);
+      // Column B: Time label (8.0)
+      expect(worksheet.getColumn('B').width).toBe(8.0);
+      // Column C: First time slot (13.0)
+      expect(worksheet.getColumn('C').width).toBe(13.0);
+      // Column J: Metadata labels (15.0)
+      expect(worksheet.getColumn('J').width).toBe(15.0);
+    });
+
+    it('should apply bold formatting to headers', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Row 1 headers
+      expect(worksheet.getCell('A1').font?.bold).toBe(true); // Title
+      expect(worksheet.getCell('B1').font?.bold).toBe(true); // "Date:"
+      expect(worksheet.getCell('J1').font?.bold).toBe(true); // "Time Window:"
+
+      // Row 2 headers
+      expect(worksheet.getCell('A2').font?.bold).toBe(true); // "Aviary:"
+      expect(worksheet.getCell('B2').font?.bold).toBe(true); // "Patient(s):"
+      expect(worksheet.getCell('J2').font?.bold).toBe(true); // "Observer:"
+
+      // Row 3 "Time:" label
+      expect(worksheet.getCell('B3').font?.bold).toBe(true);
+
+      // Row 4 time slot headers
+      expect(worksheet.getCell('B4').font?.bold).toBe(true);
+      expect(worksheet.getCell('C4').font?.bold).toBe(true);
+    });
+
+    it('should apply text wrapping to behavior labels', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Behavior labels in column A should have text wrapping
+      const behaviorCell = worksheet.getCell('A5'); // First behavior row
+      expect(behaviorCell.alignment?.wrapText).toBe(true);
+      expect(behaviorCell.alignment?.vertical).toBe('top');
+    });
+
+    it('should apply text wrapping to observation cells', async () => {
+      const dataWithObservation = {
+        metadata: {
+          observerName: 'Observer',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:10',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': {
+            behavior: 'resting_alert',
+            location: '5',
+            notes: 'Looking around',
+            object: '',
+            objectOther: '',
+            animal: '',
+            animalOther: '',
+            interactionType: '',
+            interactionTypeOther: '',
+            description: '',
+          },
+        },
+        submittedAt: '2025-01-15T09:15:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(dataWithObservation);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Find the resting_alert row
+      const rows = worksheet.getRows(5, 25);
+      let restingRow = null;
+
+      rows.forEach((row, index) => {
+        const cellValue = row.getCell(1).value;
+        if (
+          cellValue &&
+          cellValue.toString().includes('Resting on Perch/Ground - Alert')
+        ) {
+          restingRow = 5 + index;
+        }
+      });
+
+      expect(restingRow).not.toBeNull();
+
+      if (restingRow) {
+        const cell = worksheet.getCell(restingRow, 2); // Column B = 09:00
+        expect(cell.alignment?.wrapText).toBe(true);
+        expect(cell.alignment?.vertical).toBe('top');
+      }
+    });
+
+    it('should apply text wrapping to comments section', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Find comments section
+      const rows = worksheet.getRows(25, 10);
+      let commentsRow = null;
+
+      rows.forEach((row, index) => {
+        const cellValue = row.getCell(1).value;
+        if (cellValue && cellValue.toString().includes('Comments')) {
+          commentsRow = 25 + index;
+        }
+      });
+
+      expect(commentsRow).not.toBeNull();
+
+      if (commentsRow) {
+        const cell = worksheet.getCell(commentsRow, 1);
+        expect(cell.alignment?.wrapText).toBe(true);
+        expect(cell.alignment?.vertical).toBe('top');
+      }
+    });
+
+    it('should apply frozen panes at B5', async () => {
+      const workbook = await generateExcelWorkbook(mockFormData);
+      const worksheet = workbook.getWorksheet(1);
+
+      // Should have frozen panes view
+      expect(worksheet.views).toBeDefined();
+      expect(worksheet.views.length).toBeGreaterThan(0);
+
+      const frozenView = worksheet.views[0];
+      expect(frozenView.state).toBe('frozen');
+      expect(frozenView.xSplit).toBe(1); // Freeze column A
+      expect(frozenView.ySplit).toBe(4); // Freeze top 4 rows
+      expect(frozenView.topLeftCell).toBe('B5');
     });
   });
 
