@@ -109,14 +109,14 @@ git pull origin staging
 
 Use descriptive prefixes to categorize your work:
 
-| Prefix | Purpose | Example |
-|--------|---------|---------|
-| `feat/` | New features | `feat/excel-export` |
-| `fix/` | Bug fixes | `fix/timezone-conversion` |
-| `refactor/` | Code refactoring | `refactor/validation-hook` |
-| `test/` | Adding/updating tests | `test/validation-suite` |
-| `chore/` | Maintenance tasks | `chore/update-dependencies` |
-| `docs/` | Documentation only | `docs/update-readme` |
+| Prefix      | Purpose               | Example                     |
+| ----------- | --------------------- | --------------------------- |
+| `feat/`     | New features          | `feat/excel-export`         |
+| `fix/`      | Bug fixes             | `fix/timezone-conversion`   |
+| `refactor/` | Code refactoring      | `refactor/validation-hook`  |
+| `test/`     | Adding/updating tests | `test/validation-suite`     |
+| `chore/`    | Maintenance tasks     | `chore/update-dependencies` |
+| `docs/`     | Documentation only    | `docs/update-readme`        |
 
 ### Special Case: `docs/` Branches
 
@@ -135,6 +135,7 @@ git push origin docs/update-contributing
 ```
 
 This exception exists because documentation changes:
+
 - Don't affect application code or behavior
 - Should be available in production immediately
 - Don't need integration testing
@@ -148,6 +149,7 @@ This exception exists because documentation changes:
 **Runs on:** Every pull request (opened, reopened, edited, synchronize)
 
 **What it does:**
+
 - ✅ Allows `staging` → `main` PRs (releases)
 - ✅ Allows `docs/` → `main` PRs (documentation-only changes)
 - ✅ Allows any other branch → `staging` PRs
@@ -176,6 +178,7 @@ See CONTRIBUTING.md for more details.
 **Runs:** Every day at 2 AM UTC (or manually via Actions tab)
 
 **What it does:**
+
 1. Checks out `staging` branch
 2. Merges `main` into `staging`
 3. Pushes changes if successful
@@ -184,6 +187,7 @@ See CONTRIBUTING.md for more details.
 **When conflicts occur:**
 
 The workflow creates an issue titled "🚨 Nightly staging sync failed - merge conflict" with:
+
 - Link to compare `staging...main`
 - Step-by-step resolution instructions
 - Labels: `automation`, `staging-sync-conflict`, `needs-attention`
@@ -342,6 +346,7 @@ git push --force origin feat/your-feature
 ### Q: Why use staging instead of direct-to-main?
 
 **A:** Staging allows us to:
+
 - Test multiple features together before release
 - Catch integration issues early
 - Keep main stable and production-ready
@@ -354,6 +359,7 @@ git push --force origin feat/your-feature
 ### Q: What if I accidentally created my branch from main?
 
 **A:** You can either:
+
 1. Recreate the branch from `staging`, or
 2. Rebase your branch onto `staging`:
    ```bash
@@ -365,6 +371,7 @@ git push --force origin feat/your-feature
 ### Q: What happens if I forget and target main?
 
 **A:** The PR Base Branch Check workflow will:
+
 - Leave a comment explaining the correct base
 - Fail the check (preventing accidental merge)
 - You can change the base branch in the PR's web interface
@@ -372,6 +379,7 @@ git push --force origin feat/your-feature
 ### Q: How do I change a PR's base branch?
 
 **A:** On GitHub:
+
 1. Open your pull request
 2. Click "Edit" next to the title
 3. Click the base branch dropdown
@@ -381,6 +389,7 @@ git push --force origin feat/your-feature
 ### Q: Why does staging get updates from main?
 
 **A:** The nightly sync ensures `staging` has the latest:
+
 - Production hotfixes
 - Documentation updates from `docs/` branches
 - Any critical changes that went directly to main
@@ -390,6 +399,7 @@ This prevents `staging` from falling behind and creating conflicts later.
 ### Q: Can I manually trigger the nightly sync?
 
 **A:** Yes! Maintainers can go to:
+
 1. Actions tab
 2. "Nightly Staging Sync" workflow
 3. Click "Run workflow"
@@ -399,6 +409,7 @@ This prevents `staging` from falling behind and creating conflicts later.
 ### Q: What if tests fail in staging?
 
 **A:** Fix the issue in your feature branch:
+
 1. Make the fix
 2. Push to your branch
 3. The PR is automatically updated
