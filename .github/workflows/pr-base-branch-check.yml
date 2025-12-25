@@ -1,0 +1,69 @@
+name: PR Base Branch Check
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  check-base-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR base branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const baseBranch = pr.base.ref;
+            const headBranch = pr.head.ref;
+            
+            // Define branch rules
+            const isFeatureBranch = headBranch.startsWith('feat/') || 
+                                   headBranch.startsWith('fix/') || 
+                                   headBranch.startsWith('refactor/') || 
+                                   headBranch.startsWith('test/') || 
+                                   headBranch.startsWith('chore/');
+            
+            const isStagingToMain = headBranch === 'staging' && baseBranch === 'main';
+            const isFeatureToStaging = isFeatureBranch && baseBranch === 'staging';
+            const isDocsBranch = headBranch.startsWith('docs/');
+            
+            // Docs branches can target main directly
+            if (isDocsBranch && baseBranch === 'main') {
+              console.log('✅ Docs branch targeting main - allowed');
+              return;
+            }
+            
+            // Staging to main is allowed
+            if (isStagingToMain) {
+              console.log('✅ Staging to main PR - allowed');
+              return;
+            }
+            
+            // Feature branches should target staging
+            if (isFeatureBranch && !isFeatureToStaging) {
+              const comment = `## ⚠️ Incorrect Base Branch
+              
+              This appears to be a feature branch (\`${headBranch}\`) targeting \`${baseBranch}\`.
+              
+              **Our branching strategy requires:**
+              - Feature branches (\`feat/\`, \`fix/\`, \`refactor/\`, \`test/\`, \`chore/\`) → \`staging\`
+              - \`staging\` → \`main\` (when ready for release)
+              - \`docs/\` branches → \`main\` (documentation only)
+              
+              **Please update the base branch of this PR to \`staging\`.**
+              
+              See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: comment
+              });
+              
+              core.setFailed(`Feature branch should target 'staging', not '${baseBranch}'`);
+              return;
+            }
+            
+            // All other cases are allowed
+            console.log(`✅ PR from ${headBranch} to ${baseBranch} - allowed`);

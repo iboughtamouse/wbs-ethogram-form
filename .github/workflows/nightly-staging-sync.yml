@@ -1,0 +1,74 @@
+name: Nightly Staging Sync
+
+on:
+  schedule:
+    # Runs at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allows manual triggering from Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0 # Fetch all history for proper merge
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into staging
+        id: merge
+        run: |
+          git fetch origin main
+          git merge origin/main --no-edit
+        continue-on-error: true
+
+      - name: Push changes to staging
+        if: success()
+        run: git push origin staging
+
+      - name: Create issue on merge conflict
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'staging-sync-conflict'
+            });
+            
+            // Only create issue if one doesn't already exist
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Nightly staging sync failed - merge conflict',
+                body: `The nightly sync from \`main\` to \`staging\` encountered a merge conflict.
+                
+                **Action Required:**
+                1. Manually resolve the conflict between \`main\` and \`staging\`
+                2. Review the differences: https://github.com/${context.repo.owner}/${context.repo.repo}/compare/staging...main
+                3. Once resolved, close this issue
+                
+                **How to resolve:**
+                \`\`\`bash
+                git checkout staging
+                git pull origin staging
+                git merge origin/main
+                # Resolve conflicts
+                git commit
+                git push origin staging
+                \`\`\`
+                
+                This issue was automatically created by the nightly staging sync workflow.`,
+                labels: ['automation', 'staging-sync-conflict', 'needs-attention']
+              });
+            }
