@@ -7,6 +7,10 @@ on:
 jobs:
   check-base-branch:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # Required to comment on PRs
+      issues: write         # PRs are issues in GitHub API
+    
     steps:
       - name: Check PR base branch
         uses: actions/github-script@v7
@@ -16,54 +20,77 @@ jobs:
             const baseBranch = pr.base.ref;
             const headBranch = pr.head.ref;
             
-            // Define branch rules
-            const isFeatureBranch = headBranch.startsWith('feat/') || 
-                                   headBranch.startsWith('fix/') || 
-                                   headBranch.startsWith('refactor/') || 
-                                   headBranch.startsWith('test/') || 
-                                   headBranch.startsWith('chore/');
+            console.log(`📋 Checking PR: ${headBranch} → ${baseBranch}`);
             
-            const isStagingToMain = headBranch === 'staging' && baseBranch === 'main';
-            const isFeatureToStaging = isFeatureBranch && baseBranch === 'staging';
-            const isDocsBranch = headBranch.startsWith('docs/');
-            
-            // Docs branches can target main directly
-            if (isDocsBranch && baseBranch === 'main') {
-              console.log('✅ Docs branch targeting main - allowed');
+            // Rule 1: staging → main is allowed (releases)
+            if (headBranch === 'staging' && baseBranch === 'main') {
+              console.log('✅ Release PR: staging → main - allowed');
               return;
             }
             
-            // Staging to main is allowed
-            if (isStagingToMain) {
-              console.log('✅ Staging to main PR - allowed');
-              return;
-            }
-            
-            // Feature branches should target staging
-            if (isFeatureBranch && !isFeatureToStaging) {
-              const comment = `## ⚠️ Incorrect Base Branch
+            // Rule 2: Everything else should target staging
+            if (baseBranch !== 'staging') {
+              const commentMarker = '<!-- base-branch-check-bot -->';
+              const commentBody = `${commentMarker}
+              ## ⚠️ Incorrect Base Branch
               
-              This appears to be a feature branch (\`${headBranch}\`) targeting \`${baseBranch}\`.
+              This PR is targeting \`${baseBranch}\`, but our branching strategy requires all work to go through \`staging\` first.
               
-              **Our branching strategy requires:**
-              - Feature branches (\`feat/\`, \`fix/\`, \`refactor/\`, \`test/\`, \`chore/\`) → \`staging\`
-              - \`staging\` → \`main\` (when ready for release)
-              - \`docs/\` branches → \`main\` (documentation only)
+              **Our branching workflow:**
+              1. All feature work, fixes, and changes → \`staging\` (integration & testing)
+              2. When \`staging\` is stable → \`main\` (production release)
               
               **Please update the base branch of this PR to \`staging\`.**
               
+              **Exception:** If this is an emergency hotfix that must go directly to production, please:
+              - Add the label \`hotfix\` to this PR
+              - Document why this bypasses staging in the PR description
+              
               See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
               
-              await github.rest.issues.createComment({
+              // Check for existing comment to avoid spam
+              const { data: comments } = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: comment
               });
               
-              core.setFailed(`Feature branch should target 'staging', not '${baseBranch}'`);
+              const botComment = comments.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes(commentMarker)
+              );
+              
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+                console.log('✏️ Updated existing comment');
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: commentBody
+                });
+                console.log('💬 Created new comment');
+              }
+              
+              // Check if PR has 'hotfix' label (manual override)
+              const hasHotfixLabel = pr.labels.some(label => label.name === 'hotfix');
+              
+              if (hasHotfixLabel) {
+                console.log('🚨 Hotfix label detected - allowing direct merge to main');
+                return;
+              }
+              
+              core.setFailed(`PRs should target 'staging', not '${baseBranch}' (unless labeled as 'hotfix')`);
               return;
             }
             
-            // All other cases are allowed
-            console.log(`✅ PR from ${headBranch} to ${baseBranch} - allowed`);
+            // Rule 3: Everything targeting staging is good!
+            console.log(`✅ PR targeting staging - approved`);
