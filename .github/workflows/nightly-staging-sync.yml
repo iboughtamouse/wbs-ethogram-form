@@ -58,23 +58,23 @@ jobs:
                 repo: context.repo.repo,
                 title: '🚨 Nightly staging sync failed - merge conflict',
                 body: `The nightly sync from \`main\` to \`staging\` encountered a merge conflict.
-                
-                **Action Required:**
-                1. Manually resolve the conflict between \`main\` and \`staging\`
-                2. Review the differences: https://github.com/${context.repo.owner}/${context.repo.repo}/compare/staging...main
-                3. Once resolved, close this issue
-                
-                **How to resolve:**
-                \`\`\`bash
-                git checkout staging
-                git pull origin staging
-                git merge origin/main
-                # Resolve conflicts
-                git commit
-                git push origin staging
-                \`\`\`
-                
-                This issue was automatically created by the nightly staging sync workflow.`,
+
+**Action Required:**
+1. Manually resolve the conflict between \`main\` and \`staging\`
+2. Review the differences: https://github.com/${context.repo.owner}/${context.repo.repo}/compare/staging...main
+3. Once resolved, close this issue
+
+**How to resolve:**
+\`\`\`bash
+git checkout staging
+git pull origin staging
+git merge origin/main
+# Resolve conflicts
+git commit
+git push origin staging
+\`\`\`
+
+This issue was automatically created by the nightly staging sync workflow.`,
                 labels: ['automation', 'staging-sync-conflict', 'needs-attention']
               });
             }
