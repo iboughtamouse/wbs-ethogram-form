@@ -6,38 +6,38 @@ This document defines the repository's label scheme. Labels are organized by cat
 
 ### Type Labels (Blue/Green - Action-oriented)
 
-| Label | Color | Description |
-|-------|-------|-------------|
-| `docs` | `0075ca` | Documentation changes (README, CONTRIBUTING, etc.) |
-| `release` | `0e8a16` | Release PR (staging → main) |
+| Label     | Color    | Description                                        |
+| --------- | -------- | -------------------------------------------------- |
+| `docs`    | `0075ca` | Documentation changes (README, CONTRIBUTING, etc.) |
+| `release` | `0e8a16` | Release PR (staging → main)                        |
 
 ### Automation Labels (Gray/Purple - System-generated)
 
-| Label | Color | Description |
-|-------|-------|-------------|
+| Label          | Color    | Description                              |
+| -------------- | -------- | ---------------------------------------- |
 | `dependencies` | `0366d6` | Dependency updates (npm, GitHub Actions) |
-| `automated` | `8b80f9` | Automated PRs (Dependabot, bots) |
-| `ci` | `5319e7` | CI/CD related changes |
-| `automation` | `ededed` | Automated processes and workflows |
+| `automated`    | `8b80f9` | Automated PRs (Dependabot, bots)         |
+| `ci`           | `5319e7` | CI/CD related changes                    |
+| `automation`   | `ededed` | Automated processes and workflows        |
 
 ### Status Labels (Yellow/Orange - Requires action)
 
-| Label | Color | Description |
-|-------|-------|-------------|
-| `needs-attention` | `fbca04` | Requires immediate attention |
-| `needs-triage` | `d93f0b` | New issue/PR requiring initial review |
+| Label             | Color    | Description                           |
+| ----------------- | -------- | ------------------------------------- |
+| `needs-attention` | `fbca04` | Requires immediate attention          |
+| `needs-triage`    | `d93f0b` | New issue/PR requiring initial review |
 
 ### Issue Type Labels (Pink/Red)
 
-| Label | Color | Description |
-|-------|-------|-------------|
-| `bug` | `d73a4a` | Something isn't working |
-| `enhancement` | `a2eeef` | New feature or request |
+| Label         | Color    | Description             |
+| ------------- | -------- | ----------------------- |
+| `bug`         | `d73a4a` | Something isn't working |
+| `enhancement` | `a2eeef` | New feature or request  |
 
 ### Special Labels (Red - High importance)
 
-| Label | Color | Description |
-|-------|-------|-------------|
+| Label                   | Color    | Description                                     |
+| ----------------------- | -------- | ----------------------------------------------- |
 | `staging-sync-conflict` | `b60205` | Nightly staging sync encountered merge conflict |
 
 ## Creating Labels
@@ -91,6 +91,7 @@ Apply these manually when creating PRs:
 If you find yourself needing these, add them:
 
 **Type labels matching branch conventions:**
+
 - `feature` - New features (feat/ branches)
 - `fix` - Bug fixes (fix/ branches)
 - `refactor` - Code refactoring
@@ -98,11 +99,13 @@ If you find yourself needing these, add them:
 - `chore` - Maintenance tasks
 
 **Status labels:**
+
 - `wip` - Work in progress
 - `blocked` - Blocked by external dependency
 - `ready-for-review` - Ready for review
 
 **Priority labels:**
+
 - `priority: high`
 - `priority: medium`
 - `priority: low`
