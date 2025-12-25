@@ -301,7 +301,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -527,12 +527,12 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'interactionType',
+        'animalInteractionType',
         'watching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'interactionType',
+        'animalInteractionType',
         'watching'
       );
     });
@@ -581,7 +581,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -621,7 +621,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           descriptionError="Description is required"
           onChange={mockOnChange}
           onValidate={mockOnValidate}
