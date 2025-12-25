@@ -15,7 +15,7 @@ See the Base Branch section below for details.
 
 **Wrong base?** Edit the base branch dropdown above ⬆️ before clicking "Create pull request"
 
-> 📚 See [Branching Strategy](https://github.com/iboughtamouse/wbs-ethogram-form/blob/main/BRANCHING.md) for complete workflow guide.
+> 📚 See [Branching Strategy](../BRANCHING.md) for complete workflow guide.
 
 ---
 
