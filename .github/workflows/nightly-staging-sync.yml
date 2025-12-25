@@ -1,0 +1,120 @@
+name: Nightly Staging Sync
+
+on:
+  schedule:
+    # Runs at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allows manual triggering from Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to push commits to staging branch
+      issues: write    # Required to create issues on merge conflicts
+    
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0  # Fetch all history for proper merge
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into staging
+        id: merge
+        run: |
+          git fetch origin main
+          git merge origin/main --no-edit
+        continue-on-error: true
+
+      - name: Check for changes
+        id: check_changes
+        if: steps.merge.outcome == 'success'
+        run: |
+          if [ -n "$(git log origin/staging..HEAD)" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No new commits to push - staging already up to date"
+          fi
+
+      - name: Push changes to staging
+        # Only runs if merge succeeded AND there are new commits
+        if: steps.merge.outcome == 'success' && steps.check_changes.outputs.has_changes == 'true'
+        run: git push origin staging
+
+      - name: Close resolved conflict issues
+        # Only runs if merge succeeded
+        if: steps.merge.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'staging-sync-conflict'
+            });
+
+            for (const issue of issues) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '✅ Conflict has been resolved. The nightly sync completed successfully.'
+              });
+              console.log(`✅ Closed issue #${issue.number}`);
+            }
+
+      - name: Create issue on merge conflict
+        # Only runs if merge failed (actual conflicts)
+        if: steps.merge.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'staging-sync-conflict'
+            });
+            
+            // Only create issue if one doesn't already exist
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Nightly staging sync failed - merge conflict',
+                body: `The nightly sync from \`main\` to \`staging\` encountered a merge conflict.
+
+**Action Required:**
+1. Manually resolve the conflict between \`main\` and \`staging\`
+2. Review the differences: https://github.com/${context.repo.owner}/${context.repo.repo}/compare/staging...main
+3. Once resolved, close this issue
+
+**How to resolve:**
+\`\`\`bash
+git checkout staging
+git pull origin staging
+git merge origin/main
+# Resolve conflicts
+git commit
+git push origin staging
+\`\`\`
+
+This issue was automatically created by the nightly staging sync workflow.`,
+                labels: ['automation', 'staging-sync-conflict', 'needs-attention']
+              });
+            }

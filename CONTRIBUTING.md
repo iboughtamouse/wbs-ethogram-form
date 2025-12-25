@@ -2,6 +2,29 @@
 
 Thank you for your interest in contributing! This document outlines the process and guidelines for contributing to this project.
 
+## 🌳 Branching Strategy
+
+We use a **staging-based workflow** to ensure stability and quality:
+
+### Branch Structure
+
+- **`main`** - Production-ready code, always stable
+- **`staging`** - Integration branch for testing features before release
+- **Feature branches** - Development of new features or fixes
+
+### Workflow
+
+1. **Feature development** → All feature/fix/refactor/test/chore branches target `staging`
+2. **Testing in staging** → Features are tested together in the `staging` branch
+3. **Release to production** → Only `staging` can merge to `main` (when stable)
+4. **Nightly sync** → `staging` automatically pulls latest from `main` at 2 AM UTC
+
+### Exceptions
+
+- `docs/` branches can target `main` directly (documentation-only changes)
+
+> 📚 For detailed workflow walkthrough, see [BRANCHING.md](BRANCHING.md)
+
 ## 🤝 How to Contribute
 
 ### Reporting Issues
@@ -22,12 +45,14 @@ Thank you for your interest in contributing! This document outlines the process 
 ### Contributing Code
 
 1. **Fork the repository** and clone it locally
-2. **Create a feature branch** from `main`
+2. **Create a feature branch** from `staging` (not `main`!)
 3. **Make your changes** following our code style
 4. **Write/update tests** if applicable
 5. **Test thoroughly** in your browser
 6. **Commit with conventional commits** (see below)
-7. **Push to your fork** and create a pull request
+7. **Push to your fork** and create a pull request to `staging`
+
+> ⚠️ **Important:** Feature branches must target `staging`, not `main`. See [Branching Strategy](#-branching-strategy) above.
 
 ## 🌿 Branch Naming Convention
 
@@ -130,14 +155,15 @@ src/
 
 ## 🔍 Pull Request Process
 
-1. **Update documentation** if you're changing functionality
-2. **Add tests** if you're adding features
-3. **Ensure all tests pass** (`npm test`)
-4. **Check for console errors** (`npm run dev`)
-5. **Fill out the PR template** with clear description
-6. **Link related issues** (e.g., "Closes #42")
-7. **Request review** when ready
-8. **Address feedback** promptly and professionally
+1. **Ensure correct base branch** - Feature branches must target `staging` (not `main`)
+2. **Update documentation** if you're changing functionality
+3. **Add tests** if you're adding features
+4. **Ensure all tests pass** (`npm test`)
+5. **Check for console errors** (`npm run dev`)
+6. **Fill out the PR template** with clear description
+7. **Link related issues** (e.g., "Closes #42")
+8. **Request review** when ready
+9. **Address feedback** promptly and professionally
 
 ### PR Guidelines
 
@@ -146,6 +172,9 @@ src/
 - Include screenshots for UI changes
 - Update relevant documentation
 - Maintain or improve test coverage
+- **Verify base branch** - Use `staging` for feature/fix/refactor/test/chore branches
+
+> 💡 **Tip:** The PR Base Branch Check workflow will automatically validate your PR's base branch and leave a comment if it needs correction.
 
 ## 🚀 Development Workflow
 
@@ -166,9 +195,9 @@ npm install
 ### Working on a Feature
 
 ```bash
-# Make sure you're on main and up to date
-git checkout main
-git pull upstream main
+# Make sure you're on staging and up to date
+git checkout staging
+git pull upstream staging
 
 # Create your feature branch
 git checkout -b feat/your-feature-name
@@ -180,20 +209,20 @@ git commit -m "feat: describe your changes"
 # Push to your fork
 git push origin feat/your-feature-name
 
-# Create PR on GitHub
+# Create PR on GitHub targeting 'staging'
 ```
 
 ### Keeping Your Fork Updated
 
 ```bash
 # Fetch and merge upstream changes
-git checkout main
-git pull upstream main
-git push origin main
+git checkout staging
+git pull upstream staging
+git push origin staging
 
 # Rebase your feature branch if needed
 git checkout feat/your-feature-name
-git rebase main
+git rebase staging
 ```
 
 ## 🎯 Project Goals & Priorities
