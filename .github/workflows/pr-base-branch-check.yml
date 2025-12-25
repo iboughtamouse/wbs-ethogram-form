@@ -1,0 +1,117 @@
+name: PR Base Branch Check
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  check-base-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # Required to comment on PRs
+      issues: write         # PRs are issues in GitHub API
+    
+    steps:
+      - name: Check PR base branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const baseBranch = pr.base.ref;
+            const headBranch = pr.head.ref;
+            
+            console.log(`📋 Checking PR: ${headBranch} → ${baseBranch}`);
+            
+            const commentMarker = '<!-- base-branch-check-bot -->';
+
+            // Helper function to find and delete bot comment if it exists
+            const deleteBotCommentIfExists = async () => {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+              });
+
+              const botComment = comments.find(comment =>
+                comment.user.type === 'Bot' &&
+                comment.body.includes(commentMarker)
+              );
+
+              if (botComment) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id
+                });
+                console.log('🗑️ Deleted outdated bot comment');
+              }
+            };
+
+            // Rule 1: staging → main is allowed (releases)
+            if (headBranch === 'staging' && baseBranch === 'main') {
+              console.log('✅ Release PR: staging → main - allowed');
+              await deleteBotCommentIfExists();
+              return;
+            }
+
+            // Rule 2: docs/ branches can target main directly
+            if (headBranch.startsWith('docs/') && baseBranch === 'main') {
+              console.log('✅ Documentation branch targeting main - allowed');
+              await deleteBotCommentIfExists();
+              return;
+            }
+
+            // Rule 3: Everything else should target staging
+            if (baseBranch !== 'staging') {
+              const commentBody = `${commentMarker}
+## ⚠️ Incorrect Base Branch
+
+This PR is targeting \`${baseBranch}\`, but our branching strategy requires all work to go through \`staging\` first.
+
+**Our branching workflow:**
+1. All feature work, fixes, and changes → \`staging\` (integration & testing)
+2. When \`staging\` is stable → \`main\` (production release)
+
+**Please update the base branch of this PR to \`staging\`.**
+
+See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
+              
+              // Check for existing comment to avoid spam
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+              });
+              
+              const botComment = comments.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes(commentMarker)
+              );
+              
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+                console.log('✏️ Updated existing comment');
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: commentBody
+                });
+                console.log('💬 Created new comment');
+              }
+              
+              core.setFailed(`PRs should target 'staging', not '${baseBranch}'`);
+              return;
+            }
+
+            // Rule 4: Everything targeting staging is good!
+            console.log(`✅ PR targeting staging - approved`);
+            await deleteBotCommentIfExists();
