@@ -16,10 +16,12 @@ const createEmptyObservation = () => ({
   description: '',
   object: '',
   objectOther: '',
+  objectInteractionType: '',
+  objectInteractionTypeOther: '',
   animal: '',
   animalOther: '',
-  interactionType: '',
-  interactionTypeOther: '',
+  animalInteractionType: '',
+  animalInteractionTypeOther: '',
 });
 
 /**
@@ -78,10 +80,12 @@ export const updateObservationField = (observations, time, field, value) => {
     updatedObservation.description = '';
     updatedObservation.object = '';
     updatedObservation.objectOther = '';
+    updatedObservation.objectInteractionType = '';
+    updatedObservation.objectInteractionTypeOther = '';
     updatedObservation.animal = '';
     updatedObservation.animalOther = '';
-    updatedObservation.interactionType = '';
-    updatedObservation.interactionTypeOther = '';
+    updatedObservation.animalInteractionType = '';
+    updatedObservation.animalInteractionTypeOther = '';
   }
 
   // Clear "other" text when dropdown changes away from "other"
@@ -91,8 +95,11 @@ export const updateObservationField = (observations, time, field, value) => {
   if (field === 'animal' && value !== 'other') {
     updatedObservation.animalOther = '';
   }
-  if (field === 'interactionType' && value !== 'other') {
-    updatedObservation.interactionTypeOther = '';
+  if (field === 'objectInteractionType' && value !== 'other') {
+    updatedObservation.objectInteractionTypeOther = '';
+  }
+  if (field === 'animalInteractionType' && value !== 'other') {
+    updatedObservation.animalInteractionTypeOther = '';
   }
 
   return {
