@@ -28,7 +28,13 @@ jobs:
               return;
             }
             
-            // Rule 2: Everything else should target staging
+            // Rule 2: docs/ branches can target main directly
+            if (headBranch.startsWith('docs/') && baseBranch === 'main') {
+              console.log('✅ Documentation branch targeting main - allowed');
+              return;
+            }
+            
+            // Rule 3: Everything else should target staging
             if (baseBranch !== 'staging') {
               const commentMarker = '<!-- base-branch-check-bot -->';
               const commentBody = `${commentMarker}
@@ -92,5 +98,5 @@ See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.re
               return;
             }
             
-            // Rule 3: Everything targeting staging is good!
+            // Rule 4: Everything targeting staging is good!
             console.log(`✅ PR targeting staging - approved`);

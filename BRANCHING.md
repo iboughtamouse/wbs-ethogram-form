@@ -148,24 +148,30 @@ This exception exists because documentation changes:
 **Runs on:** Every pull request (opened, reopened, edited, synchronize)
 
 **What it does:**
-- ✅ Allows `staging` → `main` PRs
-- ✅ Allows `docs/` → `main` PRs
-- ✅ Allows feature branches → `staging` PRs
-- ❌ Blocks feature branches → `main` PRs (with helpful comment)
+- ✅ Allows `staging` → `main` PRs (releases)
+- ✅ Allows `docs/` → `main` PRs (documentation-only changes)
+- ✅ Allows any other branch → `staging` PRs
+- ❌ Blocks all other branches → `main` PRs (with helpful comment)
+- 🔥 **Exception:** PRs labeled `hotfix` can bypass staging and target `main` directly
 
 **Example comment when base is incorrect:**
 
 ```
 ⚠️ Incorrect Base Branch
 
-This appears to be a feature branch (feat/my-feature) targeting main.
+This PR is targeting main, but our branching strategy requires all work to go through staging first.
 
-Our branching strategy requires:
-- Feature branches (feat/, fix/, refactor/, test/, chore/) → staging
-- staging → main (when ready for release)
-- docs/ branches → main (documentation only)
+Our branching workflow:
+1. All feature work, fixes, and changes → staging (integration & testing)
+2. When staging is stable → main (production release)
 
 Please update the base branch of this PR to staging.
+
+Exception: If this is an emergency hotfix that must go directly to production, please:
+- Add the label hotfix to this PR
+- Document why this bypasses staging in the PR description
+
+See CONTRIBUTING.md for more details.
 ```
 
 ### Nightly Staging Sync
@@ -259,6 +265,32 @@ git pull origin staging
 # 7. Production deploys automatically
 # 8. Nightly sync will pull this back to staging
 ```
+
+### Emergency Hotfix (Exception)
+
+**Only for critical production issues that cannot wait for staging:**
+
+```bash
+# 1. Create hotfix branch from main (not staging!)
+git checkout main
+git pull origin main
+git checkout -b hotfix/critical-security-fix
+
+# 2. Make minimal fix
+git add .
+git commit -m "fix: critical security vulnerability"
+
+# 3. Push and create PR to main
+git push origin hotfix/critical-security-fix
+# Open PR: hotfix/critical-security-fix → main
+
+# 4. Add 'hotfix' label to the PR
+# 5. Document why this bypasses staging in PR description
+# 6. Get expedited review and merge
+# 7. Nightly sync will bring this to staging automatically
+```
+
+> ⚠️ **Warning:** Hotfixes bypass integration testing in staging. Use this only for critical production issues (security vulnerabilities, data loss bugs, service outages). All other fixes should go through staging.
 
 ## Conflict Resolution
 
@@ -402,6 +434,22 @@ This prevents `staging` from falling behind and creating conflicts later.
 2. Push to your branch
 3. The PR is automatically updated
 4. Tests run again
+
+### Q: When should I use the hotfix exception?
+
+**A:** Use the `hotfix` label to bypass staging **only** for:
+- Critical security vulnerabilities
+- Data loss bugs
+- Service outages affecting users
+- Production-breaking issues that need immediate resolution
+
+**Do not use** for:
+- Regular bug fixes (use `fix/` branch → staging)
+- New features (always go through staging)
+- Code refactoring or improvements
+- Non-critical issues
+
+All hotfixes must be documented in the PR description explaining why they bypass staging.
 
 ## Troubleshooting
 
