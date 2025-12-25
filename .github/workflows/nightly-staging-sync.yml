@@ -1,19 +1,19 @@
 name: Nightly Staging Sync
 
-on: 
+on:
   schedule:
     # Runs at 2 AM UTC every day
     - cron: '0 2 * * *'
   workflow_dispatch:  # Allows manual triggering from Actions tab
 
 jobs:
-  sync: 
+  sync:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Required to push commits to staging branch
       issues: write    # Required to create issues on merge conflicts
     
-    steps: 
+    steps:
       - name: Checkout staging branch
         uses: actions/checkout@v4
         with:
