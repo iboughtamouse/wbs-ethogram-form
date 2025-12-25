@@ -32,21 +32,21 @@ jobs:
             if (baseBranch !== 'staging') {
               const commentMarker = '<!-- base-branch-check-bot -->';
               const commentBody = `${commentMarker}
-              ## ⚠️ Incorrect Base Branch
-              
-              This PR is targeting \`${baseBranch}\`, but our branching strategy requires all work to go through \`staging\` first.
-              
-              **Our branching workflow:**
-              1. All feature work, fixes, and changes → \`staging\` (integration & testing)
-              2. When \`staging\` is stable → \`main\` (production release)
-              
-              **Please update the base branch of this PR to \`staging\`.**
-              
-              **Exception:** If this is an emergency hotfix that must go directly to production, please:
-              - Add the label \`hotfix\` to this PR
-              - Document why this bypasses staging in the PR description
-              
-              See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
+## ⚠️ Incorrect Base Branch
+
+This PR is targeting \`${baseBranch}\`, but our branching strategy requires all work to go through \`staging\` first.
+
+**Our branching workflow:**
+1. All feature work, fixes, and changes → \`staging\` (integration & testing)
+2. When \`staging\` is stable → \`main\` (production release)
+
+**Please update the base branch of this PR to \`staging\`.**
+
+**Exception:** If this is an emergency hotfix that must go directly to production, please:
+- Add the label \`hotfix\` to this PR
+- Document why this bypasses staging in the PR description
+
+See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
               
               // Check for existing comment to avoid spam
               const { data: comments } = await github.rest.issues.listComments({
