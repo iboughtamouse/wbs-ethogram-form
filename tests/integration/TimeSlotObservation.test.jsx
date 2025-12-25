@@ -563,7 +563,7 @@ describe('TimeSlotObservation', () => {
           observation={{
             ...defaultObservation,
             behavior: 'interacting_animal',
-            interactionType: 'other',
+            animalInteractionType: 'other',
           }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
@@ -716,11 +716,11 @@ describe('TimeSlotObservation', () => {
         'Animal other error'
       );
       expect(screen.getByTestId('interaction-type-error')).toHaveTextContent(
-        'Interaction type error'
+        'Animal interaction type error'
       );
       expect(
         screen.getByTestId('interaction-type-other-error')
-      ).toHaveTextContent('Interaction type other error');
+      ).toHaveTextContent('Animal interaction type other error');
     });
   });
 });

@@ -194,8 +194,10 @@ describe('formStateManager', () => {
       expect(result['09:00'].objectOther).toBe('');
       expect(result['09:00'].animal).toBe('');
       expect(result['09:00'].animalOther).toBe('');
-      expect(result['09:00'].interactionType).toBe('');
-      expect(result['09:00'].interactionTypeOther).toBe('');
+      expect(result['09:00'].objectInteractionType).toBe('');
+      expect(result['09:00'].objectInteractionTypeOther).toBe('');
+      expect(result['09:00'].animalInteractionType).toBe('');
+      expect(result['09:00'].animalInteractionTypeOther).toBe('');
     });
 
     it('should clear objectOther when object changes away from "other"', () => {

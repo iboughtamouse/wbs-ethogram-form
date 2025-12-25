@@ -32,15 +32,17 @@ describe('excelGenerator', () => {
       },
       observations: {
         '09:00': {
-          behavior: 'eating_food_platform',
-          location: '',
+          behavior: 'eating',
+          location: 'F1',
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
         '09:05': {
@@ -49,10 +51,12 @@ describe('excelGenerator', () => {
           notes: 'Very focused',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
         '09:10': {
@@ -61,10 +65,12 @@ describe('excelGenerator', () => {
           notes: '',
           object: 'toy',
           objectOther: '',
+          objectInteractionType: 'playing',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: 'Playing with toy',
         },
       },
@@ -122,21 +128,22 @@ describe('excelGenerator', () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);
 
-      // Check first few behavior labels
-      expect(worksheet.getCell('A5').value).toBe('Eating - On Food Platform');
-      expect(worksheet.getCell('A6').value).toContain('Eating - Elsewhere');
-      expect(worksheet.getCell('A7').value).toContain(
-        'Locomotion - Walking on Ground'
+      // Check first few behavior labels (new consolidated behaviors + legacy for backward compatibility)
+      expect(worksheet.getCell('A5').value).toBe('Eating (Note Location)');
+      expect(worksheet.getCell('A6').value).toBe(
+        'Locomotion - Walking (Note Location)'
       );
+      // Row 7 is legacy eating_food_platform for backward compatibility
+      expect(worksheet.getCell('A7').value).toBe('Eating - On Food Platform');
     });
 
     it('should mark observed behaviors with "x"', async () => {
       const workbook = await generateExcelWorkbook(mockFormData);
       const worksheet = workbook.getWorksheet(1);
 
-      // 09:00 (column B), eating_food_platform (row 5)
+      // 09:00 (column B), eating (row 5)
       const cell1 = worksheet.getCell('B5');
-      expect(cell1.value).toBe('x');
+      expect(cell1.value).toContain('x'); // May contain location info
 
       // 09:05 (column C), preening (row should be calculated)
       // Need to find the preening row - it's around row 14 based on the screenshot

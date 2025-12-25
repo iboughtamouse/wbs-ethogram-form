@@ -260,10 +260,10 @@ describe('App Integration Tests', () => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument();
       });
 
-      // Select aggression behavior (which requires description)
+      // Select 'other' behavior (which requires description)
       const firstSlot = screen.getByText('10:00 AM').closest('.time-slot');
       const behaviorSelect = within(firstSlot).getAllByRole('combobox')[0];
-      fireEvent.change(behaviorSelect, { target: { value: 'aggression' } });
+      fireEvent.change(behaviorSelect, { target: { value: 'other' } });
 
       // Wait for description field to appear
       await waitFor(() => {
@@ -322,8 +322,10 @@ describe('App Integration Tests', () => {
       });
 
       // Select "other" for object
+      // Note: interacting_object requires location, so combobox order is:
+      // [0] = behavior, [1] = location, [2] = object, [3] = objectInteractionType
       const allSelects = within(firstSlot).getAllByRole('combobox');
-      const objectSelect = allSelects[1];
+      const objectSelect = allSelects[2];
       fireEvent.change(objectSelect, { target: { value: 'other' } });
 
       // Wait for "other" input to appear
