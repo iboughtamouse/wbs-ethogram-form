@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
-import { INTERACTION_TYPES } from '../../constants';
 
 const InteractionTypeSelect = ({
+  label,
+  options,
   value,
   otherValue,
   onChange,
@@ -14,14 +15,14 @@ const InteractionTypeSelect = ({
     <>
       <div className="form-group">
         <label>
-          Interaction Type <span className="required">*</span>
+          {label} <span className="required">*</span>
         </label>
         <select
           value={value}
           onChange={onChange}
           className={error ? 'error' : ''}
         >
-          {INTERACTION_TYPES.map((interaction) => (
+          {options.map((interaction) => (
             <option key={interaction.value} value={interaction.value}>
               {interaction.label}
             </option>
@@ -51,6 +52,13 @@ const InteractionTypeSelect = ({
 };
 
 InteractionTypeSelect.propTypes = {
+  label: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   value: PropTypes.string.isRequired,
   otherValue: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
