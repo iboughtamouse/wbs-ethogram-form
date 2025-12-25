@@ -1,0 +1,49 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please describe your idea below.
+  
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: As an observer, I want to...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+    validations:
+      required: true
+  
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions?
+  
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any mockups, examples, or additional details?
+  
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: Project Alignment
+      description: Does this feature align with project goals?
+      options:
+        - label: This feature improves data quality
+        - label: This feature enhances user experience for citizen scientists
+        - label: This feature improves reliability or error handling
+        - label: This feature improves accessibility
