@@ -27,6 +27,13 @@ Describe the purpose and context of this change.
 
 Link issue(s): # (if applicable)
 
+## Base Branch
+
+- [ ] This PR targets `staging` (required for feature/fix/refactor/test/chore branches)
+- [ ] This PR targets `main` (only for `staging` → `main` or `docs/` branches)
+
+> See [Branching Strategy](https://github.com/iboughtamouse/wbs-ethogram-form/blob/main/CONTRIBUTING.md#-branching-strategy) for details.
+
 ## Changes
 
 - Bullet list of key changes
@@ -44,7 +51,7 @@ Explain verification:
 
 ## Checklist
 
-- [ ] ✅ **Base branch verified** (staging for features, main for releases/docs)
+- [ ] **Correct base branch selected** (see branching strategy in CONTRIBUTING.md)
 - [ ] Conventional commit message format used
 - [ ] Tests pass locally (`npm test`)
 - [ ] Scope focused (no unrelated changes)
