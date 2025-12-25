@@ -21,8 +21,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
         '09:05': {
           behavior: '',
@@ -33,8 +35,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
         '09:10': {
           behavior: '',
@@ -45,8 +49,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       });
     });
@@ -63,8 +69,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       };
 
@@ -166,8 +174,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       };
 
@@ -199,8 +209,10 @@ describe('formStateManager', () => {
           objectOther: 'custom item',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       };
 
@@ -226,8 +238,10 @@ describe('formStateManager', () => {
           objectOther: 'custom item',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       };
 
@@ -253,8 +267,10 @@ describe('formStateManager', () => {
           objectOther: '',
           animal: 'other',
           animalOther: 'exotic species',
-          interactionType: '',
-          interactionTypeOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
         },
       };
 
@@ -269,7 +285,7 @@ describe('formStateManager', () => {
       expect(result['09:00'].animalOther).toBe('');
     });
 
-    it('should clear interactionTypeOther when interactionType changes away from "other"', () => {
+    it('should clear animalInteractionTypeOther when animalInteractionType changes away from "other"', () => {
       const observationsWithOther = {
         '09:00': {
           behavior: 'interaction-animate',
@@ -278,22 +294,24 @@ describe('formStateManager', () => {
           description: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: 'bird',
           animalOther: '',
-          interactionType: 'other',
-          interactionTypeOther: 'custom interaction',
+          animalInteractionType: 'other',
+          animalInteractionTypeOther: 'custom interaction',
         },
       };
 
       const result = updateObservationField(
         observationsWithOther,
         '09:00',
-        'interactionType',
+        'animalInteractionType',
         'agonistic'
       );
 
-      expect(result['09:00'].interactionType).toBe('agonistic');
-      expect(result['09:00'].interactionTypeOther).toBe('');
+      expect(result['09:00'].animalInteractionType).toBe('agonistic');
+      expect(result['09:00'].animalInteractionTypeOther).toBe('');
     });
 
     it('should not mutate the original observations object', () => {
