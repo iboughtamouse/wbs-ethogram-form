@@ -146,7 +146,7 @@ describe('useFormValidation', () => {
     it('should pass when behavior is selected', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
+        '09:00': { behavior: 'eating', location: '', notes: '' },
       };
 
       act(() => {
@@ -163,7 +163,7 @@ describe('useFormValidation', () => {
     it('should require location when behavior requires it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '', notes: '' },
+        '09:00': { behavior: 'walking', location: '', notes: '' },
       };
 
       act(() => {
@@ -182,7 +182,7 @@ describe('useFormValidation', () => {
     it('should accept valid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '5', notes: '' },
+        '09:00': { behavior: 'walking', location: '5', notes: '' },
       };
 
       act(() => {
@@ -233,7 +233,7 @@ describe('useFormValidation', () => {
     it('should reject invalid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking_perch', location: '99', notes: '' },
+        '09:00': { behavior: 'walking', location: '99', notes: '' },
       };
 
       act(() => {
@@ -252,7 +252,7 @@ describe('useFormValidation', () => {
     it('should not require location when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
+        '09:00': { behavior: 'drinking', location: '', notes: '' },
       };
 
       act(() => {
@@ -268,30 +268,6 @@ describe('useFormValidation', () => {
   });
 
   describe('validateDescription', () => {
-    it('should require description for aggression behavior', () => {
-      const { result } = renderHook(() => useFormValidation());
-      const observations = {
-        '09:00': {
-          behavior: 'aggression',
-          location: '',
-          notes: '',
-          description: '',
-        },
-      };
-
-      act(() => {
-        result.current.validateSingleObservationField(
-          '09:00',
-          'description',
-          observations,
-          ''
-        );
-      });
-
-      expect(result.current.fieldErrors['09:00_description']).toBe(
-        'Description is required for this behavior'
-      );
-    });
 
     it('should require description for other behavior', () => {
       const { result } = renderHook(() => useFormValidation());
@@ -318,34 +294,11 @@ describe('useFormValidation', () => {
       );
     });
 
-    it('should pass when description is provided for aggression', () => {
-      const { result } = renderHook(() => useFormValidation());
-      const observations = {
-        '09:00': {
-          behavior: 'aggression',
-          location: '',
-          notes: '',
-          description: 'Wings spread, hissing',
-        },
-      };
-
-      act(() => {
-        result.current.validateSingleObservationField(
-          '09:00',
-          'description',
-          observations,
-          'Wings spread, hissing'
-        );
-      });
-
-      expect(result.current.fieldErrors['09:00_description']).toBeUndefined();
-    });
-
     it('should not require description when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': {
-          behavior: 'eating_food_platform',
+          behavior: 'eating',
           location: '',
           notes: '',
           description: '',
@@ -368,7 +321,7 @@ describe('useFormValidation', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': {
-          behavior: 'aggression',
+          behavior: 'other',
           location: '',
           notes: '',
           description: '   ',
@@ -422,8 +375,8 @@ describe('useFormValidation', () => {
         endTime: '10:00',
       };
       const observations = {
-        '09:00': { behavior: 'eating_food_platform', location: '', notes: '' },
-        '09:05': { behavior: 'walking_perch', location: '5', notes: '' },
+        '09:00': { behavior: 'eating', location: 'F1', notes: '' },
+        '09:05': { behavior: 'walking', location: '5', notes: '' },
       };
 
       let isValid;
@@ -497,10 +450,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -523,15 +478,17 @@ describe('useFormValidation', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': {
-          behavior: 'walking_perch',
+          behavior: 'walking',
           location: '',
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -552,15 +509,17 @@ describe('useFormValidation', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': {
-          behavior: 'walking_perch',
+          behavior: 'walking',
           location: '5',
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -586,10 +545,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -615,10 +576,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: 'other',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -646,10 +609,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -677,10 +642,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
@@ -695,8 +662,8 @@ describe('useFormValidation', () => {
 
       expect(validation.valid).toBe(false);
       expect(validation.errors['09:00_animal']).toBe('Animal is required');
-      expect(validation.errors['09:00_interactionType']).toBe(
-        'Interaction type is required'
+      expect(validation.errors['09:00_animalInteractionType']).toBe(
+        'Animal interaction type is required'
       );
     });
 
@@ -709,10 +676,12 @@ describe('useFormValidation', () => {
           notes: '',
           object: '',
           objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
           animal: '',
           animalOther: '',
-          interactionType: '',
-          interactionTypeOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
           description: '',
         },
       };
