@@ -48,10 +48,6 @@ jobs:
               
               **Please update the base branch of this PR to \`staging\`.**
               
-              **Exception:** If this is an emergency hotfix that must go directly to production, please:
-              - Add the label \`hotfix\` to this PR
-              - Document why this bypasses staging in the PR description
-              
               See [CONTRIBUTING.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CONTRIBUTING.md) for more details.`;
               
               // Check for existing comment to avoid spam
@@ -86,15 +82,7 @@ jobs:
                 console.log('💬 Created new comment');
               }
               
-              // Check if PR has 'hotfix' label (manual override)
-              const hasHotfixLabel = pr.labels.some(label => label.name === 'hotfix');
-              
-              if (hasHotfixLabel) {
-                console.log('🚨 Hotfix label detected - allowing direct merge to main');
-                return;
-              }
-              
-              core.setFailed(`PRs should target 'staging', not '${baseBranch}' (unless labeled as 'hotfix')`);
+              core.setFailed(`PRs should target 'staging', not '${baseBranch}'`);
               return;
             }
             

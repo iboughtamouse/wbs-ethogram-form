@@ -22,7 +22,6 @@ We use a **staging-based workflow** to ensure stability and quality:
 ### Exceptions
 
 - `docs/` branches can target `main` directly (documentation-only changes)
-- Emergency hotfixes labeled `hotfix` can bypass `staging` (critical production issues only)
 
 > 📚 For detailed workflow walkthrough, see [BRANCHING.md](BRANCHING.md)
 
