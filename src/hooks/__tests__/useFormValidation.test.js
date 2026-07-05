@@ -268,7 +268,6 @@ describe('useFormValidation', () => {
   });
 
   describe('validateDescription', () => {
-
     it('should require description for other behavior', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {

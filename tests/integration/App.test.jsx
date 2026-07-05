@@ -198,8 +198,8 @@ describe('App Integration Tests', () => {
     test('updates metadata state when date changes', () => {
       render(<App />);
 
-      // Find date input by getting today's date value
-      const dateInput = screen.getAllByDisplayValue(/2025-\d{2}-\d{2}/)[0];
+      // Find date input by its ISO date-shaped value (defaults to today; year-agnostic)
+      const dateInput = screen.getAllByDisplayValue(/\d{4}-\d{2}-\d{2}/)[0];
       fireEvent.change(dateInput, { target: { value: '2025-12-25' } });
 
       expect(dateInput).toHaveValue('2025-12-25');

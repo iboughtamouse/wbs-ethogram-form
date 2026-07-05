@@ -63,6 +63,9 @@ export const ANIMAL_INTERACTION_TYPES = [
   { value: 'aggression_footing', label: 'Aggression: Footing' },
   { value: 'aggression_lunging', label: 'Aggression: Flying or Lunging At' },
   { value: 'aggression_other', label: 'Aggression: Other' },
-  { value: 'defensive_posturing', label: 'Defensive Posturing or Beak Clacking' },
+  {
+    value: 'defensive_posturing',
+    label: 'Defensive Posturing or Beak Clacking',
+  },
   { value: 'other', label: 'Other (specify below)' },
 ];
