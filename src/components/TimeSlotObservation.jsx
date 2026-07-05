@@ -293,12 +293,14 @@ TimeSlotObservation.propTypes = {
     notes: PropTypes.string.isRequired,
     object: PropTypes.string.isRequired,
     objectOther: PropTypes.string.isRequired,
-    objectInteractionType: PropTypes.string.isRequired,
-    objectInteractionTypeOther: PropTypes.string.isRequired,
+    // Interaction-type fields are optional: drafts autosaved before the
+    // interaction-field split won't contain them (see constants/interactions.js).
+    objectInteractionType: PropTypes.string,
+    objectInteractionTypeOther: PropTypes.string,
     animal: PropTypes.string.isRequired,
     animalOther: PropTypes.string.isRequired,
-    animalInteractionType: PropTypes.string.isRequired,
-    animalInteractionTypeOther: PropTypes.string.isRequired,
+    animalInteractionType: PropTypes.string,
+    animalInteractionTypeOther: PropTypes.string,
     description: PropTypes.string.isRequired,
   }).isRequired,
   behaviorError: PropTypes.string,
