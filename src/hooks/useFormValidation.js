@@ -3,7 +3,8 @@ import {
   requiresLocation,
   requiresObject,
   requiresAnimal,
-  requiresInteraction,
+  requiresObjectInteraction,
+  requiresAnimalInteraction,
   requiresDescription,
 } from '../constants';
 import { validateTimeRange } from '../utils/timeUtils';
@@ -15,10 +16,12 @@ const OBSERVATION_FIELDS_TO_VALIDATE = [
   'location',
   'object',
   'objectOther',
+  'objectInteractionType',
+  'objectInteractionTypeOther',
   'animal',
   'animalOther',
-  'interactionType',
-  'interactionTypeOther',
+  'animalInteractionType',
+  'animalInteractionTypeOther',
   'description',
 ];
 
@@ -99,16 +102,31 @@ export const useFormValidation = () => {
           error = 'Please specify the animal';
         }
       }
-    } else if (field === 'interactionType') {
-      if (requiresInteraction(behaviorValue)) {
+    } else if (field === 'objectInteractionType') {
+      if (requiresObjectInteraction(behaviorValue)) {
         if (!value) {
-          error = 'Interaction type is required';
+          error = 'Object interaction type is required';
         }
       }
-    } else if (field === 'interactionTypeOther') {
+    } else if (field === 'objectInteractionTypeOther') {
       if (
-        requiresInteraction(behaviorValue) &&
-        observation.interactionType === 'other'
+        requiresObjectInteraction(behaviorValue) &&
+        observation.objectInteractionType === 'other'
+      ) {
+        if (!value.trim()) {
+          error = 'Please specify the interaction';
+        }
+      }
+    } else if (field === 'animalInteractionType') {
+      if (requiresAnimalInteraction(behaviorValue)) {
+        if (!value) {
+          error = 'Animal interaction type is required';
+        }
+      }
+    } else if (field === 'animalInteractionTypeOther') {
+      if (
+        requiresAnimalInteraction(behaviorValue) &&
+        observation.animalInteractionType === 'other'
       ) {
         if (!value.trim()) {
           error = 'Please specify the interaction';

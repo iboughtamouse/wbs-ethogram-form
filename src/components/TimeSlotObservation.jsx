@@ -1,11 +1,14 @@
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
 import {
+  ANIMAL_INTERACTION_TYPES,
+  OBJECT_INTERACTION_TYPES,
   requiresAnimal,
+  requiresAnimalInteraction,
   requiresDescription,
-  requiresInteraction,
   requiresLocation,
   requiresObject,
+  requiresObjectInteraction,
 } from '../constants';
 import { debounce } from '../utils/debounce';
 import { formatTo12Hour } from '../utils/timeUtils';
@@ -26,10 +29,12 @@ const TimeSlotObservation = ({
   locationError,
   objectError,
   objectOtherError,
+  objectInteractionTypeError,
+  objectInteractionTypeOtherError,
   animalError,
   animalOtherError,
-  interactionTypeError,
-  interactionTypeOtherError,
+  animalInteractionTypeError,
+  animalInteractionTypeOtherError,
   descriptionError,
   onChange,
   onValidate,
@@ -53,7 +58,8 @@ const TimeSlotObservation = ({
   const showLocation = requiresLocation(observation.behavior);
   const showObject = requiresObject(observation.behavior);
   const showAnimal = requiresAnimal(observation.behavior);
-  const showInteraction = requiresInteraction(observation.behavior);
+  const showObjectInteraction = requiresObjectInteraction(observation.behavior);
+  const showAnimalInteraction = requiresAnimalInteraction(observation.behavior);
   const showDescription = requiresDescription(observation.behavior);
 
   // Format perch options for React Select
@@ -116,10 +122,16 @@ const TimeSlotObservation = ({
     onValidate(time, 'animal', newValue);
   };
 
-  const handleInteractionTypeChange = (e) => {
+  const handleObjectInteractionTypeChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, 'interactionType', newValue);
-    onValidate(time, 'interactionType', newValue);
+    onChange(time, 'objectInteractionType', newValue);
+    onValidate(time, 'objectInteractionType', newValue);
+  };
+
+  const handleAnimalInteractionTypeChange = (e) => {
+    const newValue = e.target.value;
+    onChange(time, 'animalInteractionType', newValue);
+    onValidate(time, 'animalInteractionType', newValue);
   };
 
   // Text field handlers - validate with debounce on change
@@ -135,10 +147,16 @@ const TimeSlotObservation = ({
     debouncedValidateRef.current(time, 'animalOther', newValue);
   };
 
-  const handleInteractionTypeOtherChange = (e) => {
+  const handleObjectInteractionTypeOtherChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, 'interactionTypeOther', newValue);
-    debouncedValidateRef.current(time, 'interactionTypeOther', newValue);
+    onChange(time, 'objectInteractionTypeOther', newValue);
+    debouncedValidateRef.current(time, 'objectInteractionTypeOther', newValue);
+  };
+
+  const handleAnimalInteractionTypeOtherChange = (e) => {
+    const newValue = e.target.value;
+    onChange(time, 'animalInteractionTypeOther', newValue);
+    debouncedValidateRef.current(time, 'animalInteractionTypeOther', newValue);
   };
 
   const handleDescriptionChange = (e) => {
@@ -221,15 +239,31 @@ const TimeSlotObservation = ({
         />
       )}
 
-      {showInteraction && (
+      {showObjectInteraction && (
         <InteractionTypeSelect
-          value={observation.interactionType}
-          otherValue={observation.interactionTypeOther}
-          onChange={handleInteractionTypeChange}
-          onOtherChange={handleInteractionTypeOtherChange}
-          onKeyDown={handleKeyDown('interactionTypeOther')}
-          error={interactionTypeError}
-          otherError={interactionTypeOtherError}
+          label="Object Interaction Type"
+          options={OBJECT_INTERACTION_TYPES}
+          value={observation.objectInteractionType}
+          otherValue={observation.objectInteractionTypeOther}
+          onChange={handleObjectInteractionTypeChange}
+          onOtherChange={handleObjectInteractionTypeOtherChange}
+          onKeyDown={handleKeyDown('objectInteractionTypeOther')}
+          error={objectInteractionTypeError}
+          otherError={objectInteractionTypeOtherError}
+        />
+      )}
+
+      {showAnimalInteraction && (
+        <InteractionTypeSelect
+          label="Animal Interaction Type"
+          options={ANIMAL_INTERACTION_TYPES}
+          value={observation.animalInteractionType}
+          otherValue={observation.animalInteractionTypeOther}
+          onChange={handleAnimalInteractionTypeChange}
+          onOtherChange={handleAnimalInteractionTypeOtherChange}
+          onKeyDown={handleKeyDown('animalInteractionTypeOther')}
+          error={animalInteractionTypeError}
+          otherError={animalInteractionTypeOtherError}
         />
       )}
 
@@ -259,20 +293,24 @@ TimeSlotObservation.propTypes = {
     notes: PropTypes.string.isRequired,
     object: PropTypes.string.isRequired,
     objectOther: PropTypes.string.isRequired,
+    objectInteractionType: PropTypes.string.isRequired,
+    objectInteractionTypeOther: PropTypes.string.isRequired,
     animal: PropTypes.string.isRequired,
     animalOther: PropTypes.string.isRequired,
-    interactionType: PropTypes.string.isRequired,
-    interactionTypeOther: PropTypes.string.isRequired,
+    animalInteractionType: PropTypes.string.isRequired,
+    animalInteractionTypeOther: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
   }).isRequired,
   behaviorError: PropTypes.string,
   locationError: PropTypes.string,
   objectError: PropTypes.string,
   objectOtherError: PropTypes.string,
+  objectInteractionTypeError: PropTypes.string,
+  objectInteractionTypeOtherError: PropTypes.string,
   animalError: PropTypes.string,
   animalOtherError: PropTypes.string,
-  interactionTypeError: PropTypes.string,
-  interactionTypeOtherError: PropTypes.string,
+  animalInteractionTypeError: PropTypes.string,
+  animalInteractionTypeOtherError: PropTypes.string,
   descriptionError: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   onValidate: PropTypes.func.isRequired,

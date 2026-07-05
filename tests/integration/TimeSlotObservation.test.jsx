@@ -29,7 +29,7 @@ jest.mock('../../src/components/form', () => ({
         <option value="jumping">Jumping</option>
         <option value="interacting_object">Interacting with Object</option>
         <option value="interacting_animal">Interacting with Animal</option>
-        <option value="aggression">Aggression</option>
+        <option value="other">Other</option>
       </select>
       {error && <div data-testid="behavior-error">{error}</div>}
     </div>
@@ -95,6 +95,8 @@ jest.mock('../../src/components/form', () => ({
     </div>
   ),
   InteractionTypeSelect: ({
+    label,
+    options,
     value,
     onChange,
     otherValue,
@@ -103,6 +105,7 @@ jest.mock('../../src/components/form', () => ({
     otherError,
   }) => (
     <div>
+      {label && <label data-testid="interaction-type-label">{label}</label>}
       <select
         data-testid="interaction-type-select"
         value={value}
@@ -134,10 +137,12 @@ describe('TimeSlotObservation', () => {
     notes: '',
     object: '',
     objectOther: '',
+    objectInteractionType: '',
+    objectInteractionTypeOther: '',
     animal: '',
     animalOther: '',
-    interactionType: '',
-    interactionTypeOther: '',
+    animalInteractionType: '',
+    animalInteractionTypeOther: '',
     description: '',
   };
 
@@ -296,7 +301,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -522,12 +527,12 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'interactionType',
+        'animalInteractionType',
         'watching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'interactionType',
+        'animalInteractionType',
         'watching'
       );
     });
@@ -558,7 +563,7 @@ describe('TimeSlotObservation', () => {
           observation={{
             ...defaultObservation,
             behavior: 'interacting_animal',
-            interactionType: 'other',
+            animalInteractionType: 'other',
           }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
@@ -576,7 +581,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -616,7 +621,7 @@ describe('TimeSlotObservation', () => {
       render(
         <TimeSlotObservation
           time="15:00"
-          observation={{ ...defaultObservation, behavior: 'aggression' }}
+          observation={{ ...defaultObservation, behavior: 'other' }}
           descriptionError="Description is required"
           onChange={mockOnChange}
           onValidate={mockOnValidate}
@@ -682,16 +687,18 @@ describe('TimeSlotObservation', () => {
             behavior: 'interacting_animal',
             object: 'other',
             animal: 'other',
-            interactionType: 'other',
+            animalInteractionType: 'other',
           }}
           behaviorError="Behavior error"
           locationError="Location error"
           objectError="Object error"
           objectOtherError="Object other error"
+          objectInteractionTypeError="Object interaction type error"
+          objectInteractionTypeOtherError="Object interaction type other error"
           animalError="Animal error"
           animalOtherError="Animal other error"
-          interactionTypeError="Interaction type error"
-          interactionTypeOtherError="Interaction type other error"
+          animalInteractionTypeError="Animal interaction type error"
+          animalInteractionTypeOtherError="Animal interaction type other error"
           onChange={mockOnChange}
           onValidate={mockOnValidate}
           onCopyToNext={mockOnCopyToNext}
@@ -709,11 +716,11 @@ describe('TimeSlotObservation', () => {
         'Animal other error'
       );
       expect(screen.getByTestId('interaction-type-error')).toHaveTextContent(
-        'Interaction type error'
+        'Animal interaction type error'
       );
       expect(
         screen.getByTestId('interaction-type-other-error')
-      ).toHaveTextContent('Interaction type other error');
+      ).toHaveTextContent('Animal interaction type other error');
     });
   });
 });
