@@ -10,6 +10,7 @@ import {
   DescriptionField,
   NotesField,
 } from '../../src/components/form';
+import { ANIMAL_INTERACTION_TYPES } from '../../src/constants';
 
 describe('Form Components', () => {
   describe('BehaviorSelect', () => {
@@ -37,9 +38,9 @@ describe('Form Components', () => {
       render(<BehaviorSelect value="" onChange={mockOnChange} />);
 
       const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'eating_food_platform' } });
+      fireEvent.change(select, { target: { value: 'eating' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('eating_food_platform');
+      expect(mockOnChange).toHaveBeenCalledWith('eating');
     });
 
     test('displays error when provided', () => {
@@ -66,7 +67,7 @@ describe('Form Components', () => {
 
       // Check for a few key behaviors
       expect(screen.getByText('Select a behavior...')).toBeInTheDocument();
-      expect(screen.getByText('Eating - On Food Platform')).toBeInTheDocument();
+      expect(screen.getByText('Eating')).toBeInTheDocument();
       expect(screen.getByText('Preening/Grooming')).toBeInTheDocument();
       expect(
         screen.getByText('Interacting with Inanimate Object')
@@ -415,6 +416,8 @@ describe('Form Components', () => {
     test('renders dropdown with value', () => {
       render(
         <InteractionTypeSelect
+          label="Animal Interaction Type"
+          options={ANIMAL_INTERACTION_TYPES}
           value="watching"
           otherValue=""
           onChange={mockOnChange}
@@ -430,6 +433,8 @@ describe('Form Components', () => {
     test('shows "other" text field when value is "other"', () => {
       render(
         <InteractionTypeSelect
+          label="Animal Interaction Type"
+          options={ANIMAL_INTERACTION_TYPES}
           value="other"
           otherValue=""
           onChange={mockOnChange}
@@ -446,6 +451,8 @@ describe('Form Components', () => {
     test('calls onChange when dropdown value changes', () => {
       render(
         <InteractionTypeSelect
+          label="Animal Interaction Type"
+          options={ANIMAL_INTERACTION_TYPES}
           value=""
           otherValue=""
           onChange={mockOnChange}

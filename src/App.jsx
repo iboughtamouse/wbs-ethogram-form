@@ -187,13 +187,19 @@ function App() {
                       locationError={fieldErrors[`${time}_location`]}
                       objectError={fieldErrors[`${time}_object`]}
                       objectOtherError={fieldErrors[`${time}_objectOther`]}
+                      objectInteractionTypeError={
+                        fieldErrors[`${time}_objectInteractionType`]
+                      }
+                      objectInteractionTypeOtherError={
+                        fieldErrors[`${time}_objectInteractionTypeOther`]
+                      }
                       animalError={fieldErrors[`${time}_animal`]}
                       animalOtherError={fieldErrors[`${time}_animalOther`]}
-                      interactionTypeError={
-                        fieldErrors[`${time}_interactionType`]
+                      animalInteractionTypeError={
+                        fieldErrors[`${time}_animalInteractionType`]
                       }
-                      interactionTypeOtherError={
-                        fieldErrors[`${time}_interactionTypeOther`]
+                      animalInteractionTypeOtherError={
+                        fieldErrors[`${time}_animalInteractionTypeOther`]
                       }
                       descriptionError={fieldErrors[`${time}_description`]}
                       onChange={onObservationChange}

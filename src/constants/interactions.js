@@ -13,9 +13,21 @@ export const INANIMATE_OBJECTS = [
   { value: 'other', label: 'Other (specify below)' },
 ];
 
+// Object interaction types for "Interacting with Inanimate Object" behavior
+export const OBJECT_INTERACTION_TYPES = [
+  { value: '', label: 'Select interaction...' },
+  { value: 'watching', label: 'Watching/Head Bobbing' },
+  { value: 'biting', label: 'Biting/Chewing' },
+  { value: 'footing', label: 'Footing' },
+  { value: 'carrying', label: 'Carrying' },
+  { value: 'pouncing', label: 'Pouncing' },
+  { value: 'other', label: 'Other (specify below)' },
+];
+
 // Animal types for "Interacting with Other Animal" behavior
 export const ANIMAL_TYPES = [
   { value: '', label: 'Select animal...' },
+  { value: 'human', label: 'Human' },
   { value: 'adult_aviary_occupant', label: 'Adult Aviary Occupant' },
   { value: 'juvenile_aviary_occupant', label: 'Juvenile Aviary Occupant' },
   { value: 'insect_within_aviary', label: 'Insect within Aviary' },
@@ -35,8 +47,8 @@ export const ANIMAL_TYPES = [
   { value: 'other', label: 'Other (specify below)' },
 ];
 
-// Interaction types for "Interacting with Other Animal" behavior
-export const INTERACTION_TYPES = [
+// Animal interaction types for "Interacting with Other Animal" behavior
+export const ANIMAL_INTERACTION_TYPES = [
   { value: '', label: 'Select interaction...' },
   { value: 'watching', label: 'Watching' },
   { value: 'preening_grooming', label: 'Preening/Grooming' },
@@ -46,6 +58,14 @@ export const INTERACTION_TYPES = [
   {
     value: 'non_aggressive_foot_grabbing',
     label: 'Non-Aggressive Foot Grabbing',
+  },
+  { value: 'aggression_biting', label: 'Aggression: Biting' },
+  { value: 'aggression_footing', label: 'Aggression: Footing' },
+  { value: 'aggression_lunging', label: 'Aggression: Flying or Lunging At' },
+  { value: 'aggression_other', label: 'Aggression: Other' },
+  {
+    value: 'defensive_posturing',
+    label: 'Defensive Posturing or Beak Clacking',
   },
   { value: 'other', label: 'Other (specify below)' },
 ];

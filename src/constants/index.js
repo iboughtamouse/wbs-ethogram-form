@@ -7,12 +7,14 @@ export {
   requiresLocation,
   requiresObject,
   requiresAnimal,
-  requiresInteraction,
+  requiresObjectInteraction,
+  requiresAnimalInteraction,
   requiresDescription,
 } from './behaviors';
 export { VALID_PERCHES, TIME_SLOTS } from './locations';
 export {
   INANIMATE_OBJECTS,
+  OBJECT_INTERACTION_TYPES,
   ANIMAL_TYPES,
-  INTERACTION_TYPES,
+  ANIMAL_INTERACTION_TYPES,
 } from './interactions';
