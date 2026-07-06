@@ -10,7 +10,6 @@ import '@testing-library/jest-dom';
 import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
 import * as timezoneUtils from '../../src/utils/timezoneUtils';
-import { downloadExcelFile } from '../../src/services/export/excelGenerator';
 import * as emailService from '../../src/services/emailService';
 import * as downloadService from '../../src/services/downloadService';
 
@@ -22,11 +21,6 @@ jest.mock('../../src/utils/timezoneUtils', () => ({
   convertToWBSTime: jest.fn((date, time) => time), // No conversion in tests
   getUserTimezone: jest.fn(() => 'America/New_York'),
   WBS_TIMEZONE: 'America/Chicago',
-}));
-
-// Mock Excel generator for download tests
-jest.mock('../../src/services/export/excelGenerator', () => ({
-  downloadExcelFile: jest.fn(),
 }));
 
 // Mock email service to prevent flaky tests from random mock failures

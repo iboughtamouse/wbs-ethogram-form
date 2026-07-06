@@ -31,6 +31,15 @@ export const isValidConfigDoc = (doc) =>
     Array.isArray(doc.animalInteractionTypes)
   );
 
+/** Drop the cached config (recovery path for a poisoned cache entry) */
+export const evictCachedConfig = () => {
+  try {
+    localStorage.removeItem(CONFIG_LOCALSTORAGE_KEY);
+  } catch {
+    // Nothing to do — the cache is best-effort either way
+  }
+};
+
 /** Last-good fetched config from localStorage, or null */
 export const loadCachedConfig = () => {
   try {

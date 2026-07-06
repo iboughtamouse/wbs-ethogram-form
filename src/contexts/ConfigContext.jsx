@@ -5,6 +5,7 @@ import {
   bundledConfig,
   getInitialConfig,
   fetchLatestConfig,
+  evictCachedConfig,
 } from '../services/configService';
 
 /**
@@ -20,7 +21,18 @@ import {
 const ConfigContext = createContext(adaptConfig(bundledConfig));
 
 export const ConfigProvider = ({ children }) => {
-  const [bundle, setBundle] = useState(() => adaptConfig(getInitialConfig()));
+  const [bundle, setBundle] = useState(() => {
+    try {
+      return adaptConfig(getInitialConfig());
+    } catch {
+      // A cached doc can pass the shape check yet still break adaptation.
+      // Without this guard (and the eviction) the throw lands in the render
+      // path and white-screens every subsequent load until the cache is
+      // cleared by hand. The bundled snapshot is always adaptable.
+      evictCachedConfig();
+      return adaptConfig(bundledConfig);
+    }
+  });
 
   useEffect(() => {
     let active = true;
