@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { generateTimeSlots, validateTimeRange } from '../utils/timeUtils';
+import { getTodayWBS } from '../utils/dateUtils';
 import { copyObservationToNext } from '../utils/observationUtils';
 import {
   generateObservationsForSlots,
@@ -14,7 +15,7 @@ import {
 } from '../services/formStateManager';
 
 export const useFormState = () => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayWBS();
 
   const [metadata, setMetadata] = useState({
     observerName: '',
@@ -89,7 +90,7 @@ export const useFormState = () => {
   const resetForm = useCallback(() => {
     setMetadata({
       observerName: '',
-      date: new Date().toISOString().split('T')[0],
+      date: getTodayWBS(),
       startTime: '',
       endTime: '',
       aviary: "Sayyida's Cove",
