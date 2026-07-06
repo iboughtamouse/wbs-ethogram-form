@@ -83,14 +83,12 @@ const formatCellContent = (observation) => {
     parts.push(`Object Interaction: ${interactionValue}`);
   }
 
-  // Handle animal interaction type (new field or legacy interactionType)
-  const animalInteractionType =
-    observation.animalInteractionType || observation.interactionType; // Legacy fallback
+  // Animal interaction type
+  const animalInteractionType = observation.animalInteractionType;
   if (animalInteractionType) {
     const interactionValue =
       animalInteractionType === 'other'
-        ? observation.animalInteractionTypeOther ||
-          observation.interactionTypeOther // Legacy fallback
+        ? observation.animalInteractionTypeOther
         : animalInteractionType;
     parts.push(`Animal Interaction: ${interactionValue}`);
   }
