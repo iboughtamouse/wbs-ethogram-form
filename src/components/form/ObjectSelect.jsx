@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { INANIMATE_OBJECTS } from '../../constants';
+import { MAX_OTHER_TEXT_LENGTH } from '../../constants/ui';
 
 const ObjectSelect = ({
   value,
@@ -40,6 +41,7 @@ const ObjectSelect = ({
             value={otherValue}
             onChange={onOtherChange}
             onKeyDown={onKeyDown}
+            maxLength={MAX_OTHER_TEXT_LENGTH}
             placeholder="Enter object name..."
             className={otherError ? 'error' : ''}
           />
