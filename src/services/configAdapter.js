@@ -51,7 +51,14 @@ export const adaptConfig = (doc, selectedAviarySlug = null) => {
       activeAviaries.find((a) => a.slug === selectedAviarySlug)) ||
     activeAviaries[0] ||
     doc.aviaries[0];
-  const vocabulary = aviary?.vocabulary ?? {};
+
+  // A shape-valid document with no usable aviary must throw rather than
+  // silently degrade to empty menus (followups FU-2) — the provider's
+  // recovery then keeps the last good bundle / bundled snapshot instead.
+  if (!aviary || !aviary.vocabulary) {
+    throw new Error('Config document has no usable aviary');
+  }
+  const vocabulary = aviary.vocabulary;
   const enabled = {
     behaviors: new Set(vocabulary.behaviors ?? []),
     object: new Set(vocabulary.objects ?? []),

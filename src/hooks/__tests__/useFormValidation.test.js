@@ -1,6 +1,25 @@
 import { renderHook, act } from '@testing-library/react';
 import { useFormValidation } from '../useFormValidation';
 
+// Builds one subject observation card with all fields present
+const makeCard = (overrides = {}) => ({
+  subjectType: 'foster_parent',
+  subjectId: 'Sayyida',
+  behavior: '',
+  location: '',
+  notes: '',
+  description: '',
+  object: '',
+  objectOther: '',
+  objectInteractionType: '',
+  objectInteractionTypeOther: '',
+  animal: '',
+  animalOther: '',
+  animalInteractionType: '',
+  animalInteractionTypeOther: '',
+  ...overrides,
+});
+
 describe('useFormValidation', () => {
   describe('validateMetadata', () => {
     it('should validate observer name is required', () => {
@@ -127,18 +146,19 @@ describe('useFormValidation', () => {
     it('should require behavior to be selected', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: '' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'behavior',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -146,35 +166,39 @@ describe('useFormValidation', () => {
     it('should pass when behavior is selected', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'eating', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: 'eating' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'behavior',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_behavior']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_behavior']
+      ).toBeUndefined();
     });
 
     it('should require location when behavior requires it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: 'walking', location: '' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_location']).toBe(
         'Location is required for this behavior'
       );
     });
@@ -182,69 +206,79 @@ describe('useFormValidation', () => {
     it('should accept valid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking', location: '5', notes: '' },
+        '09:00': [makeCard({ behavior: 'walking', location: '5' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_location']
+      ).toBeUndefined();
     });
 
     it('should accept "Ground" as location (case-insensitive)', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'preening', location: 'ground', notes: '' },
+        '09:00': [makeCard({ behavior: 'preening', location: 'ground' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_location']
+      ).toBeUndefined();
     });
 
     it('should accept special perch codes (BB1, F1, etc.)', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'preening', location: 'BB1', notes: '' },
+        '09:00': [makeCard({ behavior: 'preening', location: 'BB1' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_location']
+      ).toBeUndefined();
     });
 
     it('should reject invalid perch number', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'walking', location: '99', notes: '' },
+        '09:00': [makeCard({ behavior: 'walking', location: '99' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_location']).toBe(
         'Invalid perch number "99"'
       );
     });
@@ -252,18 +286,65 @@ describe('useFormValidation', () => {
     it('should not require location when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': { behavior: 'drinking', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: 'drinking', location: '' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_location']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_location']
+      ).toBeUndefined();
+    });
+
+    it('should track same-named field errors per subject in one slot', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': [
+          makeCard({ subjectId: 'Sayyida', behavior: '' }),
+          makeCard({
+            subjectType: 'resident',
+            subjectId: 'Peanut',
+            behavior: '',
+          }),
+        ],
+      };
+
+      // Both subjects' behavior fields are invalid
+      act(() => {
+        result.current.validateObservationSlot('09:00', observations);
+      });
+
+      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
+        'Please select a behavior'
+      );
+      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+        'Please select a behavior'
+      );
+
+      // Fixing one subject's field must NOT clear the other's error
+      act(() => {
+        result.current.validateSingleObservationField(
+          '09:00',
+          'Sayyida',
+          'behavior',
+          observations,
+          'eating'
+        );
+      });
+
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_behavior']
+      ).toBeUndefined();
+      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+        'Please select a behavior'
+      );
     });
   });
 
@@ -271,24 +352,20 @@ describe('useFormValidation', () => {
     it('should require description for other behavior', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'other',
-          location: '',
-          notes: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'other', description: '' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'description',
           observations,
           ''
         );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -296,47 +373,41 @@ describe('useFormValidation', () => {
     it('should not require description when behavior does not need it', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'eating',
-          location: '',
-          notes: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'eating', description: '' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'description',
           observations,
           ''
         );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBeUndefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_description']
+      ).toBeUndefined();
     });
 
     it('should reject whitespace-only description', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'other',
-          location: '',
-          notes: '',
-          description: '   ',
-        },
+        '09:00': [makeCard({ behavior: 'other', description: '   ' })],
       };
 
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
+          'Sayyida',
           'description',
           observations,
           '   '
         );
       });
 
-      expect(result.current.fieldErrors['09:00_description']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -352,7 +423,7 @@ describe('useFormValidation', () => {
         endTime: '10:00',
       };
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: '' })],
       };
 
       let isValid;
@@ -362,7 +433,9 @@ describe('useFormValidation', () => {
 
       expect(isValid).toBe(false);
       expect(result.current.fieldErrors.observerName).toBeDefined();
-      expect(result.current.fieldErrors['09:00_behavior']).toBeDefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_behavior']
+      ).toBeDefined();
     });
 
     it('should return true when form is completely valid', () => {
@@ -374,8 +447,8 @@ describe('useFormValidation', () => {
         endTime: '10:00',
       };
       const observations = {
-        '09:00': { behavior: 'eating', location: 'F1', notes: '' },
-        '09:05': { behavior: 'walking', location: '5', notes: '' },
+        '09:00': [makeCard({ behavior: 'eating', location: 'F1' })],
+        '09:05': [makeCard({ behavior: 'walking', location: '5' })],
       };
 
       let isValid;
@@ -385,6 +458,39 @@ describe('useFormValidation', () => {
 
       expect(isValid).toBe(true);
       expect(Object.keys(result.current.fieldErrors)).toHaveLength(0);
+    });
+
+    it('should validate every subject card in a slot', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const metadata = {
+        observerName: 'testuser',
+        date: '2025-11-20',
+        startTime: '09:00',
+        endTime: '10:00',
+      };
+      const observations = {
+        '09:00': [
+          makeCard({ subjectId: 'Sayyida', behavior: 'eating' }),
+          makeCard({
+            subjectType: 'resident',
+            subjectId: 'Peanut',
+            behavior: '',
+          }),
+        ],
+      };
+
+      let isValid;
+      act(() => {
+        isValid = result.current.validateForm(metadata, observations);
+      });
+
+      expect(isValid).toBe(false);
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_behavior']
+      ).toBeUndefined();
+      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+        'Please select a behavior'
+      );
     });
   });
 
@@ -420,7 +526,7 @@ describe('useFormValidation', () => {
         endTime: '',
       };
       const observations = {
-        '09:00': { behavior: '', location: '', notes: '' },
+        '09:00': [makeCard({ behavior: '' })],
       };
 
       // Generate multiple errors
@@ -443,20 +549,7 @@ describe('useFormValidation', () => {
     it('should return invalid when behavior is empty', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: '',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: '' })],
       };
 
       let validation;
@@ -468,7 +561,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_behavior']).toBe(
+      expect(validation.errors['09:00_Sayyida_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -476,20 +569,7 @@ describe('useFormValidation', () => {
     it('should return invalid when required location is missing', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'walking',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'walking', location: '' })],
       };
 
       let validation;
@@ -501,26 +581,13 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_location']).toBeDefined();
+      expect(validation.errors['09:00_Sayyida_location']).toBeDefined();
     });
 
     it('should return valid when all required fields are filled', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'walking',
-          location: '5',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'walking', location: '5' })],
       };
 
       let validation;
@@ -538,20 +605,7 @@ describe('useFormValidation', () => {
     it('should return invalid when object is required but not filled', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'interacting_object',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'interacting_object' })],
       };
 
       let validation;
@@ -563,26 +617,17 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_object']).toBe('Object is required');
+      expect(validation.errors['09:00_Sayyida_object']).toBe(
+        'Object is required'
+      );
     });
 
     it('should return invalid when objectOther is required but not filled', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'interacting_object',
-          location: '',
-          notes: '',
-          object: 'other',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [
+          makeCard({ behavior: 'interacting_object', object: 'other' }),
+        ],
       };
 
       let validation;
@@ -594,7 +639,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_objectOther']).toBe(
+      expect(validation.errors['09:00_Sayyida_objectOther']).toBe(
         'Please specify the object'
       );
     });
@@ -602,20 +647,7 @@ describe('useFormValidation', () => {
     it('should return invalid when description is required but not filled', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'other',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'other' })],
       };
 
       let validation;
@@ -627,7 +659,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_description']).toBe(
+      expect(validation.errors['09:00_Sayyida_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -635,20 +667,7 @@ describe('useFormValidation', () => {
     it('should return invalid when animal and interaction type are required but not filled', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: 'interacting_animal',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: 'interacting_animal' })],
       };
 
       let validation;
@@ -660,36 +679,55 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_animal']).toBe('Animal is required');
-      expect(validation.errors['09:00_animalInteractionType']).toBe(
+      expect(validation.errors['09:00_Sayyida_animal']).toBe(
+        'Animal is required'
+      );
+      expect(validation.errors['09:00_Sayyida_animalInteractionType']).toBe(
         'Animal interaction type is required'
+      );
+    });
+
+    it('should validate every card in the slot and key errors by subject', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = {
+        '09:00': [
+          makeCard({ subjectId: 'Sayyida', behavior: 'walking', location: '' }),
+          makeCard({
+            subjectType: 'resident',
+            subjectId: 'Peanut',
+            behavior: '',
+          }),
+        ],
+      };
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors['09:00_Sayyida_location']).toBe(
+        'Location is required for this behavior'
+      );
+      expect(validation.errors['09:00_Peanut_behavior']).toBe(
+        'Please select a behavior'
       );
     });
 
     it('should update fieldErrors state when validation fails', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
-        '09:00': {
-          behavior: '',
-          location: '',
-          notes: '',
-          object: '',
-          objectOther: '',
-          objectInteractionType: '',
-          objectInteractionTypeOther: '',
-          animal: '',
-          animalOther: '',
-          animalInteractionType: '',
-          animalInteractionTypeOther: '',
-          description: '',
-        },
+        '09:00': [makeCard({ behavior: '' })],
       };
 
       act(() => {
         result.current.validateObservationSlot('09:00', observations);
       });
 
-      expect(result.current.fieldErrors['09:00_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -697,6 +735,22 @@ describe('useFormValidation', () => {
     it('should return invalid for non-existent observation slot', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {};
+
+      let validation;
+      act(() => {
+        validation = result.current.validateObservationSlot(
+          '09:00',
+          observations
+        );
+      });
+
+      expect(validation.valid).toBe(false);
+      expect(Object.keys(validation.errors)).toHaveLength(0);
+    });
+
+    it('should return invalid for an empty (no cards) slot', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = { '09:00': [] };
 
       let validation;
       act(() => {

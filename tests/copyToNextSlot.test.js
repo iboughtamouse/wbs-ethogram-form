@@ -2,6 +2,7 @@ import {
   getNextTimeSlot,
   copyObservationToNext,
 } from '../src/utils/observationUtils';
+import { createEmptyObservation } from '../src/services/formStateManager';
 
 describe('getNextTimeSlot', () => {
   test('returns the next time slot in sequence', () => {
@@ -33,71 +34,81 @@ describe('getNextTimeSlot', () => {
 });
 
 describe('copyObservationToNext', () => {
-  const sampleObservation = {
+  const makeCard = (overrides = {}) => ({
+    ...createEmptyObservation('foster_parent', 'Sayyida'),
+    ...overrides,
+  });
+
+  const sampleCard = makeCard({
     behavior: 'perching',
     location: '12',
     notes: 'Watching stream',
-    object: '',
-    objectOther: '',
-    animal: '',
-    animalOther: '',
-    interactionType: '',
-    interactionTypeOther: '',
-  };
+  });
 
   test('copies all observation fields to next time slot', () => {
     const observations = {
-      '15:00': sampleObservation,
-      '15:05': {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [sampleCard],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05']).toEqual(sampleObservation);
+    expect(result.updatedObservations['15:05']).toEqual([sampleCard]);
     expect(result.targetTime).toBe('15:05');
+  });
+
+  test('copies the whole card set - a two-card slot copies both cards', () => {
+    const secondCard = makeCard({
+      subjectType: 'resident',
+      subjectId: 'Dorothy',
+      behavior: 'vocalizing',
+      location: '3',
+    });
+    const observations = {
+      '15:00': [sampleCard, secondCard],
+      '15:05': [makeCard()],
+    };
+    const timeSlots = ['15:00', '15:05'];
+
+    const result = copyObservationToNext(observations, timeSlots, '15:00');
+
+    expect(result.success).toBe(true);
+    expect(result.updatedObservations['15:05']).toEqual([
+      sampleCard,
+      secondCard,
+    ]);
+    expect(result.updatedObservations['15:05']).toHaveLength(2);
   });
 
   test('overwrites existing data in next slot', () => {
     const observations = {
-      '15:00': sampleObservation,
-      '15:05': {
-        behavior: 'flying',
-        location: '5',
-        notes: 'Old data',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [sampleCard],
+      '15:05': [
+        makeCard({
+          behavior: 'flying',
+          location: '5',
+          notes: 'Old data',
+        }),
+      ],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05'].behavior).toBe('perching');
-    expect(result.updatedObservations['15:05'].location).toBe('12');
-    expect(result.updatedObservations['15:05'].notes).toBe('Watching stream');
+    expect(result.updatedObservations['15:05'][0].behavior).toBe('perching');
+    expect(result.updatedObservations['15:05'][0].location).toBe('12');
+    expect(result.updatedObservations['15:05'][0].notes).toBe(
+      'Watching stream'
+    );
   });
 
   test('returns failure when on last time slot', () => {
     const observations = {
-      '15:00': sampleObservation,
-      '15:05': sampleObservation,
+      '15:00': [sampleCard],
+      '15:05': [sampleCard],
     };
     const timeSlots = ['15:00', '15:05'];
 
@@ -109,128 +120,80 @@ describe('copyObservationToNext', () => {
   });
 
   test('copies interaction sub-fields correctly', () => {
-    const observationWithInteraction = {
-      ...sampleObservation,
+    const cardWithInteraction = makeCard({
       behavior: 'interacting_object',
       object: 'newspaper',
-      objectOther: '',
-    };
+      objectInteractionType: 'beaking',
+    });
     const observations = {
-      '15:00': observationWithInteraction,
-      '15:05': {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [cardWithInteraction],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05'].object).toBe('newspaper');
-    expect(result.updatedObservations['15:05'].behavior).toBe(
+    expect(result.updatedObservations['15:05'][0].object).toBe('newspaper');
+    expect(result.updatedObservations['15:05'][0].objectInteractionType).toBe(
+      'beaking'
+    );
+    expect(result.updatedObservations['15:05'][0].behavior).toBe(
       'interacting_object'
     );
   });
 
   test('copies "other" text fields correctly', () => {
-    const observationWithOther = {
-      ...sampleObservation,
+    const cardWithOther = makeCard({
       behavior: 'interacting_object',
       object: 'other',
       objectOther: 'Custom toy',
-    };
+    });
     const observations = {
-      '15:00': observationWithOther,
-      '15:05': {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [cardWithOther],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05'].object).toBe('other');
-    expect(result.updatedObservations['15:05'].objectOther).toBe('Custom toy');
+    expect(result.updatedObservations['15:05'][0].object).toBe('other');
+    expect(result.updatedObservations['15:05'][0].objectOther).toBe(
+      'Custom toy'
+    );
   });
 
   test('handles empty source observation', () => {
-    const emptyObservation = {
-      behavior: '',
-      location: '',
-      notes: '',
-      object: '',
-      objectOther: '',
-      animal: '',
-      animalOther: '',
-      interactionType: '',
-      interactionTypeOther: '',
-    };
     const observations = {
-      '15:00': emptyObservation,
-      '15:05': emptyObservation,
+      '15:00': [makeCard()],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05']).toEqual(emptyObservation);
+    expect(result.updatedObservations['15:05']).toEqual([makeCard()]);
   });
 
   test('preserves time slot keys - does not modify time strings', () => {
     const observations = {
-      '15:00': sampleObservation,
-      '15:05': {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [sampleCard],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
 
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(Object.keys(result.updatedObservations)).toEqual(['15:00', '15:05']);
-    expect(result.updatedObservations['15:00']).toEqual(sampleObservation); // Content unchanged
+    expect(result.updatedObservations['15:00']).toEqual([sampleCard]); // Content unchanged
   });
 
   test('does not mutate original observations object', () => {
     const observations = {
-      '15:00': { ...sampleObservation },
-      '15:05': {
-        behavior: '',
-        location: '',
-        notes: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '15:00': [makeCard(sampleCard)],
+      '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
     const originalObservations = JSON.parse(JSON.stringify(observations));

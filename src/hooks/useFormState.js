@@ -25,7 +25,8 @@ export const useFormState = () => {
   // in the initial state and re-read only by resetForm/restoreDraft, even if
   // a fetched config upgrades the bundle post-mount — safe because slugs are
   // stable keys (append-only, never renamed by the publish rules).
-  const { aviarySlug, getSubjectsPresentOn, selectAviary } = useConfig();
+  const { aviarySlug, subjects, getSubjectsPresentOn, selectAviary } =
+    useConfig();
   const today = getTodayWBS();
 
   const [metadata, setMetadata] = useState({
@@ -42,11 +43,16 @@ export const useFormState = () => {
 
   // New slots start with one card for the default subject (P2-D2): the
   // foster parent present on the observation date, else the first subject
-  // present, else no card (an aviary with no residents that day).
+  // present. When no episode covers the date (e.g. a VOD review predating
+  // the config's approximate arrival date), fall back to the current
+  // residents — recording must never dead-end; the card's "not listed for
+  // this date" flag surfaces the mismatch, and the server check is warn-only.
   const defaultSubjectFor = (date) => {
     const present = getSubjectsPresentOn(date);
-    const subject =
-      present.find((s) => s.type === 'foster_parent') ?? present[0];
+    const pool = present.length
+      ? present
+      : subjects.filter((s) => !s.departedOn);
+    const subject = pool.find((s) => s.type === 'foster_parent') ?? pool[0];
     return subject ? { type: subject.type, name: subject.name } : null;
   };
 
