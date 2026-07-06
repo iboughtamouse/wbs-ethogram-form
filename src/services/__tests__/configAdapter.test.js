@@ -1,91 +1,47 @@
 /**
- * Config adapter tests, including the stage-D parity gate: the adapted
- * bundled snapshot must be semantically identical to the hardcoded constants
- * it replaces. When stage E deletes the constants, the parity suite goes
- * with them; the shape tests stay.
+ * Config adapter tests. The stage-D parity suite (adapter vs the old
+ * hardcoded constants) was retired in stage E along with the constants it
+ * compared against; absolute assertions on the bundled snapshot remain.
  */
 
 import { adaptConfig } from '../configAdapter';
 import { bundledConfig } from '../configService';
-import {
-  BEHAVIORS,
-  BEHAVIOR_GROUP_ORDER,
-  getGroupedBehaviors,
-  INANIMATE_OBJECTS,
-  OBJECT_INTERACTION_TYPES,
-  ANIMAL_TYPES,
-  ANIMAL_INTERACTION_TYPES,
-  VALID_PERCHES,
-  requiresLocation,
-  requiresObject,
-  requiresObjectInteraction,
-  requiresAnimal,
-  requiresAnimalInteraction,
-  requiresDescription,
-} from '../../constants';
 
 const bundle = adaptConfig(bundledConfig);
 
-describe('adaptConfig — parity with the hardcoded constants (stage D gate)', () => {
-  it('exposes the same active behaviors with identical labels and groups', () => {
-    const constantValues = BEHAVIORS.filter((b) => b.value !== '').map(
-      (b) => b.value
-    );
-    const bundleValues = bundle.BEHAVIORS.filter((b) => b.value !== '').map(
-      (b) => b.value
-    );
+describe('adaptConfig — bundled snapshot', () => {
+  it('exposes 18 active behaviors in six groups', () => {
+    expect(bundle.BEHAVIORS).toHaveLength(18);
+    expect(bundle.BEHAVIOR_GROUP_ORDER).toEqual([
+      'Feeding',
+      'Locomotion',
+      'Resting',
+      'Maintenance',
+      'Social & Environmental',
+      'Other',
+    ]);
+    expect(bundle.requiresLocation('eating')).toBe(true);
+    expect(bundle.requiresDescription('other')).toBe(true);
+    expect(bundle.requiresObject('interacting_object')).toBe(true);
+  });
 
-    expect(bundleValues.sort()).toEqual([...constantValues].sort());
-
-    BEHAVIORS.filter((b) => b.value !== '').forEach((expected) => {
-      const actual = bundle.BEHAVIORS.find((b) => b.value === expected.value);
-      expect(actual.label).toBe(expected.label);
-      expect(actual.group).toBe(expected.group);
+  it('builds option lists with placeholders first and other pinned last', () => {
+    expect(bundle.INANIMATE_OBJECTS[0]).toEqual({
+      value: '',
+      label: 'Select object...',
     });
+    expect(bundle.INANIMATE_OBJECTS.at(-1).value).toBe('other');
+    expect(bundle.INANIMATE_OBJECTS).toHaveLength(11);
+    expect(bundle.OBJECT_INTERACTION_TYPES).toHaveLength(7);
+    expect(bundle.ANIMAL_TYPES).toHaveLength(10);
+    expect(bundle.ANIMAL_INTERACTION_TYPES).toHaveLength(12);
   });
 
-  it('agrees with every requires* helper for every behavior value', () => {
-    const helpers = {
-      requiresLocation,
-      requiresObject,
-      requiresObjectInteraction,
-      requiresAnimal,
-      requiresAnimalInteraction,
-      requiresDescription,
-    };
-
-    BEHAVIORS.filter((b) => b.value !== '').forEach(({ value }) => {
-      Object.entries(helpers).forEach(([name, constantHelper]) => {
-        expect(`${value}.${name}=${bundle[name](value)}`).toBe(
-          `${value}.${name}=${constantHelper(value)}`
-        );
-      });
-    });
-  });
-
-  it('produces identical grouped behavior menus', () => {
-    const strip = (groups) =>
-      groups.map(({ group, options }) => ({
-        group,
-        options: options.map((o) => ({ value: o.value, label: o.label })),
-      }));
-
-    expect(strip(bundle.getGroupedBehaviors())).toEqual(
-      strip(getGroupedBehaviors())
-    );
-    expect(bundle.BEHAVIOR_GROUP_ORDER).toEqual(BEHAVIOR_GROUP_ORDER);
-  });
-
-  it('produces identical option lists for all four vocabularies', () => {
-    expect(bundle.INANIMATE_OBJECTS).toEqual(INANIMATE_OBJECTS);
-    expect(bundle.OBJECT_INTERACTION_TYPES).toEqual(OBJECT_INTERACTION_TYPES);
-    expect(bundle.ANIMAL_TYPES).toEqual(ANIMAL_TYPES);
-    expect(bundle.ANIMAL_INTERACTION_TYPES).toEqual(ANIMAL_INTERACTION_TYPES);
-  });
-
-  it('covers VALID_PERCHES exactly, plus Ground (the seed union)', () => {
-    const expected = new Set([...VALID_PERCHES.map(String), 'Ground']);
-    expect(new Set(bundle.VALID_PERCHES)).toEqual(expected);
+  it('exposes 38 perch values including Ground', () => {
+    expect(bundle.VALID_PERCHES).toHaveLength(38);
+    expect(bundle.VALID_PERCHES).toContain('Ground');
+    expect(bundle.VALID_PERCHES).toContain('31');
+    expect(bundle.VALID_PERCHES).toContain('W');
   });
 
   it('reproduces the inline perch dropdown structure', () => {
@@ -213,7 +169,7 @@ describe('adaptConfig — behavior beyond the constants', () => {
     };
 
     const adapted = adaptConfig(doc);
-    expect(adapted.BEHAVIORS).toHaveLength(1); // placeholder only
+    expect(adapted.BEHAVIORS).toHaveLength(0);
     expect(adapted.INANIMATE_OBJECTS).toHaveLength(1);
   });
 });
