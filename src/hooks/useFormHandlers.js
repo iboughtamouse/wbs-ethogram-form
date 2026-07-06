@@ -69,11 +69,11 @@ export function useFormHandlers({
    * Handle observation field changes
    * Clears field errors when user starts typing
    */
-  const onObservationChange = (time, subjectId, field, value) => {
-    handleObservationChange(time, subjectId, field, value);
+  const onObservationChange = (time, cardId, field, value) => {
+    handleObservationChange(time, cardId, field, value);
 
     // Clear error when user starts typing
-    const errorKey = observationErrorKey(time, subjectId, field);
+    const errorKey = observationErrorKey(time, cardId, field);
     if (fieldErrors[errorKey]) {
       clearFieldError(errorKey);
     }
@@ -83,15 +83,10 @@ export function useFormHandlers({
    * Handle observation field validation
    * Triggered on blur or Enter key
    */
-  const onObservationValidate = (
-    time,
-    subjectId,
-    field,
-    currentValue = null
-  ) => {
+  const onObservationValidate = (time, cardId, field, currentValue = null) => {
     validateSingleObservationField(
       time,
-      subjectId,
+      cardId,
       field,
       observations,
       currentValue
@@ -103,9 +98,9 @@ export function useFormHandlers({
    * Clears the card's validation errors first, so re-adding the same
    * subject never resurrects phantom errors on a pristine card
    */
-  const onRemoveSubject = (time, subjectId) => {
-    clearObservationErrors(time, subjectId);
-    handleRemoveSubject(time, subjectId);
+  const onRemoveSubject = (time, cardId) => {
+    clearObservationErrors(time, cardId);
+    handleRemoveSubject(time, cardId);
   };
 
   /**

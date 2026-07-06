@@ -206,7 +206,21 @@ describe('useAutoSave', () => {
         result.current.handleRestoreDraft();
       });
 
-      expect(mockOnRestore).toHaveBeenCalledWith(currentDraft);
+      // migrateDraft normalizes cardIds even on the v2 pass-through path, so
+      // the restored draft is a new object whose cards gained a cardId
+      expect(mockOnRestore).toHaveBeenCalledWith({
+        ...currentDraft,
+        observations: {
+          '09:00': [
+            {
+              subjectType: 'foster_parent',
+              subjectId: 'Sayyida',
+              behavior: 'perching',
+              cardId: expect.any(String),
+            },
+          ],
+        },
+      });
       expect(result.current.showDraftNotice).toBe(false);
       expect(result.current.draftTimestamp).toBeNull();
     });
@@ -255,6 +269,7 @@ describe('useAutoSave', () => {
               location: '1',
               subjectType: 'foster_parent',
               subjectId: 'Sayyida',
+              cardId: expect.any(String),
             },
           ],
         },

@@ -677,7 +677,6 @@ describe('App Integration Tests', () => {
             objectOther: '',
             animal: '',
             animalOther: '',
-            interactionType: '',
             interactionTypeOther: '',
           },
         },

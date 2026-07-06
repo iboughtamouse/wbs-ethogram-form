@@ -23,7 +23,6 @@ describe('OutputPreview', () => {
         objectOther: '',
         animal: '',
         animalOther: '',
-        interactionType: '',
         interactionTypeOther: '',
       },
     },

@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "publishedAt": "2026-07-06T05:33:11.092Z",
+  "version": 2,
+  "publishedAt": "2026-07-06T16:06:36.449Z",
   "animals": [
     {
       "label": "Adult Aviary Occupant",
@@ -378,7 +378,28 @@
           "name": "Sayyida",
           "type": "foster_parent",
           "species": "Barred Owl",
-          "arrivedOn": "2025-11-29",
+          "arrivedOn": "2025-12-15",
+          "departedOn": null
+        },
+        {
+          "name": "187(B)",
+          "type": "juvenile",
+          "species": "Barred Owl",
+          "arrivedOn": "2026-06-01",
+          "departedOn": null
+        },
+        {
+          "name": "216(O)",
+          "type": "juvenile",
+          "species": "Barred Owl",
+          "arrivedOn": "2026-06-01",
+          "departedOn": null
+        },
+        {
+          "name": "253(R)",
+          "type": "juvenile",
+          "species": "Barred Owl",
+          "arrivedOn": "2026-06-01",
           "departedOn": null
         }
       ],

@@ -17,6 +17,13 @@ export const OFFLINE_FILE_PREFIX = 'offline';
 // LocalStorage key for drafts
 export const DRAFT_LOCALSTORAGE_KEY = 'wbs-ethogram-draft';
 
+// Generic (unidentified) juvenile identity (P2-D8): most observers cannot
+// tell juveniles apart, so recording must not require picking a name. The ID
+// is the wire/DB/Excel subjectId literal; the label is what the UI shows.
+// The backend exempts this literal from its subject-residency warn.
+export const GENERIC_JUVENILE_ID = 'Juvenile';
+export const GENERIC_JUVENILE_LABEL = 'Juvenile (unidentified)';
+
 // Draft payload shape version. Absent = pre-Phase-2 (flat observations,
 // metadata.patient, aviary as display name); 2 = array-native observations,
 // no patient, aviary as slug. Bump when the persisted shape changes and add
