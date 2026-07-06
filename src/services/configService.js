@@ -17,10 +17,10 @@ export const bundledConfig = defaultConfig;
 export const isValidConfigDoc = (doc) =>
   Boolean(
     doc &&
-      Number.isInteger(doc.version) &&
-      Array.isArray(doc.behaviors) &&
-      Array.isArray(doc.behaviorGroups) &&
-      Array.isArray(doc.aviaries)
+    Number.isInteger(doc.version) &&
+    Array.isArray(doc.behaviors) &&
+    Array.isArray(doc.behaviorGroups) &&
+    Array.isArray(doc.aviaries)
   );
 
 /** Last-good fetched config from localStorage, or null */
