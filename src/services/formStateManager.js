@@ -15,6 +15,9 @@ const newCardId = () =>
     ? globalThis.crypto.randomUUID()
     : `card-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
+/** Clone a card as a NEW card (fresh cardId) — used when copying slots. */
+export const withNewCardId = (card) => ({ ...card, cardId: newCardId() });
+
 /**
  * Ensures every card in every slot carries a cardId — drafts saved before
  * cardIds existed (or hand-edited ones) are normalized on restore.

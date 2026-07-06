@@ -621,6 +621,36 @@ describe('useFormValidation', () => {
     });
   });
 
+  describe('slot card cap', () => {
+    it('flags a slot holding more than 20 cards (backend max)', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const slot = Array.from({ length: 21 }, (_, i) =>
+        makeCard({ cardId: `card-${i}`, behavior: 'preening' })
+      );
+
+      const metadata = {
+        observerName: 'Valid Observer',
+        date: '2026-06-15',
+        startTime: '09:00',
+        endTime: '09:30',
+        aviary: 'sayyidas-cove',
+        mode: 'live',
+      };
+
+      let isValid;
+      act(() => {
+        isValid = result.current.validateForm(metadata, {
+          '09:00': slot,
+        });
+      });
+
+      expect(isValid).toBe(false);
+      expect(result.current.fieldErrors['09:00__slot']).toContain(
+        'At most 20 subjects'
+      );
+    });
+  });
+
   describe('clearObservationErrors', () => {
     it("should clear all of one card's errors but keep other cards' and metadata errors", () => {
       const { result } = renderHook(() => useFormValidation());

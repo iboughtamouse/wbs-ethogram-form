@@ -27,20 +27,32 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot,
 }) => {
-  const { getSubjectsPresentOn } = useConfig();
+  const { getSubjectsPresentOn, subjects } = useConfig();
 
   const presentSubjects = getSubjectsPresentOn(observationDate);
   const presentNames = new Set(presentSubjects.map((s) => s.name));
+  // Same fallback rule as the default card (useFormState): arrival dates in
+  // config are approximate, so when no episode covers the date the add row
+  // offers the current residents instead of dead-ending — the card's
+  // "not listed for this date" flag surfaces the mismatch.
+  const currentResidents = subjects.filter((s) => !s.departedOn);
+  const addPool = presentSubjects.length ? presentSubjects : currentResidents;
   const recordedNames = new Set(observations.map((o) => o.subjectId));
   // The backend caps a slot at 20 subject entries — stop offering more
   const slotFull = observations.length >= 20;
   const addableSubjects = slotFull
     ? []
-    : presentSubjects.filter((s) => !recordedNames.has(s.name));
+    : addPool.filter((s) => !recordedNames.has(s.name));
   // Generic juvenile cards are repeatable (never deduped) and offered
-  // whenever any juvenile is present on the date
+  // whenever the aviary has juveniles at all — identifying them is optional,
+  // and their approximate arrival dates must not block recording (P2-D8)
+  const juvenilesListedOnDate = presentSubjects.some(
+    (s) => s.type === 'juvenile'
+  );
   const canAddGenericJuvenile =
-    !slotFull && presentSubjects.some((s) => s.type === 'juvenile');
+    !slotFull &&
+    (juvenilesListedOnDate ||
+      currentResidents.some((s) => s.type === 'juvenile'));
   const slotError = fieldErrors[slotErrorKey(time)];
 
   const errorFor = (cardId, field) =>
@@ -73,8 +85,9 @@ const TimeSlotObservation = ({
           time={time}
           observation={observation}
           isPresent={
-            observation.subjectId === GENERIC_JUVENILE_ID ||
-            presentNames.has(observation.subjectId)
+            observation.subjectId === GENERIC_JUVENILE_ID
+              ? juvenilesListedOnDate
+              : presentNames.has(observation.subjectId)
           }
           canRemove={observations.length > 1}
           behaviorError={errorFor(observation.cardId, 'behavior')}

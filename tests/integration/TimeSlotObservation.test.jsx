@@ -309,10 +309,16 @@ describe('TimeSlotObservation', () => {
       );
     });
 
-    test('does not show "+ Add" button when every present subject has a card', () => {
+    test('hides named "+ Add" buttons when every present subject has a card (generic stays)', () => {
       renderTimeSlotObservation();
 
-      expect(screen.queryByText(/\+ Add/)).not.toBeInTheDocument();
+      // Named subjects are deduped once carded...
+      expect(screen.queryByText('+ Add Sayyida')).not.toBeInTheDocument();
+      // ...but the generic juvenile button is repeatable and never deduped:
+      // the aviary has juvenile residents, so it stays offered (P2-D8)
+      expect(
+        screen.getByText(`+ Add ${GENERIC_JUVENILE_LABEL}`)
+      ).toBeInTheDocument();
     });
   });
 
@@ -325,12 +331,46 @@ describe('TimeSlotObservation', () => {
       ).toBeInTheDocument();
     });
 
-    test('does not render the generic juvenile button when no juveniles are present on the date', () => {
+    test("offers the generic juvenile button even before the juveniles' listed arrival (fallback to current residents)", () => {
+      // Arrival dates in config are approximate — a VOD review predating
+      // them must still allow juvenile recording (P2-D8)
       renderTimeSlotObservation({ observationDate: OBSERVATION_DATE });
 
       expect(
-        screen.queryByText(`+ Add ${GENERIC_JUVENILE_LABEL}`)
-      ).not.toBeInTheDocument();
+        screen.getByText(`+ Add ${GENERIC_JUVENILE_LABEL}`)
+      ).toBeInTheDocument();
+    });
+
+    test('hides every add button (incl. generic) when the slot holds 20 cards', () => {
+      const fullSlot = Array.from({ length: 20 }, (_, i) =>
+        makeCard({
+          cardId: `card-${i}`,
+          subjectType: 'juvenile',
+          subjectId: GENERIC_JUVENILE_ID,
+        })
+      );
+      renderTimeSlotObservation({
+        observationDate: JUVENILE_DATE,
+        observations: fullSlot,
+      });
+
+      // Mirror of the backend's per-slot cap (array max(20))
+      expect(screen.queryByText(/\+ Add/)).not.toBeInTheDocument();
+    });
+
+    test('flags generic cards when no juvenile episode covers the date', () => {
+      renderTimeSlotObservation({
+        observationDate: OBSERVATION_DATE,
+        observations: [
+          makeCard({
+            cardId: 'card-gen',
+            subjectType: 'juvenile',
+            subjectId: GENERIC_JUVENILE_ID,
+          }),
+        ],
+      });
+
+      expect(screen.getByText('not listed for this date')).toBeInTheDocument();
     });
 
     test('clicking the generic juvenile button calls onAddSubject with the repeatable generic subject', () => {
@@ -606,6 +646,33 @@ describe('TimeSlotObservation', () => {
       });
 
       expect(screen.getByTestId('interaction-type-other')).toBeInTheDocument();
+    });
+
+    test('debounced validation of interaction-type-other emits the cardId (regression)', async () => {
+      // These two handlers once passed subjectId, silently no-oping the
+      // cardId lookup in validateSingleObservationField
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({
+            behavior: 'interacting_animal',
+            animalInteractionType: 'other',
+          }),
+        ],
+      });
+
+      fireEvent.change(screen.getByTestId('interaction-type-other'), {
+        target: { value: 'chasing' },
+      });
+      jest.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(mockOnValidate).toHaveBeenCalledWith(
+          '15:00',
+          'card-sayyida',
+          'animalInteractionTypeOther',
+          'chasing'
+        );
+      });
     });
   });
 

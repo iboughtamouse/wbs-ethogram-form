@@ -1,3 +1,6 @@
+import { GENERIC_JUVENILE_ID } from '../constants/ui';
+import { withNewCardId } from '../services/formStateManager';
+
 /**
  * Get the next time slot in the sequence
  * @param {string[]} timeSlots - Array of time slot strings
@@ -18,6 +21,17 @@ export const getNextTimeSlot = (timeSlots, currentTime) => {
 /**
  * Copy a time slot's observations to the next slot. Copies the whole card
  * set — every recorded subject — per Phase 2 P2-D2.
+ *
+ * Merge semantics: a copied NAMED card replaces the target's card for the
+ * same subject (the P2-D2 overwrite intent); target-only named subjects are
+ * kept. GENERIC "Juvenile" cards (P2-D8) have no identity, so they merge
+ * POSITIONALLY: the copy replaces the target's first N generic cards (N =
+ * generic cards in the source) and any extra target generic cards survive —
+ * copying must never silently destroy a distinct unidentified bird's
+ * already-entered data. Positional replacement keeps the copy idempotent
+ * (clicking twice doesn't pile up duplicates). Copied cards get fresh
+ * cardIds, so stale target error keys can never attach to the fresh data.
+ *
  * @param {Object} observations - Current observations object
  * @param {string[]} timeSlots - Array of time slot strings
  * @param {string} currentTime - Current time slot to copy from
@@ -37,17 +51,25 @@ export const copyObservationToNext = (observations, timeSlots, currentTime) => {
   // Deep clone to avoid mutation
   const updatedObservations = JSON.parse(JSON.stringify(observations));
 
-  // Copy every subject's card from the current slot to the next. Cards for
-  // subjects recorded ONLY in the target slot are kept — copying must never
-  // silently destroy another subject's already-entered data.
-  const sourceCards = (observations[currentTime] ?? []).map((observation) => ({
-    ...observation,
-  }));
-  const copiedSubjects = new Set(sourceCards.map((card) => card.subjectId));
-  const targetOnlyCards = (observations[nextTime] ?? []).filter(
-    (card) => !copiedSubjects.has(card.subjectId)
+  const sourceCards = (observations[currentTime] ?? []).map(withNewCardId);
+  const copiedNamedSubjects = new Set(
+    sourceCards
+      .filter((card) => card.subjectId !== GENERIC_JUVENILE_ID)
+      .map((card) => card.subjectId)
   );
-  updatedObservations[nextTime] = [...sourceCards, ...targetOnlyCards];
+  const copiedGenericCount = sourceCards.filter(
+    (card) => card.subjectId === GENERIC_JUVENILE_ID
+  ).length;
+
+  let genericSeen = 0;
+  const survivingTargetCards = (observations[nextTime] ?? []).filter((card) => {
+    if (card.subjectId === GENERIC_JUVENILE_ID) {
+      genericSeen += 1;
+      return genericSeen > copiedGenericCount;
+    }
+    return !copiedNamedSubjects.has(card.subjectId);
+  });
+  updatedObservations[nextTime] = [...sourceCards, ...survivingTargetCards];
 
   return {
     success: true,

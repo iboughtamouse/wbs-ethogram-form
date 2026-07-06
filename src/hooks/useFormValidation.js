@@ -194,6 +194,12 @@ export const useFormValidation = () => {
           'Record at least one subject for this time slot';
         return;
       }
+      if (slot.length > 20) {
+        // Mirror of the backend's per-slot cap (array max(20)). The add
+        // button stops at 20, but copy-to-next can merge past it
+        errors[slotErrorKey(time)] =
+          'At most 20 subjects can be recorded per time slot — remove some cards';
+      }
       slot.forEach((observation) => {
         Object.assign(errors, validateObservation(time, observation));
       });

@@ -152,7 +152,7 @@ const SubjectObservationCard = ({
     onChange(time, cardId, 'objectInteractionTypeOther', newValue);
     debouncedValidateRef.current(
       time,
-      subjectId,
+      cardId,
       'objectInteractionTypeOther',
       newValue
     );
@@ -163,7 +163,7 @@ const SubjectObservationCard = ({
     onChange(time, cardId, 'animalInteractionTypeOther', newValue);
     debouncedValidateRef.current(
       time,
-      subjectId,
+      cardId,
       'animalInteractionTypeOther',
       newValue
     );

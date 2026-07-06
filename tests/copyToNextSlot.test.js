@@ -55,7 +55,9 @@ describe('copyObservationToNext', () => {
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05']).toEqual([sampleCard]);
+    expect(result.updatedObservations['15:05']).toEqual([
+      { ...sampleCard, cardId: expect.any(String) },
+    ]);
     expect(result.targetTime).toBe('15:05');
   });
 
@@ -76,8 +78,8 @@ describe('copyObservationToNext', () => {
 
     expect(result.success).toBe(true);
     expect(result.updatedObservations['15:05']).toEqual([
-      sampleCard,
-      secondCard,
+      { ...sampleCard, cardId: expect.any(String) },
+      { ...secondCard, cardId: expect.any(String) },
     ]);
     expect(result.updatedObservations['15:05']).toHaveLength(2);
   });
@@ -128,7 +130,10 @@ describe('copyObservationToNext', () => {
 
     expect(result.success).toBe(true);
     // Source cards first, then the untouched target-only subject's card
-    expect(result.updatedObservations['15:05']).toEqual([sampleCard, babyCard]);
+    expect(result.updatedObservations['15:05']).toEqual([
+      { ...sampleCard, cardId: expect.any(String) },
+      { ...babyCard, cardId: expect.any(String) },
+    ]);
     expect(result.updatedObservations['15:05']).toHaveLength(2);
   });
 
@@ -151,7 +156,10 @@ describe('copyObservationToNext', () => {
       (card) => card.subjectId === 'Sayyida'
     );
     expect(sayyidaCards).toHaveLength(1);
-    expect(sayyidaCards[0]).toEqual(sampleCard);
+    expect(sayyidaCards[0]).toEqual({
+      ...sampleCard,
+      cardId: expect.any(String),
+    });
   });
 
   test('returns failure when on last time slot', () => {
@@ -224,8 +232,13 @@ describe('copyObservationToNext', () => {
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    // Copied cards keep their source cardIds (JSON clone)
-    expect(result.updatedObservations['15:05']).toEqual([emptySourceCard]);
+    // Copied cards are NEW cards: same content, fresh cardId
+    expect(result.updatedObservations['15:05']).toEqual([
+      { ...emptySourceCard, cardId: expect.any(String) },
+    ]);
+    expect(result.updatedObservations['15:05'][0].cardId).not.toBe(
+      emptySourceCard.cardId
+    );
   });
 
   test('preserves time slot keys - does not modify time strings', () => {
@@ -252,5 +265,77 @@ describe('copyObservationToNext', () => {
     copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(observations).toEqual(originalObservations);
+  });
+});
+
+describe('copyObservationToNext — generic juvenile merge (P2-D8)', () => {
+  const genericCard = (overrides = {}) => ({
+    ...createEmptyObservation('juvenile', 'Juvenile'),
+    ...overrides,
+  });
+
+  it('keeps extra filled generic target cards beyond the copied count', () => {
+    const source = createEmptyObservation('juvenile', 'Juvenile');
+    source.behavior = 'flying';
+    const targetA = genericCard({ behavior: 'eating', notes: 'bird A' });
+    const targetB = genericCard({ behavior: 'preening', notes: 'bird B' });
+    const observations = {
+      '15:00': [source],
+      '15:05': [targetA, targetB],
+    };
+
+    const result = copyObservationToNext(
+      observations,
+      ['15:00', '15:05'],
+      '15:00'
+    );
+
+    const slot = result.updatedObservations['15:05'];
+    // Source generic replaces the FIRST target generic positionally; the
+    // second unidentified bird's data survives
+    expect(slot).toHaveLength(2);
+    expect(slot[0]).toMatchObject({
+      subjectId: 'Juvenile',
+      behavior: 'flying',
+    });
+    expect(slot[1]).toMatchObject({ notes: 'bird B', behavior: 'preening' });
+  });
+
+  it('is idempotent: copying twice does not pile up generic duplicates', () => {
+    const sourceA = genericCard({ behavior: 'flying' });
+    const sourceB = genericCard({ behavior: 'eating' });
+    let observations = {
+      '15:00': [sourceA, sourceB],
+      '15:05': [],
+    };
+
+    observations = copyObservationToNext(
+      observations,
+      ['15:00', '15:05'],
+      '15:00'
+    ).updatedObservations;
+    observations = copyObservationToNext(
+      observations,
+      ['15:00', '15:05'],
+      '15:00'
+    ).updatedObservations;
+
+    expect(observations['15:05']).toHaveLength(2);
+  });
+
+  it('gives copied cards fresh cardIds', () => {
+    const source = genericCard({ behavior: 'flying' });
+    const observations = { '15:00': [source], '15:05': [] };
+
+    const result = copyObservationToNext(
+      observations,
+      ['15:00', '15:05'],
+      '15:00'
+    );
+
+    const copied = result.updatedObservations['15:05'][0];
+    expect(copied.cardId).toEqual(expect.any(String));
+    expect(copied.cardId).not.toBe(source.cardId);
+    expect(copied.behavior).toBe('flying');
   });
 });

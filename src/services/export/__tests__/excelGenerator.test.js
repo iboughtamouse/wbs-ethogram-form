@@ -863,4 +863,86 @@ describe('excelGenerator', () => {
       expect(rows).toEqual([{ value: 'eating', label: 'Eating' }]);
     });
   });
+
+  describe('generic juvenile cards (P2-D8)', () => {
+    const genericFormData = {
+      metadata: {
+        observerName: 'John Doe',
+        date: '2026-06-15',
+        startTime: '09:00',
+        endTime: '09:10',
+        aviary: "Sayyida's Cove",
+        mode: 'live',
+      },
+      observations: {
+        '09:00': [
+          cardFor('Juvenile', {
+            subjectType: 'juvenile',
+            behavior: 'flying',
+            notes: 'first bird',
+          }),
+          cardFor('Juvenile', {
+            subjectType: 'juvenile',
+            behavior: 'preening',
+            notes: 'second bird',
+          }),
+        ],
+        '09:05': [
+          cardFor('Juvenile', {
+            subjectType: 'juvenile',
+            behavior: 'flying',
+            notes: 'third bird',
+          }),
+        ],
+      },
+      submittedAt: '2026-06-15T10:00:00.000Z',
+    };
+
+    it('renders every generic card on ONE shared Juvenile worksheet', async () => {
+      const workbook = await generateExcelWorkbook(genericFormData, EXCEL_ROWS);
+
+      // One sheet, no numbering — per-bird tabs would imply cross-slot
+      // identity tracking that does not exist
+      expect(workbook.worksheets.map((ws) => ws.name)).toEqual(['Juvenile']);
+      const sheet = workbook.getWorksheet('Juvenile');
+      expect(sheet.getCell('B2').value).toBe('Subject(s): Juvenile');
+
+      // Different behaviors land on their own rows in the same time column
+      const flyingRow = findBehaviorRow(sheet, 'Locomotion - Flying');
+      const preeningRow = findBehaviorRow(
+        sheet,
+        'Preening/Grooming (Note Location)'
+      );
+      expect(sheet.getCell(flyingRow, 2).value).toContain('first bird');
+      expect(sheet.getCell(preeningRow, 2).value).toContain('second bird');
+      expect(sheet.getCell(flyingRow, 3).value).toContain('third bird');
+    });
+
+    it('joins same-behavior generic cards in one cell instead of dropping any', async () => {
+      const data = {
+        ...genericFormData,
+        observations: {
+          '09:00': [
+            cardFor('Juvenile', {
+              subjectType: 'juvenile',
+              behavior: 'flying',
+              notes: 'bird A',
+            }),
+            cardFor('Juvenile', {
+              subjectType: 'juvenile',
+              behavior: 'flying',
+              notes: 'bird B',
+            }),
+          ],
+        },
+      };
+
+      const workbook = await generateExcelWorkbook(data, EXCEL_ROWS);
+      const sheet = workbook.getWorksheet('Juvenile');
+      const flyingRow = findBehaviorRow(sheet, 'Locomotion - Flying');
+      const cell = sheet.getCell(flyingRow, 2).value;
+      expect(cell).toContain('bird A');
+      expect(cell).toContain('bird B');
+    });
+  });
 });

@@ -76,9 +76,14 @@ export const migrateDraft = (draft, config) => {
   if (draft.shapeVersion >= DRAFT_SHAPE_VERSION) {
     // A shape newer than this build understands is not restorable
     if (draft.shapeVersion > DRAFT_SHAPE_VERSION) return null;
-    // Current shape: every slot must already be a card array. Cards saved
-    // before cardIds existed are normalized here (P2-D8 re-keying).
-    const slotsUsable = Object.values(draft.observations).every(Array.isArray);
+    // Current shape: every slot must already be an array of card objects
+    // (a null/primitive entry would crash normalization and every consumer).
+    // Cards saved before cardIds existed are normalized here (P2-D8).
+    const slotsUsable = Object.values(draft.observations).every(
+      (slot) =>
+        Array.isArray(slot) &&
+        slot.every((card) => card && typeof card === 'object')
+    );
     return slotsUsable
       ? { ...draft, observations: ensureCardIds(draft.observations) }
       : null;

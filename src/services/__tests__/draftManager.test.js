@@ -290,6 +290,32 @@ describe('draftManager', () => {
       expect(migrateDraft(draft, config)).toEqual(draft);
     });
 
+    it('should reject a v2 draft whose slot contains a null entry', () => {
+      const draft = {
+        shapeVersion: 2,
+        metadata: {
+          observerName: 'John',
+          date: '2026-06-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: { '09:00': [null] },
+        savedAt: '2026-06-15T10:00:00.000Z',
+      };
+
+      const config = {
+        fosterParentName: 'Sayyida',
+        aviaryOptions: [{ slug: 'sayyidas-cove', name: "Sayyida's Cove" }],
+        aviarySlug: 'sayyidas-cove',
+      };
+
+      // A null card would crash normalization and every consumer — the whole
+      // draft is unusable, not partially restorable
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
     it('should assign cardIds to v2 draft cards that lack them', () => {
       const draft = {
         shapeVersion: 2,
