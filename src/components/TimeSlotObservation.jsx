@@ -1,15 +1,7 @@
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
-import {
-  ANIMAL_INTERACTION_TYPES,
-  OBJECT_INTERACTION_TYPES,
-  requiresAnimal,
-  requiresAnimalInteraction,
-  requiresDescription,
-  requiresLocation,
-  requiresObject,
-  requiresObjectInteraction,
-} from '../constants';
+import { useConfig } from '../contexts/ConfigContext';
+import { withCurrentValue } from '../utils/selectOptions';
 import { debounce } from '../utils/debounce';
 import { formatTo12Hour } from '../utils/timeUtils';
 import {
@@ -41,6 +33,19 @@ const TimeSlotObservation = ({
   onCopyToNext,
   isLastSlot,
 }) => {
+  const {
+    ANIMAL_INTERACTION_TYPES,
+    OBJECT_INTERACTION_TYPES,
+    lookupVocabLabel,
+    perchOptions,
+    requiresAnimal,
+    requiresAnimalInteraction,
+    requiresDescription,
+    requiresLocation,
+    requiresObject,
+    requiresObjectInteraction,
+  } = useConfig();
+
   // Create debounced validator for text fields (200ms delay)
   // MUST be called before any conditional returns (Rules of Hooks)
   const debouncedValidateRef = useRef(
@@ -62,41 +67,18 @@ const TimeSlotObservation = ({
   const showAnimalInteraction = requiresAnimalInteraction(observation.behavior);
   const showDescription = requiresDescription(observation.behavior);
 
-  // Format perch options for React Select
-  const perchOptions = [
-    {
-      label: 'Common Locations',
-      options: [{ value: 'Ground', label: 'Ground' }],
-    },
-    {
-      label: 'Perches (1-31)',
-      options: [...Array(31)].map((_, i) => ({
-        value: String(i + 1),
-        label: `Perch ${i + 1}`,
-      })),
-    },
-    {
-      label: 'Baby Boxes',
-      options: [
-        { value: 'BB1', label: 'BB1 - North Baby Box' },
-        { value: 'BB2', label: 'BB2 - South Baby Box' },
-      ],
-    },
-    {
-      label: 'Food Platforms',
-      options: [
-        { value: 'F1', label: 'F1 - Food Platform 1' },
-        { value: 'F2', label: 'F2 - Food Platform 2' },
-      ],
-    },
-    {
-      label: 'Other',
-      options: [
-        { value: 'G', label: 'G - Ground' },
-        { value: 'W', label: 'W - Water Bowl' },
-      ],
-    },
-  ];
+  // Keep-listed rule: interaction options come from config; a draft-held
+  // value no longer in the menu is injected as a disabled entry
+  const objectInteractionOptions = withCurrentValue(
+    OBJECT_INTERACTION_TYPES,
+    observation.objectInteractionType,
+    (v) => lookupVocabLabel('object_interaction', v)
+  );
+  const animalInteractionOptions = withCurrentValue(
+    ANIMAL_INTERACTION_TYPES,
+    observation.animalInteractionType,
+    (v) => lookupVocabLabel('animal_interaction', v)
+  );
 
   // Select/dropdown handlers - validate immediately on change
   const handleBehaviorChange = (value) => {
@@ -242,7 +224,7 @@ const TimeSlotObservation = ({
       {showObjectInteraction && (
         <InteractionTypeSelect
           label="Object Interaction Type"
-          options={OBJECT_INTERACTION_TYPES}
+          options={objectInteractionOptions}
           value={observation.objectInteractionType}
           otherValue={observation.objectInteractionTypeOther}
           onChange={handleObjectInteractionTypeChange}
@@ -256,7 +238,7 @@ const TimeSlotObservation = ({
       {showAnimalInteraction && (
         <InteractionTypeSelect
           label="Animal Interaction Type"
-          options={ANIMAL_INTERACTION_TYPES}
+          options={animalInteractionOptions}
           value={observation.animalInteractionType}
           otherValue={observation.animalInteractionTypeOther}
           onChange={handleAnimalInteractionTypeChange}

@@ -1,0 +1,907 @@
+{
+  "version": 1,
+  "publishedAt": "2026-07-06T05:33:11.092Z",
+  "animals": [
+    {
+      "label": "Adult Aviary Occupant",
+      "value": "adult_aviary_occupant",
+      "retired": false
+    },
+    {
+      "label": "Human",
+      "value": "human",
+      "retired": false
+    },
+    {
+      "label": "Insect within Aviary",
+      "value": "insect_within_aviary",
+      "retired": false
+    },
+    {
+      "label": "Juvenile Aviary Occupant",
+      "value": "juvenile_aviary_occupant",
+      "retired": false
+    },
+    {
+      "label": "Other (specify below)",
+      "value": "other",
+      "retired": false
+    },
+    {
+      "label": "Potential Predator Outside Aviary",
+      "value": "potential_predator_outside",
+      "retired": false
+    },
+    {
+      "label": "Potential Prey Animal within Aviary",
+      "value": "potential_prey_animal",
+      "retired": false
+    },
+    {
+      "label": "Potential Prey Item Outside Aviary",
+      "value": "potential_prey_outside",
+      "retired": false
+    },
+    {
+      "label": "Same Species Outside Aviary",
+      "value": "same_species_outside",
+      "retired": false
+    }
+  ],
+  "objects": [
+    {
+      "label": "Camera",
+      "value": "camera",
+      "retired": false
+    },
+    {
+      "label": "Newspaper",
+      "value": "newspaper",
+      "retired": false
+    },
+    {
+      "label": "Other (specify below)",
+      "value": "other",
+      "retired": false
+    },
+    {
+      "label": "Perch",
+      "value": "perch",
+      "retired": false
+    },
+    {
+      "label": "Plant",
+      "value": "plant",
+      "retired": false
+    },
+    {
+      "label": "Plastic Ball",
+      "value": "plastic_ball",
+      "retired": false
+    },
+    {
+      "label": "Rope Ball",
+      "value": "rope_ball",
+      "retired": false
+    },
+    {
+      "label": "Rubber Duck",
+      "value": "rubber_duck",
+      "retired": false
+    },
+    {
+      "label": "Stump",
+      "value": "stump",
+      "retired": false
+    },
+    {
+      "label": "Wooden Blocks",
+      "value": "wooden_blocks",
+      "retired": false
+    }
+  ],
+  "aviaries": [
+    {
+      "name": "Sayyida's Cove",
+      "slug": "sayyidas-cove",
+      "perches": [
+        {
+          "group": "Common Locations",
+          "label": "Ground",
+          "value": "Ground",
+          "retired": false,
+          "sortOrder": 1
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 1",
+          "value": "1",
+          "retired": false,
+          "sortOrder": 2
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 2",
+          "value": "2",
+          "retired": false,
+          "sortOrder": 3
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 3",
+          "value": "3",
+          "retired": false,
+          "sortOrder": 4
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 4",
+          "value": "4",
+          "retired": false,
+          "sortOrder": 5
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 5",
+          "value": "5",
+          "retired": false,
+          "sortOrder": 6
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 6",
+          "value": "6",
+          "retired": false,
+          "sortOrder": 7
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 7",
+          "value": "7",
+          "retired": false,
+          "sortOrder": 8
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 8",
+          "value": "8",
+          "retired": false,
+          "sortOrder": 9
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 9",
+          "value": "9",
+          "retired": false,
+          "sortOrder": 10
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 10",
+          "value": "10",
+          "retired": false,
+          "sortOrder": 11
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 11",
+          "value": "11",
+          "retired": false,
+          "sortOrder": 12
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 12",
+          "value": "12",
+          "retired": false,
+          "sortOrder": 13
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 13",
+          "value": "13",
+          "retired": false,
+          "sortOrder": 14
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 14",
+          "value": "14",
+          "retired": false,
+          "sortOrder": 15
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 15",
+          "value": "15",
+          "retired": false,
+          "sortOrder": 16
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 16",
+          "value": "16",
+          "retired": false,
+          "sortOrder": 17
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 17",
+          "value": "17",
+          "retired": false,
+          "sortOrder": 18
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 18",
+          "value": "18",
+          "retired": false,
+          "sortOrder": 19
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 19",
+          "value": "19",
+          "retired": false,
+          "sortOrder": 20
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 20",
+          "value": "20",
+          "retired": false,
+          "sortOrder": 21
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 21",
+          "value": "21",
+          "retired": false,
+          "sortOrder": 22
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 22",
+          "value": "22",
+          "retired": false,
+          "sortOrder": 23
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 23",
+          "value": "23",
+          "retired": false,
+          "sortOrder": 24
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 24",
+          "value": "24",
+          "retired": false,
+          "sortOrder": 25
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 25",
+          "value": "25",
+          "retired": false,
+          "sortOrder": 26
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 26",
+          "value": "26",
+          "retired": false,
+          "sortOrder": 27
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 27",
+          "value": "27",
+          "retired": false,
+          "sortOrder": 28
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 28",
+          "value": "28",
+          "retired": false,
+          "sortOrder": 29
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 29",
+          "value": "29",
+          "retired": false,
+          "sortOrder": 30
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 30",
+          "value": "30",
+          "retired": false,
+          "sortOrder": 31
+        },
+        {
+          "group": "Perches (1-31)",
+          "label": "Perch 31",
+          "value": "31",
+          "retired": false,
+          "sortOrder": 32
+        },
+        {
+          "group": "Baby Boxes",
+          "label": "BB1 - North Baby Box",
+          "value": "BB1",
+          "retired": false,
+          "sortOrder": 33
+        },
+        {
+          "group": "Baby Boxes",
+          "label": "BB2 - South Baby Box",
+          "value": "BB2",
+          "retired": false,
+          "sortOrder": 34
+        },
+        {
+          "group": "Food Platforms",
+          "label": "F1 - Food Platform 1",
+          "value": "F1",
+          "retired": false,
+          "sortOrder": 35
+        },
+        {
+          "group": "Food Platforms",
+          "label": "F2 - Food Platform 2",
+          "value": "F2",
+          "retired": false,
+          "sortOrder": 36
+        },
+        {
+          "group": "Other",
+          "label": "G - Ground",
+          "value": "G",
+          "retired": false,
+          "sortOrder": 37
+        },
+        {
+          "group": "Other",
+          "label": "W - Water Bowl",
+          "value": "W",
+          "retired": false,
+          "sortOrder": 38
+        }
+      ],
+      "isActive": true,
+      "subjects": [
+        {
+          "name": "Sayyida",
+          "type": "foster_parent",
+          "species": "Barred Owl",
+          "arrivedOn": "2025-11-29",
+          "departedOn": null
+        }
+      ],
+      "vocabulary": {
+        "animals": [
+          "adult_aviary_occupant",
+          "human",
+          "insect_within_aviary",
+          "juvenile_aviary_occupant",
+          "other",
+          "potential_predator_outside",
+          "potential_prey_animal",
+          "potential_prey_outside",
+          "same_species_outside"
+        ],
+        "objects": [
+          "camera",
+          "newspaper",
+          "other",
+          "perch",
+          "plant",
+          "plastic_ball",
+          "rope_ball",
+          "rubber_duck",
+          "stump",
+          "wooden_blocks"
+        ],
+        "behaviors": [
+          "aggression",
+          "bathing",
+          "drinking",
+          "eating",
+          "eating_elsewhere",
+          "eating_food_platform",
+          "flying",
+          "interacting_animal",
+          "interacting_object",
+          "jumping",
+          "nesting",
+          "not_visible",
+          "other",
+          "preening",
+          "repetitive_locomotion",
+          "repetitive_preening",
+          "resting_alert",
+          "resting_not_alert",
+          "resting_unknown",
+          "vocalizing",
+          "walking",
+          "walking_ground",
+          "walking_perch"
+        ],
+        "animalInteractionTypes": [
+          "aggression_biting",
+          "aggression_footing",
+          "aggression_lunging",
+          "aggression_other",
+          "defensive_posturing",
+          "feeding",
+          "non_aggressive_biting",
+          "non_aggressive_foot_grabbing",
+          "playing",
+          "preening_grooming",
+          "watching"
+        ],
+        "objectInteractionTypes": [
+          "biting",
+          "carrying",
+          "footing",
+          "other",
+          "pouncing",
+          "watching"
+        ]
+      },
+      "perchDiagrams": [
+        {
+          "url": "/images/perches-ne.png",
+          "label": "NE Half (Perches 1-18)"
+        },
+        {
+          "url": "/images/perches-sw.png",
+          "label": "SW Half (Perches 19-31, BB, F, W)"
+        }
+      ]
+    }
+  ],
+  "behaviors": [
+    {
+      "group": "Feeding",
+      "label": "Eating",
+      "value": "eating",
+      "retired": false,
+      "excelRowLabel": "Eating (Note Location)",
+      "excelRowOrder": 1,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Locomotion - Walking",
+      "value": "walking",
+      "retired": false,
+      "excelRowLabel": "Locomotion - Walking (Note Location)",
+      "excelRowOrder": 2,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Feeding",
+      "label": "Eating - On Food Platform",
+      "value": "eating_food_platform",
+      "retired": true,
+      "excelRowLabel": "Eating - On Food Platform",
+      "excelRowOrder": 3,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Feeding",
+      "label": "Eating - Elsewhere (Note Location)",
+      "value": "eating_elsewhere",
+      "retired": true,
+      "excelRowLabel": "Eating - Elsewhere (Note Location)",
+      "excelRowOrder": 4,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Locomotion - Walking on Ground",
+      "value": "walking_ground",
+      "retired": true,
+      "excelRowLabel": "Locomotion - Walking on Ground",
+      "excelRowOrder": 5,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Locomotion - Walking on Perch (Note Location)",
+      "value": "walking_perch",
+      "retired": true,
+      "excelRowLabel": "Locomotion - Walking on Perch (Note Location)",
+      "excelRowOrder": 6,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Social & Environmental",
+      "label": "Aggression or Defensive Posturing",
+      "value": "aggression",
+      "retired": true,
+      "excelRowLabel": "Aggression or Defensive Posturing",
+      "excelRowOrder": 7,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Locomotion - Flying",
+      "value": "flying",
+      "retired": false,
+      "excelRowLabel": "Locomotion - Flying",
+      "excelRowOrder": 8,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Locomotion - Jumping",
+      "value": "jumping",
+      "retired": false,
+      "excelRowLabel": "Locomotion - Jumping",
+      "excelRowOrder": 9,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Locomotion",
+      "label": "Repetitive Locomotion (Same movement 3+ times)",
+      "value": "repetitive_locomotion",
+      "retired": false,
+      "excelRowLabel": "Repetitive Locomotion (Note Location)",
+      "excelRowOrder": 10,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Maintenance",
+      "label": "Drinking",
+      "value": "drinking",
+      "retired": false,
+      "excelRowLabel": "Drinking",
+      "excelRowOrder": 11,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Maintenance",
+      "label": "Bathing",
+      "value": "bathing",
+      "retired": false,
+      "excelRowLabel": "Bathing",
+      "excelRowOrder": 12,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Maintenance",
+      "label": "Preening/Grooming",
+      "value": "preening",
+      "retired": false,
+      "excelRowLabel": "Preening/Grooming (Note Location)",
+      "excelRowOrder": 13,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Maintenance",
+      "label": "Repetitive Preening/Feather Damage",
+      "value": "repetitive_preening",
+      "retired": false,
+      "excelRowLabel": "Repetitive Preening/Feather Damage (Note Location)",
+      "excelRowOrder": 14,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Other",
+      "label": "Nesting",
+      "value": "nesting",
+      "retired": false,
+      "excelRowLabel": "Nesting",
+      "excelRowOrder": 15,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Social & Environmental",
+      "label": "Vocalizing",
+      "value": "vocalizing",
+      "retired": false,
+      "excelRowLabel": "Vocalizing (Note Location)",
+      "excelRowOrder": 16,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Resting",
+      "label": "Resting on Perch/Ground - Alert",
+      "value": "resting_alert",
+      "retired": false,
+      "excelRowLabel": "Resting on Perch/Ground - Alert (Note Location)",
+      "excelRowOrder": 17,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Resting",
+      "label": "Resting on Perch/Ground - Not Alert",
+      "value": "resting_not_alert",
+      "retired": false,
+      "excelRowLabel": "Resting on Perch/Ground - Not Alert (Note Location)",
+      "excelRowOrder": 18,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Resting",
+      "label": "Resting on Perch/Ground - Status Unknown",
+      "value": "resting_unknown",
+      "retired": false,
+      "excelRowLabel": "Resting on Perch/Ground - Status Unknown (Note Location)",
+      "excelRowOrder": 19,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Social & Environmental",
+      "label": "Interacting with Inanimate Object",
+      "value": "interacting_object",
+      "retired": false,
+      "excelRowLabel": "Interacting with Inanimate Object (Note Location, Object & Interaction)",
+      "excelRowOrder": 20,
+      "requiresAnimal": false,
+      "requiresObject": true,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": true
+    },
+    {
+      "group": "Social & Environmental",
+      "label": "Interacting with Other Animal",
+      "value": "interacting_animal",
+      "retired": false,
+      "excelRowLabel": "Interacting with Other Animal (Note Location, Animal & Interaction)",
+      "excelRowOrder": 21,
+      "requiresAnimal": true,
+      "requiresObject": false,
+      "requiresLocation": true,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": true,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Other",
+      "label": "Not Visible",
+      "value": "not_visible",
+      "retired": false,
+      "excelRowLabel": "Not Visible",
+      "excelRowOrder": 22,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": false,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    },
+    {
+      "group": "Other",
+      "label": "Other",
+      "value": "other",
+      "retired": false,
+      "excelRowLabel": "Other",
+      "excelRowOrder": 23,
+      "requiresAnimal": false,
+      "requiresObject": false,
+      "requiresLocation": false,
+      "requiresDescription": true,
+      "requiresAnimalInteraction": false,
+      "requiresObjectInteraction": false
+    }
+  ],
+  "behaviorGroups": [
+    {
+      "name": "Feeding",
+      "sortOrder": 1
+    },
+    {
+      "name": "Locomotion",
+      "sortOrder": 2
+    },
+    {
+      "name": "Resting",
+      "sortOrder": 3
+    },
+    {
+      "name": "Maintenance",
+      "sortOrder": 4
+    },
+    {
+      "name": "Social & Environmental",
+      "sortOrder": 5
+    },
+    {
+      "name": "Other",
+      "sortOrder": 6
+    }
+  ],
+  "animalInteractionTypes": [
+    {
+      "label": "Aggression: Biting",
+      "value": "aggression_biting",
+      "retired": false
+    },
+    {
+      "label": "Aggression: Footing",
+      "value": "aggression_footing",
+      "retired": false
+    },
+    {
+      "label": "Aggression: Flying or Lunging At",
+      "value": "aggression_lunging",
+      "retired": false
+    },
+    {
+      "label": "Aggression: Other",
+      "value": "aggression_other",
+      "retired": false
+    },
+    {
+      "label": "Defensive Posturing or Beak Clacking",
+      "value": "defensive_posturing",
+      "retired": false
+    },
+    {
+      "label": "Feeding",
+      "value": "feeding",
+      "retired": false
+    },
+    {
+      "label": "Non-Aggressive Biting",
+      "value": "non_aggressive_biting",
+      "retired": false
+    },
+    {
+      "label": "Non-Aggressive Foot Grabbing",
+      "value": "non_aggressive_foot_grabbing",
+      "retired": false
+    },
+    {
+      "label": "Playing",
+      "value": "playing",
+      "retired": false
+    },
+    {
+      "label": "Preening/Grooming",
+      "value": "preening_grooming",
+      "retired": false
+    },
+    {
+      "label": "Watching",
+      "value": "watching",
+      "retired": false
+    }
+  ],
+  "objectInteractionTypes": [
+    {
+      "label": "Biting/Chewing",
+      "value": "biting",
+      "retired": false
+    },
+    {
+      "label": "Carrying",
+      "value": "carrying",
+      "retired": false
+    },
+    {
+      "label": "Footing",
+      "value": "footing",
+      "retired": false
+    },
+    {
+      "label": "Other (specify below)",
+      "value": "other",
+      "retired": false
+    },
+    {
+      "label": "Pouncing",
+      "value": "pouncing",
+      "retired": false
+    },
+    {
+      "label": "Watching/Head Bobbing",
+      "value": "watching",
+      "retired": false
+    }
+  ]
+}

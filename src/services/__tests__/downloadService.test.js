@@ -192,27 +192,38 @@ describe('downloadService', () => {
     });
 
     it('should generate and download Excel file locally', async () => {
-      await downloadLocally(mockFormData, false);
+      const behaviorRows = [
+        { value: 'eating', label: 'Eating (Note Location)' },
+      ];
+      await downloadLocally(mockFormData, false, behaviorRows);
 
-      // When isOffline is false, generateExcelWorkbook is called with original data
+      // When isOffline is false, generateExcelWorkbook is called with original
+      // data plus the config-derived rows
       expect(excelGenerator.generateExcelWorkbook).toHaveBeenCalledWith(
-        mockFormData
+        mockFormData,
+        behaviorRows
       );
       expect(window.URL.createObjectURL).toHaveBeenCalled();
       expect(mockLink.click).toHaveBeenCalled();
     });
 
     it('should add offline notice when isOffline flag is true', async () => {
-      await downloadLocally(mockFormData, true);
+      const behaviorRows = [
+        { value: 'eating', label: 'Eating (Note Location)' },
+      ];
+      await downloadLocally(mockFormData, true, behaviorRows);
 
       // When isOffline is true, data is modified to include offlineNotice
-      expect(excelGenerator.generateExcelWorkbook).toHaveBeenCalledWith({
-        ...mockFormData,
-        metadata: {
-          ...mockFormData.metadata,
-          offlineNotice: 'Generated offline - not submitted to WBS',
+      expect(excelGenerator.generateExcelWorkbook).toHaveBeenCalledWith(
+        {
+          ...mockFormData,
+          metadata: {
+            ...mockFormData.metadata,
+            offlineNotice: 'Generated offline - not submitted to WBS',
+          },
         },
-      });
+        behaviorRows
+      );
       expect(mockLink.download).toMatch(/^offline-observation-/);
     });
 

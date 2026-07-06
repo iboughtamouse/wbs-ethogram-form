@@ -47,9 +47,16 @@ export async function downloadFromBackend(observationId) {
  *
  * @param {Object} formData - Complete form data with metadata and observations
  * @param {boolean} isOffline - Whether this is an offline/fallback generation
+ * @param {Array<{value: string, label: string}>} behaviorRows - Config-derived
+ *   behavior rows (useConfig().excelBehaviorRows); at worst the bundled
+ *   snapshot's — this path must never gain a network dependency
  * @returns {Promise<void>}
  */
-export async function downloadLocally(formData, isOffline = false) {
+export async function downloadLocally(
+  formData,
+  isOffline = false,
+  behaviorRows
+) {
   try {
     // Add offline notice to metadata if applicable
     const dataToExport = isOffline
@@ -63,7 +70,7 @@ export async function downloadLocally(formData, isOffline = false) {
       : formData;
 
     // Generate Excel workbook and convert to buffer
-    const workbook = await generateExcelWorkbook(dataToExport);
+    const workbook = await generateExcelWorkbook(dataToExport, behaviorRows);
     const buffer = await workbook.xlsx.writeBuffer();
 
     // Create blob and trigger download

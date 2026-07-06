@@ -24,7 +24,11 @@ const InteractionTypeSelect = ({
           className={error ? 'error' : ''}
         >
           {options.map((interaction) => (
-            <option key={interaction.value} value={interaction.value}>
+            <option
+              key={interaction.value}
+              value={interaction.value}
+              disabled={interaction.disabled}
+            >
               {interaction.label}
             </option>
           ))}

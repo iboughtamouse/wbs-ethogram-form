@@ -17,6 +17,9 @@ export const OFFLINE_FILE_PREFIX = 'offline';
 // LocalStorage key for drafts
 export const DRAFT_LOCALSTORAGE_KEY = 'wbs-ethogram-draft';
 
+// LocalStorage key for the last-good fetched config document
+export const CONFIG_LOCALSTORAGE_KEY = 'wbs-ethogram-config';
+
 // Excel MIME type
 export const EXCEL_MIME_TYPE =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

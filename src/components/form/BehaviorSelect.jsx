@@ -1,10 +1,19 @@
 import PropTypes from 'prop-types';
-import { BEHAVIORS, getGroupedBehaviors } from '../../constants';
-
-const PLACEHOLDER = BEHAVIORS.find((b) => b.value === '');
+import { useConfig } from '../../contexts/ConfigContext';
 
 const BehaviorSelect = ({ value, onChange, error }) => {
+  const { getGroupedBehaviors, getBehaviorByValue } = useConfig();
   const groups = getGroupedBehaviors();
+
+  // Keep-listed rule: a draft-held value that is no longer in the menu
+  // (retired or disabled since the draft was saved) stays renderable as a
+  // disabled option instead of blanking the select.
+  const valueInMenu =
+    !value ||
+    groups.some(({ options }) => options.some((b) => b.value === value));
+  const retiredLabel = valueInMenu
+    ? null
+    : `${getBehaviorByValue(value)?.label ?? value} (retired)`;
 
   return (
     <div className="form-group">
@@ -16,9 +25,7 @@ const BehaviorSelect = ({ value, onChange, error }) => {
         onChange={(e) => onChange(e.target.value)}
         className={error ? 'error' : ''}
       >
-        {PLACEHOLDER && (
-          <option value={PLACEHOLDER.value}>{PLACEHOLDER.label}</option>
-        )}
+        <option value="">Select a behavior...</option>
         {groups.map(({ group, options }) => (
           <optgroup key={group} label={group}>
             {options.map((behavior) => (
@@ -28,6 +35,11 @@ const BehaviorSelect = ({ value, onChange, error }) => {
             ))}
           </optgroup>
         ))}
+        {retiredLabel && (
+          <option value={value} disabled>
+            {retiredLabel}
+          </option>
+        )}
       </select>
       {error && <div className="field-error">{error}</div>}
     </div>

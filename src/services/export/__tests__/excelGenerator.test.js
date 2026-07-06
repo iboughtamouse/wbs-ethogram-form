@@ -1,4 +1,9 @@
 import { generateExcelWorkbook, downloadExcelFile } from '../excelGenerator';
+import { adaptConfig } from '../../configAdapter';
+import { bundledConfig } from '../../configService';
+
+// Config-derived rows, same source production uses (useConfig().excelBehaviorRows)
+const EXCEL_ROWS = adaptConfig(bundledConfig).excelBehaviorRows;
 import ExcelJS from 'exceljs';
 
 describe('excelGenerator', () => {
@@ -78,13 +83,13 @@ describe('excelGenerator', () => {
     };
 
     it('should return an ExcelJS workbook instance', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
 
       expect(workbook).toBeInstanceOf(ExcelJS.Workbook);
     });
 
     it('should create a worksheet with correct name', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       expect(worksheet).toBeDefined();
@@ -92,7 +97,7 @@ describe('excelGenerator', () => {
     });
 
     it('should include metadata in header rows', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Row 1: Title, Date, Time Window
@@ -115,7 +120,7 @@ describe('excelGenerator', () => {
     });
 
     it('should include time slot headers in row 4', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Time slots start at column B (column 2) with actual timestamps
@@ -125,7 +130,7 @@ describe('excelGenerator', () => {
     });
 
     it('should place behavior labels in column A starting at row 5', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Check first few behavior labels (new consolidated behaviors + legacy for backward compatibility)
@@ -138,7 +143,7 @@ describe('excelGenerator', () => {
     });
 
     it('should mark observed behaviors with "x"', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // 09:00 (column B), eating (row 5)
@@ -150,7 +155,7 @@ describe('excelGenerator', () => {
     });
 
     it('should include location and notes in cell when present', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // 09:05 has preening with location 3 and notes
@@ -179,7 +184,7 @@ describe('excelGenerator', () => {
     });
 
     it('should include object/interaction details when present', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // 09:10 has interaction-inanimate with object toy
@@ -218,7 +223,7 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-16T10:15:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(emptyData);
+      const workbook = await generateExcelWorkbook(emptyData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Should still have metadata and structure
@@ -239,7 +244,7 @@ describe('excelGenerator', () => {
         },
       };
 
-      const workbook = await generateExcelWorkbook(vodData);
+      const workbook = await generateExcelWorkbook(vodData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // VOD mode should show original times (not converted)
@@ -247,7 +252,7 @@ describe('excelGenerator', () => {
     });
 
     it('should add comments section at bottom', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Comments should be after all behavior rows
@@ -266,7 +271,7 @@ describe('excelGenerator', () => {
     });
 
     it('should use actual timestamps in time slot headers (not relative format)', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Time slots should use actual timestamps (HH:MM format)
@@ -317,7 +322,7 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-15T10:05:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(longData);
+      const workbook = await generateExcelWorkbook(longData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Should have columns for all 5-minute intervals with actual timestamps
@@ -365,7 +370,7 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-16T00:05:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(midnightData);
+      const workbook = await generateExcelWorkbook(midnightData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Time window should show actual times
@@ -425,7 +430,7 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-16T00:35:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(fullHourData);
+      const workbook = await generateExcelWorkbook(fullHourData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Should have 13 time slots with actual timestamps (23:30, 23:35, ..., 00:30)
@@ -464,7 +469,10 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-15T09:15:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(dataWithOtherAnimal);
+      const workbook = await generateExcelWorkbook(
+        dataWithOtherAnimal,
+        EXCEL_ROWS
+      );
       const worksheet = workbook.getWorksheet(1);
 
       const animalRow = findBehaviorRow(
@@ -508,7 +516,10 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-15T09:15:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(dataWithOtherInteraction);
+      const workbook = await generateExcelWorkbook(
+        dataWithOtherInteraction,
+        EXCEL_ROWS
+      );
       const worksheet = workbook.getWorksheet(1);
 
       const animalRow = findBehaviorRow(
@@ -526,7 +537,7 @@ describe('excelGenerator', () => {
 
     // Formatting tests
     it('should apply column width settings', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Column A: Behavior labels (35.0)
@@ -540,7 +551,7 @@ describe('excelGenerator', () => {
     });
 
     it('should apply bold formatting to headers', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Row 1 headers
@@ -562,7 +573,7 @@ describe('excelGenerator', () => {
     });
 
     it('should apply text wrapping to behavior labels', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Behavior labels in column A should have text wrapping
@@ -599,7 +610,10 @@ describe('excelGenerator', () => {
         submittedAt: '2025-01-15T09:15:00.000Z',
       };
 
-      const workbook = await generateExcelWorkbook(dataWithObservation);
+      const workbook = await generateExcelWorkbook(
+        dataWithObservation,
+        EXCEL_ROWS
+      );
       const worksheet = workbook.getWorksheet(1);
 
       // Find the resting_alert row
@@ -626,7 +640,7 @@ describe('excelGenerator', () => {
     });
 
     it('should apply text wrapping to comments section', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Find comments section
@@ -650,7 +664,7 @@ describe('excelGenerator', () => {
     });
 
     it('should apply frozen panes at B5', async () => {
-      const workbook = await generateExcelWorkbook(mockFormData);
+      const workbook = await generateExcelWorkbook(mockFormData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet(1);
 
       // Should have frozen panes view
@@ -732,7 +746,7 @@ describe('excelGenerator', () => {
     });
 
     it('should create and trigger download with correct filename', async () => {
-      await downloadExcelFile(mockFormData, 'test-file');
+      await downloadExcelFile(mockFormData, EXCEL_ROWS, 'test-file');
 
       expect(document.createElement).toHaveBeenCalledWith('a');
       expect(mockLink.download).toBe('test-file.xlsx');
@@ -740,13 +754,13 @@ describe('excelGenerator', () => {
     });
 
     it('should use default filename if not provided', async () => {
-      await downloadExcelFile(mockFormData);
+      await downloadExcelFile(mockFormData, EXCEL_ROWS);
 
       expect(mockLink.download).toBe('ethogram-data.xlsx');
     });
 
     it('should create blob with correct MIME type', async () => {
-      await downloadExcelFile(mockFormData);
+      await downloadExcelFile(mockFormData, EXCEL_ROWS);
 
       expect(mockCreateObjectURL).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -756,14 +770,14 @@ describe('excelGenerator', () => {
     });
 
     it('should append and remove link from DOM', async () => {
-      await downloadExcelFile(mockFormData);
+      await downloadExcelFile(mockFormData, EXCEL_ROWS);
 
       expect(document.body.appendChild).toHaveBeenCalledWith(mockLink);
       expect(document.body.removeChild).toHaveBeenCalledWith(mockLink);
     });
 
     it('should revoke object URL after download', async () => {
-      await downloadExcelFile(mockFormData);
+      await downloadExcelFile(mockFormData, EXCEL_ROWS);
 
       expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
@@ -774,7 +788,7 @@ describe('excelGenerator', () => {
         throw new Error('Download failed');
       });
 
-      await expect(downloadExcelFile(mockFormData)).rejects.toThrow(
+      await expect(downloadExcelFile(mockFormData, EXCEL_ROWS)).rejects.toThrow(
         'Download failed'
       );
 
