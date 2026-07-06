@@ -6,7 +6,7 @@ import MetadataSection from '../../src/components/MetadataSection';
 describe('MetadataSection', () => {
   const defaultMetadata = {
     observerName: '',
-    date: '2025-12-05',
+    date: '2026-06-15',
     startTime: '',
     endTime: '',
     aviary: 'sayyidas-cove',
@@ -37,7 +37,9 @@ describe('MetadataSection', () => {
         screen.getByDisplayValue(defaultMetadata.date)
       ).toBeInTheDocument();
       expect(screen.getByDisplayValue("Sayyida's Cove")).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Sayyida')).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('Sayyida, 187(B), 216(O), 253(R)')
+      ).toBeInTheDocument();
     });
 
     test('renders mode selector with both options', () => {
@@ -79,7 +81,9 @@ describe('MetadataSection', () => {
       );
 
       const aviaryInput = screen.getByDisplayValue("Sayyida's Cove");
-      const subjectsInput = screen.getByDisplayValue('Sayyida');
+      const subjectsInput = screen.getByDisplayValue(
+        'Sayyida, 187(B), 216(O), 253(R)'
+      );
 
       expect(aviaryInput).toHaveAttribute('readonly');
       expect(aviaryInput).toBeDisabled();
@@ -88,28 +92,46 @@ describe('MetadataSection', () => {
     });
 
     test('subjects display is driven by metadata.date', () => {
-      // Sayyida's residency episode starts 2025-11-29 (bundled config)
+      // Sayyida's episode starts 2025-12-15; the juveniles' 2026-06-01
+      // (bundled snapshot v2). Before any episode covers the date, the
+      // display falls back to current residents with a caveat.
       const { rerender } = render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, date: '2025-11-21' }}
+          metadata={{ ...defaultMetadata, date: '2025-12-10' }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
-      // Before arrival: no subjects listed
-      expect(screen.queryByDisplayValue('Sayyida')).not.toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'Sayyida, 187(B), 216(O), 253(R) (not listed for this date)'
+        )
+      ).toBeInTheDocument();
 
       rerender(
         <MetadataSection
-          metadata={{ ...defaultMetadata, date: '2025-11-29' }}
+          metadata={{ ...defaultMetadata, date: '2025-12-15' }}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
-      // On/after arrival: Sayyida is listed
+      // Between Sayyida's arrival and the juveniles': Sayyida only
       expect(screen.getByDisplayValue('Sayyida')).toBeInTheDocument();
+
+      rerender(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, date: '2026-06-01' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // From the juveniles' arrival: the whole family
+      expect(
+        screen.getByDisplayValue('Sayyida, 187(B), 216(O), 253(R)')
+      ).toBeInTheDocument();
     });
 
     test('shows video timestamp help text for live mode', () => {
