@@ -45,16 +45,13 @@ const sortOptions = (options) => {
 export const adaptConfig = (doc) => {
   // Phase 1 is single-aviary: the form binds to the first active aviary.
   const aviary = doc.aviaries.find((a) => a.isActive) ?? doc.aviaries[0];
+  const vocabulary = aviary?.vocabulary ?? {};
   const enabled = {
-    behaviors: new Set(aviary?.vocabulary.behaviors ?? []),
-    object: new Set(aviary?.vocabulary.objects ?? []),
-    object_interaction: new Set(
-      aviary?.vocabulary.objectInteractionTypes ?? []
-    ),
-    animal: new Set(aviary?.vocabulary.animals ?? []),
-    animal_interaction: new Set(
-      aviary?.vocabulary.animalInteractionTypes ?? []
-    ),
+    behaviors: new Set(vocabulary.behaviors ?? []),
+    object: new Set(vocabulary.objects ?? []),
+    object_interaction: new Set(vocabulary.objectInteractionTypes ?? []),
+    animal: new Set(vocabulary.animals ?? []),
+    animal_interaction: new Set(vocabulary.animalInteractionTypes ?? []),
   };
 
   // --- Behaviors ---------------------------------------------------------
@@ -87,13 +84,15 @@ export const adaptConfig = (doc) => {
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((g) => g.name);
 
-  const getGroupedBehaviors = () =>
-    BEHAVIOR_GROUP_ORDER.map((group) => ({
-      group,
-      options: BEHAVIORS.filter((b) => b.group === group).sort((a, b) =>
-        a.label.localeCompare(b.label)
-      ),
-    })).filter((g) => g.options.length > 0);
+  // Precomputed once — the bundle is immutable, and selects render often
+  const groupedBehaviors = BEHAVIOR_GROUP_ORDER.map((group) => ({
+    group,
+    options: BEHAVIORS.filter((b) => b.group === group).sort((a, b) =>
+      a.label.localeCompare(b.label)
+    ),
+  })).filter((g) => g.options.length > 0);
+
+  const getGroupedBehaviors = () => groupedBehaviors;
 
   const getBehaviorByValue = (value) => behaviorByValue.get(value);
 
@@ -121,11 +120,15 @@ export const adaptConfig = (doc) => {
 
   // --- Perches ------------------------------------------------------------
 
-  const activePerches = (aviary?.perches ?? [])
-    .filter((p) => !p.retired)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const allPerches = [...(aviary?.perches ?? [])].sort(
+    (a, b) => a.sortOrder - b.sortOrder
+  );
+  const activePerches = allPerches.filter((p) => !p.retired);
 
-  const VALID_PERCHES = activePerches.map((p) => p.value);
+  // Validation accepts retired perches too (values are append-only): a
+  // draft-held location must stay submittable after the perch is retired.
+  // Menus (perchOptions below) show active perches only.
+  const VALID_PERCHES = allPerches.map((p) => p.value);
 
   // Grouped options for the location react-select, groups in first-appearance
   // order (which follows perch sortOrder)
@@ -153,10 +156,12 @@ export const adaptConfig = (doc) => {
   // Same derivation as the backend's behaviorRowsFor(): catalog in
   // excelRowOrder, filtered to the aviary's enablement (retired included —
   // historical drafts may hold legacy values)
+  // Enabled rows plus ALL retired rows: a draft can hold a legacy/retired
+  // value regardless of current enablement, and its mark must never silently
+  // vanish from an offline export. (The backend gets the same guarantee from
+  // version stamping instead.)
   const excelBehaviorRows = [...doc.behaviors]
-    .filter(
-      (b) => enabled.behaviors.size === 0 || enabled.behaviors.has(b.value)
-    )
+    .filter((b) => b.retired || enabled.behaviors.has(b.value))
     .sort((a, b) => a.excelRowOrder - b.excelRowOrder)
     .map((b) => ({ value: b.value, label: b.excelRowLabel }));
 

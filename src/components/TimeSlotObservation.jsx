@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
-import { withCurrentValue } from '../utils/selectOptions';
+import {
+  withCurrentValue,
+  withCurrentGroupedValue,
+} from '../utils/selectOptions';
 import { debounce } from '../utils/debounce';
 import { formatTo12Hour } from '../utils/timeUtils';
 import {
@@ -156,8 +159,15 @@ const TimeSlotObservation = ({
     }
   };
 
+  // Keep-listed rule for the location select too: a draft-held perch that was
+  // retired since the draft was saved stays selectable/visible
+  const locationOptions = withCurrentGroupedValue(
+    perchOptions,
+    observation.location
+  );
+
   // Find the currently selected option for React Select
-  const selectedLocationOption = perchOptions
+  const selectedLocationOption = locationOptions
     .flatMap((group) => group.options)
     .find((option) => option.value === observation.location);
 
@@ -192,7 +202,7 @@ const TimeSlotObservation = ({
           onChange={handleLocationChange}
           error={locationError}
           behaviorValue={observation.behavior}
-          perchOptions={perchOptions}
+          perchOptions={locationOptions}
           selectedLocationOption={selectedLocationOption}
         />
       )}

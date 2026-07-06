@@ -21,6 +21,14 @@ describe('isValidConfigDoc', () => {
   it.each([null, {}, { version: 'x' }, { version: 2 }])('rejects %p', (doc) => {
     expect(isValidConfigDoc(doc)).toBe(false);
   });
+
+  it('rejects a document missing any vocabulary array the adapter maps over', () => {
+    const { objects: _objects, ...missingObjects } = bundledConfig;
+    expect(isValidConfigDoc(missingObjects)).toBe(false);
+
+    const { animalInteractionTypes: _ait, ...missingAit } = bundledConfig;
+    expect(isValidConfigDoc(missingAit)).toBe(false);
+  });
 });
 
 describe('loadCachedConfig / getInitialConfig', () => {

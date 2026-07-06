@@ -13,14 +13,22 @@ import { CONFIG_LOCALSTORAGE_KEY } from '../constants/ui';
 
 export const bundledConfig = defaultConfig;
 
-/** Minimal shape check — enough to reject junk without duplicating the schema */
+/**
+ * Shape check for every array the adapter maps over — a partial document
+ * (truncated cache write, wrong endpoint) must be rejected here, not crash
+ * adaptConfig at boot.
+ */
 export const isValidConfigDoc = (doc) =>
   Boolean(
     doc &&
     Number.isInteger(doc.version) &&
     Array.isArray(doc.behaviors) &&
     Array.isArray(doc.behaviorGroups) &&
-    Array.isArray(doc.aviaries)
+    Array.isArray(doc.aviaries) &&
+    Array.isArray(doc.objects) &&
+    Array.isArray(doc.objectInteractionTypes) &&
+    Array.isArray(doc.animals) &&
+    Array.isArray(doc.animalInteractionTypes)
   );
 
 /** Last-good fetched config from localStorage, or null */

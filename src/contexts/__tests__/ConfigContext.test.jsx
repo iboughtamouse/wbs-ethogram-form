@@ -82,6 +82,27 @@ describe('ConfigContext', () => {
     );
   });
 
+  it('keeps the current bundle when a fetched doc breaks adaptation', async () => {
+    // Shape-valid (passes isValidConfigDoc) but poisonous to adaptConfig
+    fetchLatestConfig.mockResolvedValue({
+      ...bundledConfig,
+      version: bundledConfig.version + 1,
+      behaviors: [null],
+    });
+
+    render(
+      <ConfigProvider>
+        <ShowConfig />
+      </ConfigProvider>
+    );
+
+    await waitFor(() => expect(fetchLatestConfig).toHaveBeenCalled());
+    expect(screen.getByTestId('version')).toHaveTextContent(
+      String(bundledConfig.version)
+    );
+    expect(screen.getByTestId('aviary')).toHaveTextContent("Sayyida's Cove");
+  });
+
   it('keeps the snapshot when the fetch fails (offline)', async () => {
     fetchLatestConfig.mockResolvedValue(null);
 

@@ -151,4 +151,69 @@ describe('adaptConfig — behavior beyond the constants', () => {
     );
     expect(bundle.lookupVocabLabel('object', 'nonexistent')).toBeUndefined();
   });
+
+  it('keeps retired Excel rows even when dropped from enablement (offline drafts)', () => {
+    const doc = {
+      ...bundledConfig,
+      aviaries: [
+        {
+          ...bundledConfig.aviaries[0],
+          vocabulary: {
+            ...bundledConfig.aviaries[0].vocabulary,
+            // Aviary disables everything except one behavior
+            behaviors: ['eating'],
+          },
+        },
+      ],
+    };
+
+    const rows = adaptConfig(doc).excelBehaviorRows.map((r) => r.value);
+    expect(rows).toContain('eating');
+    expect(rows).toContain('aggression'); // retired, not enabled - still a row
+    expect(rows).not.toContain('flying'); // active but disabled - no row
+  });
+
+  it('keeps retired perches valid for validation but out of menus', () => {
+    const doc = {
+      ...bundledConfig,
+      aviaries: [
+        {
+          ...bundledConfig.aviaries[0],
+          perches: [
+            {
+              value: '1',
+              label: 'Perch 1',
+              group: 'Perches',
+              sortOrder: 1,
+              retired: false,
+            },
+            {
+              value: 'BB1',
+              label: 'BB1',
+              group: 'Baby Boxes',
+              sortOrder: 2,
+              retired: true,
+            },
+          ],
+        },
+      ],
+    };
+
+    const adapted = adaptConfig(doc);
+    expect(adapted.VALID_PERCHES).toEqual(['1', 'BB1']);
+    expect(
+      adapted.perchOptions.flatMap((g) => g.options.map((o) => o.value))
+    ).toEqual(['1']);
+  });
+
+  it('tolerates an aviary without a vocabulary block (empty menus, no crash)', () => {
+    const doc = {
+      ...bundledConfig,
+      aviaries: [{ ...bundledConfig.aviaries[0], vocabulary: undefined }],
+    };
+
+    const adapted = adaptConfig(doc);
+    expect(adapted.BEHAVIORS).toHaveLength(1); // placeholder only
+    expect(adapted.INANIMATE_OBJECTS).toHaveLength(1);
+  });
 });

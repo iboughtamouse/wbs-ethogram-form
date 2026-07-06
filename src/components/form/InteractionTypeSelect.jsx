@@ -63,6 +63,7 @@ InteractionTypeSelect.propTypes = {
     PropTypes.shape({
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
+      disabled: PropTypes.bool,
     })
   ).isRequired,
   value: PropTypes.string.isRequired,
