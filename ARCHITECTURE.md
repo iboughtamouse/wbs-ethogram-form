@@ -1,10 +1,9 @@
 # Architecture Documentation
 
-> **Last Updated**: December 24, 2025
-> **Test Coverage**: Comprehensive coverage (run `npm test` for current count)
-> **Architecture**: Component-based React app with custom hooks and pure function services
-> **Key Patterns**: Controlled components, centralized validation, autosave to localStorage
-> **Recent Changes**: Backend integration (November 2025), timezone simplification (December 2025)
+> **Architecture**: Component-based React SPA (Vercel) + Fastify/Postgres backend (Railway); custom hooks and pure-function services.
+> **Key Patterns**: Controlled components, centralized validation, autosave to localStorage.
+> **Canonical domain model**: `src/constants/` + `createEmptyObservation()` in `src/services/formStateManager.js`. This doc explains the architecture; it does **not** restate the behavior/field model (which drifts) — follow the pointers.
+> **Recent Changes**: Backend integration (Nov 2025), timezone simplification (Dec 2025), behavior cleanup — consolidated behaviors + split interaction fields (2026-07-05).
 
 ---
 
@@ -374,23 +373,14 @@ const [metadata, setMetadata] = useState({
   mode: 'live', // 'live' or 'vod'
 });
 
-// Observations state (object keyed by time strings)
+// Observations state: an object keyed by "HH:MM" time strings. Each value is a flat
+// observation object. The canonical shape — including the split objectInteractionType /
+// animalInteractionType (+ *Other) fields — is defined by createEmptyObservation() in
+// src/services/formStateManager.js. Read it there rather than duplicating the field list,
+// which drifts (this is where the pre-cleanup single `interactionType` field used to live).
 const [observations, setObservations] = useState({
-  '15:00': {
-    behavior: '',
-    location: '',
-    notes: '',
-    object: '', // For "interacting_object" behavior
-    objectOther: '', // When object === "other"
-    animal: '', // For "interacting_animal" behavior
-    animalOther: '', // When animal === "other"
-    interactionType: '', // For "interacting_animal" behavior
-    interactionTypeOther: '', // When interactionType === "other"
-    description: '', // For behaviors requiring description
-  },
-  '15:05': {
-    /* ... */
-  },
+  '15:00': createEmptyObservation(),
+  '15:05': createEmptyObservation(),
   // ... one entry per 5-minute slot
 });
 
@@ -561,8 +551,9 @@ All conditionally required fields based on selected behavior:
 - Object description (if object === "other")
 - Animal (if `requiresAnimal` is true)
 - Animal description (if animal === "other")
-- Interaction type (if `requiresInteraction` is true)
-- Interaction description (if interactionType === "other")
+- Object interaction type (if `requiresObjectInteraction` is true)
+- Animal interaction type (if `requiresAnimalInteraction` is true)
+- Interaction "other" text (when the matching interaction type === "other")
 - Description (if `requiresDescription` is true)
 
 **Test Coverage:**
@@ -735,24 +726,23 @@ return (
 
 ## Key Architectural Decisions
 
-### 1. No Backend / Client-Only
+### 1. Client SPA + Backend API
 
-**Decision**: Build as pure client-side SPA, no server required
+**Decision**: The app began as a pure client-side SPA and gained a backend API in Nov 2025.
+The React SPA (hosted on Vercel) owns the entry UX, validation, and localStorage autosave; on
+submit it POSTs to a Node.js/Fastify + PostgreSQL backend (Railway) that stores the observation
+and generates + emails an Excel file via Resend. See [`../ethogram-api`](../ethogram-api).
 
 **Rationale**:
 
-- Reduces hosting costs (static hosting is free/cheap)
-- Simplifies deployment (just upload HTML/JS/CSS)
-- No backend maintenance burden
-- Faster development (no API layer needed)
-- Works offline (after initial load)
+- Client-side validation + autosave keep data entry fast and resilient (no round-trips mid-entry)
+- The backend provides durable storage, server-side Excel generation, and email delivery — things a static SPA can't do reliably
+- Static frontend hosting stays cheap (Vercel); the backend is a small managed service (Railway)
 
 **Trade-offs**:
 
-- ❌ Can't enforce data validation server-side
-- ❌ Can't aggregate/analyze data centrally (yet)
-- ❌ User must manually copy/paste JSON output
-- ✅ Will add Excel export + email in future (can still be client-side)
+- ❌ Frontend and backend share a domain model (behaviors/fields) that must be kept in sync — see [Constants as Single Source of Truth](#5-constants-as-single-source-of-truth) and the backend Zod schema (`ethogram-api/src/routes/observations.ts`)
+- ✅ A client-side Excel fallback (`services/export/excelGenerator.js`) is retained for offline/direct download
 
 ### 2. localStorage for Autosave
 
@@ -845,7 +835,8 @@ const showObject = requiresObject(observation.behavior);
 
 ### 2. Field Clearing on Behavior Change
 
-When behavior changes, clear all conditional fields to prevent orphaned data:
+When behavior changes, clear all conditional fields to prevent orphaned data. The canonical
+logic is `updateObservationField()` in `src/services/formStateManager.js`; illustrative shape:
 
 ```javascript
 const handleBehaviorChange = (time, value) => {
@@ -857,10 +848,12 @@ const handleBehaviorChange = (time, value) => {
       // Clear all conditional fields
       object: '',
       objectOther: '',
+      objectInteractionType: '',
+      objectInteractionTypeOther: '',
       animal: '',
       animalOther: '',
-      interactionType: '',
-      interactionTypeOther: '',
+      animalInteractionType: '',
+      animalInteractionTypeOther: '',
       description: '',
     },
   }));
@@ -913,8 +906,9 @@ Domain data lives in modular `constants/` directory (Phase 4/5 refactoring):
 **`constants/interactions.js`:**
 
 - `INANIMATE_OBJECTS` - Object dropdown options
-- `ANIMAL_TYPES` - Animal dropdown options
-- `INTERACTION_TYPES` - Interaction type dropdown options
+- `ANIMAL_TYPES` - Animal dropdown options (includes `human`)
+- `OBJECT_INTERACTION_TYPES` - Object-interaction dropdown options
+- `ANIMAL_INTERACTION_TYPES` - Animal-interaction dropdown options (includes aggression/defensive types)
 
 **`constants/index.js`** - Barrel export for clean imports
 
