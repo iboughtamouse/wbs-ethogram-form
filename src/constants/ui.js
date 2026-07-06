@@ -24,4 +24,11 @@ export const EXCEL_MIME_TYPE =
 // UI message/display timeouts (in milliseconds)
 export const SHARE_SUCCESS_TIMEOUT_MS = 5000; // 5 seconds
 
+// Max lengths for free-text observation fields (study feedback #3 — fields were uncapped;
+// a user once submitted the entire Bee Movie script into notes). Enforced on the inputs
+// (maxLength) and mirrored by the backend Zod schema.
+export const MAX_NOTES_LENGTH = 1000;
+export const MAX_DESCRIPTION_LENGTH = 1000;
+export const MAX_OTHER_TEXT_LENGTH = 100; // the "Other (specify)" fields
+
 // no default export - use named imports for explicitness
