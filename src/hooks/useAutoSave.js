@@ -6,13 +6,14 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useConfig } from '../contexts/ConfigContext';
 import {
   saveDraft,
   loadDraft,
   clearDraft,
   hasDraft,
 } from '../utils/localStorageUtils';
-import { shouldAutosave } from '../services/draftManager';
+import { shouldAutosave, migrateDraft } from '../services/draftManager';
 
 /**
  * Custom hook for managing form drafts and autosave
@@ -23,6 +24,7 @@ import { shouldAutosave } from '../services/draftManager';
  * @returns {Object} Draft state and handlers
  */
 export const useAutoSave = (metadata, observations, onRestore) => {
+  const config = useConfig();
   const [showDraftNotice, setShowDraftNotice] = useState(false);
   const [draftTimestamp, setDraftTimestamp] = useState(null);
 
@@ -45,7 +47,9 @@ export const useAutoSave = (metadata, observations, onRestore) => {
   }, [metadata, observations]);
 
   const handleRestoreDraft = () => {
-    const draft = loadDraft();
+    // Older drafts migrate to the current shape on restore (never in place —
+    // the stored copy stays untouched until the next autosave overwrites it)
+    const draft = migrateDraft(loadDraft(), config);
     if (draft && onRestore) {
       onRestore(draft);
     }

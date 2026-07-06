@@ -157,10 +157,13 @@ canonical model lives in the backend DB (`ethogram-api` migrations), served by
 
 - All form state lives in `App.jsx`; domain config comes from `ConfigContext`
   (bundled snapshot at first paint, upgraded from `GET /api/config` at mount)
-- Metadata: Observer info, date, time range, mode
-- Observations: Keyed by time strings (`"15:00"`, `"15:05"`, etc.)
-- Flat observation structure (one field per observation property)
-- Validation errors: Flat object with `${time}_${field}` keys for observations
+- Metadata: Observer info, date, time range, mode, aviary **slug** (display
+  names resolve from config wherever the aviary is rendered)
+- Observations: Keyed by time strings (`"15:00"`, `"15:05"`, etc.); each slot
+  is an **array of per-subject cards** (`{ subjectType, subjectId, ...fields }`)
+- Validation errors: Flat object with `${time}_${subjectId}_${field}` keys for
+  observations — always built via `observationErrorKey()` (`utils/errorKeys.js`),
+  never inline templates
 
 ### Validation Timing
 
@@ -205,7 +208,7 @@ See the design doc: `ethogram-notes/01-ACTIVE/config-as-data-phase1-design.md`
 ### Debugging Validation
 
 1. Check if field is conditional (behavior `requires*` flags in the config document)
-2. Verify error key format: `${time}_${field}` for observations
+2. Verify error key format: `${time}_${subjectId}_${field}` for observations (`utils/errorKeys.js`)
 3. Check validation is called (onValidate prop)
 4. Check debouncing for text fields (200ms delay)
 5. Read `useFormValidation.js` for that field's logic

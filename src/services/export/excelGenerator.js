@@ -3,6 +3,8 @@
  *
  * Converts form data to Excel format matching the original ethogram spreadsheet layout.
  * Uses a matrix format where behaviors are rows and time slots are columns.
+ * Multi-subject sessions render as one worksheet per subject (P2-D3), each
+ * the same matrix — mirroring the backend generator's rules exactly.
  */
 
 import ExcelJS from 'exceljs';
@@ -67,22 +69,91 @@ const formatCellContent = (observation) => {
   return parts.length > 1 ? parts.join('\n') : 'x';
 };
 
-/**
- * Generates an Excel workbook from form data
- * @param {Object} formData - Form submission data
- * @param {Object} formData.metadata - Form metadata
- * @param {Object} formData.observations - Observations keyed by time
- * @param {Array<{value: string, label: string}>} behaviorRows - Config-derived
- *   behavior rows (useConfig().excelBehaviorRows), in Excel row order
- * @returns {Promise<ExcelJS.Workbook>} Excel workbook instance
- */
-export const generateExcelWorkbook = async (formData, behaviorRows) => {
-  const { metadata, observations } = formData;
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Ethogram Data');
+/** Strip leading/trailing apostrophes and whitespace (Excel rejects both). */
+const stripSheetNameBoundary = (name) => name.replace(/^['\s]+|['\s]+$/g, '');
 
-  // Generate time slots using existing utility function
-  const timeSlots = generateTimeSlots(metadata.startTime, metadata.endTime);
+/**
+ * Excel worksheet names must satisfy Excel's rules: no `* ? : \ / [ ]`, no
+ * leading/trailing apostrophe, 1–31 chars, not the reserved name "History",
+ * unique per workbook (case-insensitive). Truncated to 28 chars to leave
+ * room for a dedupe suffix; the untruncated subject name lives in the
+ * sheet's Subject(s) header row. Boundary stripping runs AFTER truncation —
+ * the slice can re-expose a boundary apostrophe.
+ */
+const sanitizeSheetName = (name) => {
+  const cleaned = name
+    .replace(/[*?:\\/[\]]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const base = stripSheetNameBoundary(cleaned.slice(0, 28));
+  if (base === '') return 'Subject';
+  // ExcelJS throws on the exact (case-sensitive) reserved name
+  if (base === 'History') return 'History (Subject)';
+  return base;
+};
+
+const uniqueSheetName = (subjectName, used) => {
+  const base = sanitizeSheetName(subjectName);
+  let candidate = base;
+  for (let suffix = 2; used.has(candidate.toLowerCase()); suffix++) {
+    const tag = ` ${suffix}`;
+    candidate = `${stripSheetNameBoundary(base.slice(0, 31 - tag.length))}${tag}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+};
+
+/**
+ * Unique subjectIds across the session's time slots, in chronological slot
+ * order (keys are fixed-width HH:MM, so a lexicographic sort is
+ * chronological — the same rule as the backend generator).
+ */
+const subjectIdsInSlotOrder = (observations) => [
+  ...new Set(
+    Object.keys(observations)
+      .sort()
+      .flatMap((time) =>
+        (observations[time] ?? []).map((o) => o.subjectId ?? 'Unknown')
+      )
+  ),
+];
+
+/**
+ * Behavior rows for the workbook: the config catalog (already in Excel row
+ * order) filtered to rows enabled for the aviary PLUS rows whose value is
+ * actually present in the data — the Phase 2 §4 alignment rule, identical
+ * to the backend's behaviorRowsFor(). A draft-held retired value keeps its
+ * row without rendering every retired row empty.
+ *
+ * @param {Array<{value, label, enabled}>} behaviorCatalog - useConfig().excelBehaviorRows
+ * @param {Object} observations - Observations keyed by time (arrays of cards)
+ */
+export const behaviorRowsFor = (behaviorCatalog, observations) => {
+  const present = new Set(
+    Object.values(observations)
+      .flat()
+      .map((o) => o.behavior)
+  );
+
+  return behaviorCatalog
+    .filter((b) => b.enabled || present.has(b.value))
+    .map(({ value, label }) => ({ value, label }));
+};
+
+/**
+ * Adds one subject's worksheet: the ethogram matrix layout (headers,
+ * behavior rows × time-slot columns, comments row, frozen panes).
+ */
+const addSubjectWorksheet = (workbook, params) => {
+  const {
+    sheetName,
+    subject,
+    metadata,
+    observations,
+    timeSlots,
+    behaviorRows,
+  } = params;
+  const worksheet = workbook.addWorksheet(sheetName);
 
   // Set column widths for readability
   worksheet.getColumn('A').width = 35.0; // Behavior labels column - increased ~35% from 25.75 to reduce wrapping
@@ -110,14 +181,15 @@ export const generateExcelWorkbook = async (formData, behaviorRows) => {
 
   worksheet.getCell('K1').value = `${metadata.startTime} - ${metadata.endTime}`;
 
-  // Row 2: Aviary, Patient, Observer
+  // Row 2: Aviary, Subject, Observer. The subject cell carries the full
+  // untruncated name (the sheet name may be sanitized/truncated).
   const aviaryCell = worksheet.getCell('A2');
   aviaryCell.value = `Aviary: ${metadata.aviary}`;
   aviaryCell.font = { bold: true };
 
-  const patientCell = worksheet.getCell('B2');
-  patientCell.value = `Patient(s): ${metadata.patient}`;
-  patientCell.font = { bold: true };
+  const subjectCell = worksheet.getCell('B2');
+  subjectCell.value = `Subject(s): ${subject}`;
+  subjectCell.font = { bold: true };
 
   const observerLabel = worksheet.getCell('J2');
   observerLabel.value = 'Observer:';
@@ -150,12 +222,20 @@ export const generateExcelWorkbook = async (formData, behaviorRows) => {
 
       // Check each time slot for this behavior
       timeSlots.forEach((time, timeIndex) => {
-        const observation = observations[time];
-        if (observation && observation.behavior === behaviorValue) {
+        const slotObservations = observations[time];
+        if (!slotObservations) return;
+
+        // Cards here are already this subject's only; the protocol records
+        // one behavior per subject per slot, so more than one match is
+        // anomalous data — render all rather than silently dropping any
+        const matchingObs = slotObservations.filter(
+          (obs) => obs.behavior === behaviorValue
+        );
+
+        if (matchingObs.length > 0) {
           const columnIndex = timeIndex + 2; // Column B is index 2
-          const cellContent = formatCellContent(observation);
           const cell = worksheet.getCell(rowIndex, columnIndex);
-          cell.value = cellContent;
+          cell.value = matchingObs.map(formatCellContent).join('\n—\n');
           // Enable text wrapping for cells with newline-separated content
           cell.alignment = { wrapText: true, vertical: 'top' };
         }
@@ -174,6 +254,55 @@ export const generateExcelWorkbook = async (formData, behaviorRows) => {
   worksheet.views = [
     { state: 'frozen', xSplit: 1, ySplit: 4, topLeftCell: 'B5' },
   ];
+};
+
+/**
+ * Generates an Excel workbook from form data: one worksheet per subject,
+ * each the same behavior×time matrix, subjects in slot order.
+ * @param {Object} formData - Form submission data
+ * @param {Object} formData.metadata - Form metadata (aviary already resolved
+ *   to its display name by the caller — state carries the slug)
+ * @param {Object} formData.observations - Observations keyed by time, each an
+ *   array of per-subject cards
+ * @param {Array<{value, label, enabled}>} behaviorCatalog - Config-derived
+ *   behavior catalog (useConfig().excelBehaviorRows), in Excel row order
+ * @returns {Promise<ExcelJS.Workbook>} Excel workbook instance
+ */
+export const generateExcelWorkbook = async (formData, behaviorCatalog) => {
+  const { metadata, observations } = formData;
+  const workbook = new ExcelJS.Workbook();
+
+  // Generate time slots using existing utility function
+  const timeSlots = generateTimeSlots(metadata.startTime, metadata.endTime);
+  // One row set shared by every sheet — identical matrix per bird
+  const behaviorRows = behaviorRowsFor(behaviorCatalog, observations);
+
+  const subjects = subjectIdsInSlotOrder(observations);
+  if (subjects.length === 0) {
+    subjects.push('Unknown');
+  }
+
+  const usedSheetNames = new Set();
+  subjects.forEach((subject) => {
+    const subjectObservations = {};
+    Object.entries(observations).forEach(([time, slot]) => {
+      const matching = slot.filter(
+        (obs) => (obs.subjectId ?? 'Unknown') === subject
+      );
+      if (matching.length > 0) {
+        subjectObservations[time] = matching;
+      }
+    });
+
+    addSubjectWorksheet(workbook, {
+      sheetName: uniqueSheetName(subject, usedSheetNames),
+      subject,
+      metadata,
+      observations: subjectObservations,
+      timeSlots,
+      behaviorRows,
+    });
+  });
 
   return workbook;
 };
