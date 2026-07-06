@@ -13,13 +13,15 @@ import { getApiBaseUrl } from '../utils/envConfig.js';
  * @property {string} date - Observation date (YYYY-MM-DD)
  * @property {string} startTime - Start time in HH:MM format
  * @property {string} endTime - End time in HH:MM format
- * @property {string} aviary - Aviary name
- * @property {string} patient - Patient name
+ * @property {string} aviary - Aviary slug (the server resolves the display name)
  * @property {'live'|'vod'} mode - Observation mode (live or video-on-demand)
  */
 
 /**
  * @typedef {Object} Observation
+ * One per-subject card; each time slot holds an array of these.
+ * @property {string} subjectType - 'foster_parent' | 'juvenile' | 'baby'
+ * @property {string} subjectId - The subject's name
  * @property {string} behavior - Behavior value (e.g., 'perching', 'flying')
  * @property {string} location - Location code (e.g., '1-31', 'BB1', 'G', 'GROUND')
  * @property {string} notes - Additional notes
@@ -27,8 +29,10 @@ import { getApiBaseUrl } from '../utils/envConfig.js';
  * @property {string} objectOther - Custom object description (when object is 'other')
  * @property {string} animal - Animal type for interaction (when behavior is 'interacting_animal')
  * @property {string} animalOther - Custom animal description (when animal is 'other')
- * @property {string} interactionType - Type of animal interaction (when behavior is 'interacting_animal')
- * @property {string} interactionTypeOther - Custom interaction type (when interactionType is 'other')
+ * @property {string} objectInteractionType - Type of object interaction (when behavior is 'interacting_object')
+ * @property {string} objectInteractionTypeOther - Custom interaction type (when objectInteractionType is 'other')
+ * @property {string} animalInteractionType - Type of animal interaction (when behavior is 'interacting_animal')
+ * @property {string} animalInteractionTypeOther - Custom interaction type (when animalInteractionType is 'other')
  * @property {string} description - Detailed description (for behaviors requiring description)
  */
 

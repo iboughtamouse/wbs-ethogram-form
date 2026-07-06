@@ -131,7 +131,14 @@ jest.mock('../../src/components/form', () => ({
 }));
 
 describe('TimeSlotObservation', () => {
-  const defaultObservation = {
+  // Sayyida is present in the bundled config from 2025-11-29 (no departure),
+  // so this date has exactly one present subject.
+  const OBSERVATION_DATE = '2025-12-25';
+
+  // Helper to build a per-subject observation card
+  const makeCard = (overrides = {}) => ({
+    subjectType: 'foster_parent',
+    subjectId: 'Sayyida',
     behavior: '',
     location: '',
     notes: '',
@@ -144,10 +151,13 @@ describe('TimeSlotObservation', () => {
     animalInteractionType: '',
     animalInteractionTypeOther: '',
     description: '',
-  };
+    ...overrides,
+  });
 
   const mockOnChange = jest.fn();
   const mockOnValidate = jest.fn();
+  const mockOnAddSubject = jest.fn();
+  const mockOnRemoveSubject = jest.fn();
   const mockOnCopyToNext = jest.fn();
 
   // Helper to render TimeSlotObservation with default props
@@ -155,9 +165,13 @@ describe('TimeSlotObservation', () => {
     return render(
       <TimeSlotObservation
         time="15:00"
-        observation={defaultObservation}
+        observations={[makeCard()]}
+        observationDate={OBSERVATION_DATE}
+        fieldErrors={{}}
         onChange={mockOnChange}
         onValidate={mockOnValidate}
+        onAddSubject={mockOnAddSubject}
+        onRemoveSubject={mockOnRemoveSubject}
         onCopyToNext={mockOnCopyToNext}
         isLastSlot={false}
         {...props}
@@ -183,131 +197,135 @@ describe('TimeSlotObservation', () => {
     });
 
     test('always renders behavior select and notes field', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       expect(screen.getByTestId('behavior-select')).toBeInTheDocument();
       expect(screen.getByTestId('notes-field')).toBeInTheDocument();
     });
 
     test('renders copy to next button when not last slot', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({ isLastSlot: false });
 
       expect(screen.getByText('Copy to next')).toBeInTheDocument();
     });
 
     test('does not render copy to next button when last slot', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={true}
-        />
-      );
+      renderTimeSlotObservation({ isLastSlot: true });
 
       expect(screen.queryByText('Copy to next')).not.toBeInTheDocument();
     });
   });
 
+  describe('Subject Cards', () => {
+    test('renders one card per array entry with subject-name headers', () => {
+      renderTimeSlotObservation({
+        observations: [
+          makeCard(),
+          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+        ],
+      });
+
+      expect(screen.getByText('Sayyida')).toBeInTheDocument();
+      expect(screen.getByText('Chick 1')).toBeInTheDocument();
+      expect(screen.getAllByTestId('behavior-select')).toHaveLength(2);
+      expect(screen.getAllByTestId('notes-field')).toHaveLength(2);
+    });
+
+    test('flags a card whose subject is not listed for the observation date', () => {
+      renderTimeSlotObservation({
+        observations: [
+          makeCard(),
+          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+        ],
+      });
+
+      // Chick 1 has no residency episode in the bundled config
+      expect(screen.getByText('not listed for this date')).toBeInTheDocument();
+    });
+
+    test('does not render a Remove button when the slot has a single card', () => {
+      renderTimeSlotObservation();
+
+      expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+    });
+
+    test('renders Remove buttons when the slot has more than one card and calls onRemoveSubject', () => {
+      renderTimeSlotObservation({
+        observations: [
+          makeCard(),
+          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+        ],
+      });
+
+      const removeButtons = screen.getAllByText('Remove');
+      expect(removeButtons).toHaveLength(2);
+
+      fireEvent.click(removeButtons[0]);
+
+      expect(mockOnRemoveSubject).toHaveBeenCalledWith('15:00', 'Sayyida');
+    });
+
+    test('shows "+ Add" button for a present subject without a card and calls onAddSubject', () => {
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+        ],
+      });
+
+      const addButton = screen.getByText('+ Add Sayyida');
+      fireEvent.click(addButton);
+
+      expect(mockOnAddSubject).toHaveBeenCalledWith(
+        '15:00',
+        expect.objectContaining({ name: 'Sayyida' })
+      );
+    });
+
+    test('does not show "+ Add" button when every present subject has a card', () => {
+      renderTimeSlotObservation();
+
+      expect(screen.queryByText(/\+ Add/)).not.toBeInTheDocument();
+    });
+  });
+
   describe('Conditional Field Rendering', () => {
     test('shows location input when behavior requires location (preening)', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'preening' }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'preening' })],
+      });
 
       expect(screen.getByTestId('location-input')).toBeInTheDocument();
     });
 
     test('does not show location input when behavior does not require it', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: '' }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: '' })],
+      });
 
       expect(screen.queryByTestId('location-input')).not.toBeInTheDocument();
     });
 
     test('shows object select when behavior requires object (interacting_object)', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_object',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'interacting_object' })],
+      });
 
       expect(screen.getByTestId('object-select')).toBeInTheDocument();
     });
 
     test('shows animal and interaction type selects when behavior requires animal (interacting_animal)', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_animal',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'interacting_animal' })],
+      });
 
       expect(screen.getByTestId('animal-select')).toBeInTheDocument();
       expect(screen.getByTestId('interaction-type-select')).toBeInTheDocument();
     });
 
     test('shows description field when behavior requires description (aggression)', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'other' }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'other' })],
+      });
 
       expect(screen.getByTestId('description-field')).toBeInTheDocument();
     });
@@ -315,27 +333,20 @@ describe('TimeSlotObservation', () => {
 
   describe('Behavior Selection', () => {
     test('calls onChange and onValidate immediately when behavior changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       const behaviorSelect = screen.getByTestId('behavior-select');
       fireEvent.change(behaviorSelect, { target: { value: 'perching' } });
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'behavior',
         'perching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'behavior',
         'perching'
       );
@@ -344,36 +355,32 @@ describe('TimeSlotObservation', () => {
 
   describe('Location Input', () => {
     test('calls onChange and onValidate immediately when location changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'preening' }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'preening' })],
+      });
 
       const locationInput = screen.getByTestId('location-input');
       fireEvent.change(locationInput, { target: { value: '12' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'location', '12');
-      expect(mockOnValidate).toHaveBeenCalledWith('15:00', 'location', '12');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'Sayyida',
+        'location',
+        '12'
+      );
+      expect(mockOnValidate).toHaveBeenCalledWith(
+        '15:00',
+        'Sayyida',
+        'location',
+        '12'
+      );
     });
 
     test('displays location error when present', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'preening' }}
-          locationError="Location is required"
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'preening' })],
+        fieldErrors: { '15:00_Sayyida_location': 'Location is required' },
+      });
 
       expect(screen.getByTestId('location-error')).toHaveTextContent(
         'Location is required'
@@ -383,65 +390,43 @@ describe('TimeSlotObservation', () => {
 
   describe('Object Selection', () => {
     test('calls onChange and onValidate immediately when object changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_object',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'interacting_object' })],
+      });
 
       const objectSelect = screen.getByTestId('object-select');
       fireEvent.change(objectSelect, { target: { value: 'newspaper' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'object', 'newspaper');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'Sayyida',
+        'object',
+        'newspaper'
+      );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'object',
         'newspaper'
       );
     });
 
     test('shows "other" text field when object is "other"', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_object',
-            object: 'other',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({ behavior: 'interacting_object', object: 'other' }),
+        ],
+      });
 
       expect(screen.getByTestId('object-other')).toBeInTheDocument();
     });
 
     test('debounces validation for objectOther text input', async () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_object',
-            object: 'other',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({ behavior: 'interacting_object', object: 'other' }),
+        ],
+      });
 
       const objectOtherInput = screen.getByTestId('object-other');
       fireEvent.change(objectOtherInput, {
@@ -451,6 +436,7 @@ describe('TimeSlotObservation', () => {
       // onChange should be called immediately
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'objectOther',
         'custom object'
       );
@@ -465,6 +451,7 @@ describe('TimeSlotObservation', () => {
       await waitFor(() => {
         expect(mockOnValidate).toHaveBeenCalledWith(
           '15:00',
+          'Sayyida',
           'objectOther',
           'custom object'
         );
@@ -474,49 +461,31 @@ describe('TimeSlotObservation', () => {
 
   describe('Animal and Interaction Type Selection', () => {
     test('calls onChange and onValidate immediately when animal changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_animal',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'interacting_animal' })],
+      });
 
       const animalSelect = screen.getByTestId('animal-select');
       fireEvent.change(animalSelect, { target: { value: 'aviary_adult' } });
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'animal',
         'aviary_adult'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'animal',
         'aviary_adult'
       );
     });
 
     test('calls onChange and onValidate immediately when interaction type changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_animal',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'interacting_animal' })],
+      });
 
       const interactionTypeSelect = screen.getByTestId(
         'interaction-type-select'
@@ -527,50 +496,37 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'animalInteractionType',
         'watching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'animalInteractionType',
         'watching'
       );
     });
 
     test('shows "other" fields when animal is "other"', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
-            behavior: 'interacting_animal',
-            animal: 'other',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({ behavior: 'interacting_animal', animal: 'other' }),
+        ],
+      });
 
       expect(screen.getByTestId('animal-other')).toBeInTheDocument();
     });
 
     test('shows "other" field when interaction type is "other"', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({
             behavior: 'interacting_animal',
             animalInteractionType: 'other',
-          }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+          }),
+        ],
+      });
 
       expect(screen.getByTestId('interaction-type-other')).toBeInTheDocument();
     });
@@ -578,16 +534,9 @@ describe('TimeSlotObservation', () => {
 
   describe('Description Field', () => {
     test('debounces validation for description text input', async () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'other' }}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'other' })],
+      });
 
       const descriptionField = screen.getByTestId('description-field');
       fireEvent.change(descriptionField, {
@@ -597,6 +546,7 @@ describe('TimeSlotObservation', () => {
       // onChange should be called immediately
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
+        'Sayyida',
         'description',
         'Aggressive behavior'
       );
@@ -611,6 +561,7 @@ describe('TimeSlotObservation', () => {
       await waitFor(() => {
         expect(mockOnValidate).toHaveBeenCalledWith(
           '15:00',
+          'Sayyida',
           'description',
           'Aggressive behavior'
         );
@@ -618,17 +569,10 @@ describe('TimeSlotObservation', () => {
     });
 
     test('displays description error when present', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{ ...defaultObservation, behavior: 'other' }}
-          descriptionError="Description is required"
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'other' })],
+        fieldErrors: { '15:00_Sayyida_description': 'Description is required' },
+      });
 
       expect(screen.getByTestId('description-error')).toHaveTextContent(
         'Description is required'
@@ -638,37 +582,24 @@ describe('TimeSlotObservation', () => {
 
   describe('Notes Field', () => {
     test('calls onChange when notes changes', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       const notesField = screen.getByTestId('notes-field');
       fireEvent.change(notesField, { target: { value: 'Some notes' } });
 
       // Notes field onChange passes the event object directly
-      expect(mockOnChange).toHaveBeenCalledWith('15:00', 'notes', 'Some notes');
+      expect(mockOnChange).toHaveBeenCalledWith(
+        '15:00',
+        'Sayyida',
+        'notes',
+        'Some notes'
+      );
     });
   });
 
   describe('Copy to Next Button', () => {
     test('calls onCopyToNext with correct time when clicked', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={defaultObservation}
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+      renderTimeSlotObservation();
 
       const copyButton = screen.getByText('Copy to next');
       fireEvent.click(copyButton);
@@ -678,33 +609,33 @@ describe('TimeSlotObservation', () => {
   });
 
   describe('Error Display', () => {
-    test('displays all error types when present', () => {
-      render(
-        <TimeSlotObservation
-          time="15:00"
-          observation={{
-            ...defaultObservation,
+    test('displays all error types when present via `${time}_${subjectId}_${field}` keys', () => {
+      renderTimeSlotObservation({
+        observations: [
+          makeCard({
             behavior: 'interacting_animal',
             object: 'other',
             animal: 'other',
             animalInteractionType: 'other',
-          }}
-          behaviorError="Behavior error"
-          locationError="Location error"
-          objectError="Object error"
-          objectOtherError="Object other error"
-          objectInteractionTypeError="Object interaction type error"
-          objectInteractionTypeOtherError="Object interaction type other error"
-          animalError="Animal error"
-          animalOtherError="Animal other error"
-          animalInteractionTypeError="Animal interaction type error"
-          animalInteractionTypeOtherError="Animal interaction type other error"
-          onChange={mockOnChange}
-          onValidate={mockOnValidate}
-          onCopyToNext={mockOnCopyToNext}
-          isLastSlot={false}
-        />
-      );
+          }),
+        ],
+        fieldErrors: {
+          '15:00_Sayyida_behavior': 'Behavior error',
+          '15:00_Sayyida_location': 'Location error',
+          '15:00_Sayyida_object': 'Object error',
+          '15:00_Sayyida_objectOther': 'Object other error',
+          '15:00_Sayyida_objectInteractionType':
+            'Object interaction type error',
+          '15:00_Sayyida_objectInteractionTypeOther':
+            'Object interaction type other error',
+          '15:00_Sayyida_animal': 'Animal error',
+          '15:00_Sayyida_animalOther': 'Animal other error',
+          '15:00_Sayyida_animalInteractionType':
+            'Animal interaction type error',
+          '15:00_Sayyida_animalInteractionTypeOther':
+            'Animal interaction type other error',
+        },
+      });
 
       expect(screen.getByTestId('behavior-error')).toHaveTextContent(
         'Behavior error'
@@ -721,6 +652,15 @@ describe('TimeSlotObservation', () => {
       expect(
         screen.getByTestId('interaction-type-other-error')
       ).toHaveTextContent('Animal interaction type other error');
+    });
+
+    test("does not display another subject's error on this subject's card", () => {
+      renderTimeSlotObservation({
+        observations: [makeCard({ behavior: 'preening' })],
+        fieldErrors: { '15:00_Chick 1_location': 'Location error' },
+      });
+
+      expect(screen.queryByTestId('location-error')).not.toBeInTheDocument();
     });
   });
 });

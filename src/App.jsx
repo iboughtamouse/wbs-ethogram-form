@@ -28,6 +28,8 @@ function App() {
     observations,
     handleMetadataChange,
     handleObservationChange,
+    handleAddSubject,
+    handleRemoveSubject,
     handleCopyToNext,
     resetForm,
     restoreDraft,
@@ -40,6 +42,7 @@ function App() {
     validateSingleMetadataField,
     validateSingleObservationField,
     validateObservationSlot,
+    clearObservationErrors,
     clearFieldError,
     clearAllErrors,
   } = useFormValidation();
@@ -69,6 +72,7 @@ function App() {
     onMetadataChange,
     onObservationChange,
     onObservationValidate,
+    onRemoveSubject,
     onCopyToNext,
     onReset,
   } = useFormHandlers({
@@ -77,11 +81,13 @@ function App() {
     fieldErrors,
     handleMetadataChange,
     handleObservationChange,
+    handleRemoveSubject,
     handleCopyToNext,
     resetForm,
     validateSingleMetadataField,
     validateSingleObservationField,
     validateObservationSlot,
+    clearObservationErrors,
     clearFieldError,
     clearAllErrors,
     setShowOutput,
@@ -182,28 +188,13 @@ function App() {
                     <TimeSlotObservation
                       key={time}
                       time={time}
-                      observation={observations[time]}
-                      behaviorError={fieldErrors[`${time}_behavior`]}
-                      locationError={fieldErrors[`${time}_location`]}
-                      objectError={fieldErrors[`${time}_object`]}
-                      objectOtherError={fieldErrors[`${time}_objectOther`]}
-                      objectInteractionTypeError={
-                        fieldErrors[`${time}_objectInteractionType`]
-                      }
-                      objectInteractionTypeOtherError={
-                        fieldErrors[`${time}_objectInteractionTypeOther`]
-                      }
-                      animalError={fieldErrors[`${time}_animal`]}
-                      animalOtherError={fieldErrors[`${time}_animalOther`]}
-                      animalInteractionTypeError={
-                        fieldErrors[`${time}_animalInteractionType`]
-                      }
-                      animalInteractionTypeOtherError={
-                        fieldErrors[`${time}_animalInteractionTypeOther`]
-                      }
-                      descriptionError={fieldErrors[`${time}_description`]}
+                      observations={observations[time]}
+                      observationDate={metadata.date}
+                      fieldErrors={fieldErrors}
                       onChange={onObservationChange}
                       onValidate={onObservationValidate}
+                      onAddSubject={handleAddSubject}
+                      onRemoveSubject={onRemoveSubject}
                       onCopyToNext={onCopyToNext}
                       isLastSlot={index === timeSlots.length - 1}
                     />

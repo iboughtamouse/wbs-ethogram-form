@@ -15,9 +15,13 @@ jest.mock('../../services/draftManager', () => ({
     return (
       !!metadata.observerName ||
       !!metadata.startTime ||
-      Object.values(observations).some((obs) => obs.behavior)
+      Object.values(observations).some((slot) =>
+        slot.some((obs) => obs.behavior)
+      )
     );
   }),
+  // Use the real migration so restore tests exercise actual draft shapes
+  migrateDraft: jest.requireActual('../../services/draftManager').migrateDraft,
 }));
 
 import {
@@ -34,8 +38,7 @@ describe('useAutoSave', () => {
     date: '2025-01-15',
     startTime: '',
     endTime: '',
-    aviary: "Sayyida's Cove",
-    patient: 'Sayyida',
+    aviary: 'sayyidas-cove',
     mode: 'live',
   };
 
@@ -58,7 +61,14 @@ describe('useAutoSave', () => {
     it('should show draft notice when draft exists', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: { observerName: 'John' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });
@@ -139,7 +149,14 @@ describe('useAutoSave', () => {
       );
 
       const updatedObservations = {
-        '09:00': { behavior: 'perching', location: '1' },
+        '09:00': [
+          {
+            subjectType: 'foster_parent',
+            subjectId: 'Sayyida',
+            behavior: 'perching',
+            location: '1',
+          },
+        ],
       };
 
       rerender({ metadata, observations: updatedObservations });
@@ -155,12 +172,29 @@ describe('useAutoSave', () => {
   describe('handleRestoreDraft', () => {
     it('should restore draft and hide notice', () => {
       const mockOnRestore = jest.fn();
-      hasDraft.mockReturnValue(true);
-      loadDraft.mockReturnValue({
-        metadata: { observerName: 'John' },
-        observations: { '09:00': { behavior: 'perching' } },
+      const currentDraft = {
+        shapeVersion: 2,
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': [
+            {
+              subjectType: 'foster_parent',
+              subjectId: 'Sayyida',
+              behavior: 'perching',
+            },
+          ],
+        },
         savedAt: '2025-01-15T10:00:00.000Z',
-      });
+      };
+      hasDraft.mockReturnValue(true);
+      loadDraft.mockReturnValue(currentDraft);
 
       const { result } = renderHook(() =>
         useAutoSave(metadata, observations, mockOnRestore)
@@ -172,19 +206,74 @@ describe('useAutoSave', () => {
         result.current.handleRestoreDraft();
       });
 
+      expect(mockOnRestore).toHaveBeenCalledWith(currentDraft);
+      expect(result.current.showDraftNotice).toBe(false);
+      expect(result.current.draftTimestamp).toBeNull();
+    });
+
+    it('should migrate a v1 draft before passing it to onRestore', () => {
+      const mockOnRestore = jest.fn();
+      hasDraft.mockReturnValue(true);
+      // Pre-Phase-2 draft: no shapeVersion, flat observations,
+      // metadata.patient, aviary stored as the display name
+      loadDraft.mockReturnValue({
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: "Sayyida's Cove",
+          patient: 'Sayyida',
+          mode: 'live',
+        },
+        observations: { '09:00': { behavior: 'perching', location: '1' } },
+        savedAt: '2025-01-15T10:00:00.000Z',
+      });
+
+      const { result } = renderHook(() =>
+        useAutoSave(metadata, observations, mockOnRestore)
+      );
+
+      act(() => {
+        result.current.handleRestoreDraft();
+      });
+
       expect(mockOnRestore).toHaveBeenCalledWith({
-        metadata: { observerName: 'John' },
-        observations: { '09:00': { behavior: 'perching' } },
+        shapeVersion: 2,
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': [
+            {
+              behavior: 'perching',
+              location: '1',
+              subjectType: 'foster_parent',
+              subjectId: 'Sayyida',
+            },
+          ],
+        },
         savedAt: '2025-01-15T10:00:00.000Z',
       });
       expect(result.current.showDraftNotice).toBe(false);
-      expect(result.current.draftTimestamp).toBeNull();
     });
 
     it('should handle missing onRestore callback gracefully', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: { observerName: 'John' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });
@@ -204,7 +293,14 @@ describe('useAutoSave', () => {
     it('should clear draft and hide notice', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: {},
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });

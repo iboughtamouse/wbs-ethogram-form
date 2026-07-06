@@ -671,7 +671,7 @@ describe('App Integration Tests', () => {
           '10:00': {
             behavior: 'preening',
             location: '',
-            notes: '',
+            notes: 'Saved note',
             description: 'Saved work',
             object: '',
             objectOther: '',
@@ -702,6 +702,18 @@ describe('App Integration Tests', () => {
         const observerInput = screen.getByPlaceholderText(/Enter your name/i);
         expect(observerInput).toHaveValue('SavedObserver');
       });
+
+      // Migrated v1 observation content should actually render in the slot
+      const slot = document.querySelector('.time-slot[data-time="10:00"]');
+      expect(slot).not.toBeNull();
+
+      const behaviorSelects = within(slot).getAllByRole('combobox');
+      expect(behaviorSelects[0]).toHaveValue('preening'); // First select is always behavior
+
+      const notesTextarea = within(slot).getByPlaceholderText(
+        /Any additional observations/i
+      );
+      expect(notesTextarea).toHaveValue('Saved note');
     });
 
     test('discards draft when Start Fresh button is clicked', () => {

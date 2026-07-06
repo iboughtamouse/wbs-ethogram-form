@@ -40,12 +40,25 @@ const sortOptions = (options) => {
 /**
  * Adapt a config document into the form's config bundle.
  * @param {Object} doc - Published config document (validated by configService)
+ * @param {string|null} selectedAviarySlug - Aviary the observer picked; falls
+ *   back to the first active aviary (today's single-aviary behavior)
  * @returns {Object} - The bundle exposed through useConfig()
  */
-export const adaptConfig = (doc) => {
-  // Phase 1 is single-aviary: the form binds to the first active aviary.
-  const aviary = doc.aviaries.find((a) => a.isActive) ?? doc.aviaries[0];
-  const vocabulary = aviary?.vocabulary ?? {};
+export const adaptConfig = (doc, selectedAviarySlug = null) => {
+  const activeAviaries = doc.aviaries.filter((a) => a.isActive);
+  const aviary =
+    (selectedAviarySlug &&
+      activeAviaries.find((a) => a.slug === selectedAviarySlug)) ||
+    activeAviaries[0] ||
+    doc.aviaries[0];
+
+  // A shape-valid document with no usable aviary must throw rather than
+  // silently degrade to empty menus (followups FU-2) — the provider's
+  // recovery then keeps the last good bundle / bundled snapshot instead.
+  if (!aviary || !aviary.vocabulary) {
+    throw new Error('Config document has no usable aviary');
+  }
+  const vocabulary = aviary.vocabulary;
   const enabled = {
     behaviors: new Set(vocabulary.behaviors ?? []),
     object: new Set(vocabulary.objects ?? []),
@@ -146,22 +159,58 @@ export const adaptConfig = (doc) => {
   // --- Aviary / subject identity + Excel rows -----------------------------
 
   const aviaryName = aviary?.name ?? '';
-  const patientName =
-    (aviary?.subjects ?? []).find(
-      (s) => s.type === 'foster_parent' && !s.departedOn
-    )?.name ?? '';
+  const aviarySlug = aviary?.slug ?? '';
 
-  // Same derivation as the backend's behaviorRowsFor(): catalog in
-  // excelRowOrder, filtered to the aviary's enablement (retired included —
-  // historical drafts may hold legacy values)
-  // Enabled rows plus ALL retired rows: a draft can hold a legacy/retired
-  // value regardless of current enablement, and its mark must never silently
-  // vanish from an offline export. (The backend gets the same guarantee from
-  // version stamping instead.)
+  // Active aviaries for the metadata picker (with one aviary this renders
+  // read-only — today's UX)
+  const aviaryOptions = activeAviaries.map((a) => ({
+    slug: a.slug,
+    name: a.name,
+  }));
+
+  // Slug → display name across the FULL aviary list, so historical drafts
+  // referencing a since-deactivated aviary still render its name
+  const aviaryNameBySlug = new Map(doc.aviaries.map((a) => [a.slug, a.name]));
+  const getAviaryDisplayName = (slug) => aviaryNameBySlug.get(slug) ?? slug;
+
+  const subjects = (aviary?.subjects ?? []).map((s) => ({
+    name: s.name,
+    type: s.type,
+    species: s.species,
+    arrivedOn: s.arrivedOn,
+    departedOn: s.departedOn ?? null,
+  }));
+
+  // Residency episodes are half-open [arrivedOn, departedOn): a subject is
+  // present on its arrival date, not on its departure date. Deduped by name
+  // (a bird with multiple episodes appears once). ISO date strings compare
+  // lexicographically, so string comparison is correct here.
+  const getSubjectsPresentOn = (date) => {
+    const seen = new Set();
+    return subjects.filter((s) => {
+      const present =
+        s.arrivedOn <= date && (!s.departedOn || s.departedOn > date);
+      if (!present || seen.has(s.name)) return false;
+      seen.add(s.name);
+      return true;
+    });
+  };
+
+  const fosterParentName =
+    subjects.find((s) => s.type === 'foster_parent' && !s.departedOn)?.name ??
+    '';
+
+  // Full catalog in excelRowOrder, carrying the aviary's enablement flag.
+  // The generator includes a row iff it is enabled OR its value is present
+  // in the data being exported — the same rule as the backend's
+  // behaviorRowsFor() (Phase 2 §4 row-filter alignment).
   const excelBehaviorRows = [...doc.behaviors]
-    .filter((b) => b.retired || enabled.behaviors.has(b.value))
     .sort((a, b) => a.excelRowOrder - b.excelRowOrder)
-    .map((b) => ({ value: b.value, label: b.excelRowLabel }));
+    .map((b) => ({
+      value: b.value,
+      label: b.excelRowLabel,
+      enabled: enabled.behaviors.has(b.value),
+    }));
 
   return {
     version: doc.version,
@@ -183,7 +232,12 @@ export const adaptConfig = (doc) => {
     VALID_PERCHES,
     perchOptions,
     aviaryName,
-    patientName,
+    aviarySlug,
+    aviaryOptions,
+    getAviaryDisplayName,
+    subjects,
+    getSubjectsPresentOn,
+    fosterParentName,
     perchDiagrams: aviary?.perchDiagrams ?? [],
     excelBehaviorRows,
   };

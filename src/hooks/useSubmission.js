@@ -36,7 +36,7 @@ import { SUBMISSION_STATES, SHARE_SUCCESS_TIMEOUT_MS } from '../constants/ui';
 export function useSubmission(getOutputData, resetForm, clearAllErrors) {
   // Config-derived Excel rows for the offline/local generation path. At worst
   // this is the bundled snapshot's derivation — never a network dependency.
-  const { excelBehaviorRows } = useConfig();
+  const { excelBehaviorRows, getAviaryDisplayName } = useConfig();
 
   // Modal and submission state
   const [showModal, setShowModal] = useState(false);
@@ -215,9 +215,17 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
         // Download from backend
         await downloadFromBackend(observationId);
       } else {
-        // Generate locally (fallback/offline mode)
+        // Generate locally (fallback/offline mode). State/wire carry the
+        // aviary slug; the rendered workbook shows the display name.
         const formData = getOutputData();
-        await downloadLocally(formData, true, excelBehaviorRows); // true = mark as offline
+        const renderData = {
+          ...formData,
+          metadata: {
+            ...formData.metadata,
+            aviary: getAviaryDisplayName(formData.metadata.aviary),
+          },
+        };
+        await downloadLocally(renderData, true, excelBehaviorRows); // true = mark as offline
       }
     } catch (error) {
       console.error('Download failed:', error);

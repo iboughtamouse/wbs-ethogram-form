@@ -247,6 +247,75 @@ select.error {
   outline-offset: 2px;
 }
 
+/* Per-subject observation cards within a time slot (Phase 2) */
+.subject-card {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background-color: var(--color-bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--color-border-light);
+}
+
+.subject-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.subject-card-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.subject-card-flag {
+  font-size: 12px;
+  color: var(--color-error, #c0392b);
+  font-style: italic;
+}
+
+.subject-remove-button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--color-error, #c0392b);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.subject-remove-button:hover {
+  background-color: rgba(192, 57, 43, 0.1);
+}
+
+.add-subject-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.add-subject-button {
+  background: none;
+  border: 1px dashed var(--color-border-light);
+  color: var(--color-accent-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.add-subject-button:hover {
+  border-color: var(--color-accent-primary);
+  background-color: rgba(52, 152, 219, 0.08);
+}
+
 .location-input {
   margin-top: 10px;
 }

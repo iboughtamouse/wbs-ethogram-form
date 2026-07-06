@@ -16,7 +16,8 @@ export const getNextTimeSlot = (timeSlots, currentTime) => {
 };
 
 /**
- * Copy observation data to the next time slot
+ * Copy a time slot's observations to the next slot. Copies the whole card
+ * set — every recorded subject — per Phase 2 P2-D2.
  * @param {Object} observations - Current observations object
  * @param {string[]} timeSlots - Array of time slot strings
  * @param {string} currentTime - Current time slot to copy from
@@ -36,8 +37,17 @@ export const copyObservationToNext = (observations, timeSlots, currentTime) => {
   // Deep clone to avoid mutation
   const updatedObservations = JSON.parse(JSON.stringify(observations));
 
-  // Copy all fields from current observation to next
-  updatedObservations[nextTime] = { ...observations[currentTime] };
+  // Copy every subject's card from the current slot to the next. Cards for
+  // subjects recorded ONLY in the target slot are kept — copying must never
+  // silently destroy another subject's already-entered data.
+  const sourceCards = (observations[currentTime] ?? []).map((observation) => ({
+    ...observation,
+  }));
+  const copiedSubjects = new Set(sourceCards.map((card) => card.subjectId));
+  const targetOnlyCards = (observations[nextTime] ?? []).filter(
+    (card) => !copiedSubjects.has(card.subjectId)
+  );
+  updatedObservations[nextTime] = [...sourceCards, ...targetOnlyCards];
 
   return {
     success: true,

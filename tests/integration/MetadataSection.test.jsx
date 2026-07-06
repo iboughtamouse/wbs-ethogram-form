@@ -6,11 +6,10 @@ import MetadataSection from '../../src/components/MetadataSection';
 describe('MetadataSection', () => {
   const defaultMetadata = {
     observerName: '',
-    date: '2025-11-21',
+    date: '2025-12-05',
     startTime: '',
     endTime: '',
-    aviary: "Sayyida's Cove",
-    patient: 'Sayyida',
+    aviary: 'sayyidas-cove',
     mode: 'live',
   };
 
@@ -70,7 +69,7 @@ describe('MetadataSection', () => {
       expect(vodRadio).not.toBeChecked();
     });
 
-    test('renders aviary and patient as read-only', () => {
+    test('renders aviary and subjects as read-only', () => {
       render(
         <MetadataSection
           metadata={defaultMetadata}
@@ -80,12 +79,37 @@ describe('MetadataSection', () => {
       );
 
       const aviaryInput = screen.getByDisplayValue("Sayyida's Cove");
-      const patientInput = screen.getByDisplayValue('Sayyida');
+      const subjectsInput = screen.getByDisplayValue('Sayyida');
 
       expect(aviaryInput).toHaveAttribute('readonly');
       expect(aviaryInput).toBeDisabled();
-      expect(patientInput).toHaveAttribute('readonly');
-      expect(patientInput).toBeDisabled();
+      expect(subjectsInput).toHaveAttribute('readonly');
+      expect(subjectsInput).toBeDisabled();
+    });
+
+    test('subjects display is driven by metadata.date', () => {
+      // Sayyida's residency episode starts 2025-11-29 (bundled config)
+      const { rerender } = render(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, date: '2025-11-21' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // Before arrival: no subjects listed
+      expect(screen.queryByDisplayValue('Sayyida')).not.toBeInTheDocument();
+
+      rerender(
+        <MetadataSection
+          metadata={{ ...defaultMetadata, date: '2025-11-29' }}
+          fieldErrors={defaultFieldErrors}
+          onChange={mockOnChange}
+        />
+      );
+
+      // On/after arrival: Sayyida is listed
+      expect(screen.getByDisplayValue('Sayyida')).toBeInTheDocument();
     });
 
     test('shows video timestamp help text for live mode', () => {

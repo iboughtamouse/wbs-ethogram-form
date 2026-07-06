@@ -29,7 +29,7 @@ describe('useSubmission', () => {
       date: '2025-11-30',
       startTime: '15:00',
       endTime: '15:30',
-      aviary: "Sayyida's Cove",
+      aviary: 'sayyidas-cove', // app state carries the slug, not the display name
       patient: 'Sayyida',
       mode: 'live',
     },
@@ -495,7 +495,15 @@ describe('useSubmission', () => {
 
       expect(downloadService.downloadFromBackend).not.toHaveBeenCalled();
       expect(downloadService.downloadLocally).toHaveBeenCalledWith(
-        sampleFormData,
+        {
+          ...sampleFormData,
+          metadata: {
+            ...sampleFormData.metadata,
+            // state holds the slug; the rendered workbook header must show
+            // the resolved display name
+            aviary: "Sayyida's Cove",
+          },
+        },
         true, // offline flag is true when no observationId
         expect.arrayContaining([
           expect.objectContaining({
@@ -504,6 +512,10 @@ describe('useSubmission', () => {
           }),
         ]) // config-derived Excel rows ride along for offline generation
       );
+
+      // Explicit check: the aviary slug in state is resolved for rendering
+      const [renderData] = downloadService.downloadLocally.mock.calls[0];
+      expect(renderData.metadata.aviary).toBe("Sayyida's Cove");
     });
 
     it('should handle download errors gracefully', async () => {

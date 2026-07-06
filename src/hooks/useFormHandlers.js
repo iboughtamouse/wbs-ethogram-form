@@ -8,6 +8,7 @@
  */
 
 import { clearDraft } from '../utils/localStorageUtils';
+import { observationErrorKey } from '../utils/errorKeys';
 
 /**
  * Hook for managing form interaction handlers
@@ -33,11 +34,13 @@ export function useFormHandlers({
   fieldErrors,
   handleMetadataChange,
   handleObservationChange,
+  handleRemoveSubject,
   handleCopyToNext,
   resetForm,
   validateSingleMetadataField,
   validateSingleObservationField,
   validateObservationSlot,
+  clearObservationErrors,
   clearFieldError,
   clearAllErrors,
   setShowOutput,
@@ -66,11 +69,11 @@ export function useFormHandlers({
    * Handle observation field changes
    * Clears field errors when user starts typing
    */
-  const onObservationChange = (time, field, value) => {
-    handleObservationChange(time, field, value);
+  const onObservationChange = (time, subjectId, field, value) => {
+    handleObservationChange(time, subjectId, field, value);
 
     // Clear error when user starts typing
-    const errorKey = `${time}_${field}`;
+    const errorKey = observationErrorKey(time, subjectId, field);
     if (fieldErrors[errorKey]) {
       clearFieldError(errorKey);
     }
@@ -80,8 +83,29 @@ export function useFormHandlers({
    * Handle observation field validation
    * Triggered on blur or Enter key
    */
-  const onObservationValidate = (time, field, currentValue = null) => {
-    validateSingleObservationField(time, field, observations, currentValue);
+  const onObservationValidate = (
+    time,
+    subjectId,
+    field,
+    currentValue = null
+  ) => {
+    validateSingleObservationField(
+      time,
+      subjectId,
+      field,
+      observations,
+      currentValue
+    );
+  };
+
+  /**
+   * Handle subject-card removal
+   * Clears the card's validation errors first, so re-adding the same
+   * subject never resurrects phantom errors on a pristine card
+   */
+  const onRemoveSubject = (time, subjectId) => {
+    clearObservationErrors(time, subjectId);
+    handleRemoveSubject(time, subjectId);
   };
 
   /**
@@ -122,6 +146,7 @@ export function useFormHandlers({
     onMetadataChange,
     onObservationChange,
     onObservationValidate,
+    onRemoveSubject,
     onCopyToNext,
     onReset,
   };

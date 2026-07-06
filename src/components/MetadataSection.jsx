@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useConfig } from '../contexts/ConfigContext';
 import {
   validateTimeRange,
   roundToNearestFiveMinutes,
@@ -6,6 +7,24 @@ import {
 import { TIME_SLOT_STEP_SECONDS } from '../constants/ui';
 
 const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
+  const {
+    aviaryOptions,
+    getAviaryDisplayName,
+    getSubjectsPresentOn,
+    subjects,
+  } = useConfig();
+
+  // Subjects present on the observation date replace the old single-patient
+  // display (P2-D2) — informational; cards are managed per time slot below.
+  // Mirrors the cards' fallback: when no episode covers the date, current
+  // residents are shown so the display never contradicts the default card.
+  const presentSubjects = getSubjectsPresentOn(metadata.date);
+  const displayedSubjects = presentSubjects.length
+    ? presentSubjects
+    : subjects.filter((s) => !s.departedOn);
+  const subjectsCaveat = presentSubjects.length
+    ? ''
+    : ' (not listed for this date)';
   const handleTimeChange = (field, value) => {
     // Update state without validation - just track the raw value as user types
     onChange(field, value, false);
@@ -190,13 +209,42 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
         </div>
 
         <div className="form-group">
-          <label>Aviary</label>
-          <input type="text" value={metadata.aviary} readOnly disabled />
+          <label htmlFor="aviary">Aviary</label>
+          {aviaryOptions.length > 1 ? (
+            <select
+              id="aviary"
+              value={metadata.aviary}
+              onChange={(e) => onChange('aviary', e.target.value)}
+            >
+              {aviaryOptions.map((option) => (
+                <option key={option.slug} value={option.slug}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            // Exactly one active aviary: auto-selected, read-only (today's UX)
+            <input
+              id="aviary"
+              type="text"
+              value={getAviaryDisplayName(metadata.aviary)}
+              readOnly
+              disabled
+            />
+          )}
         </div>
 
         <div className="form-group">
-          <label>Patient</label>
-          <input type="text" value={metadata.patient} readOnly disabled />
+          <label>Subjects</label>
+          <input
+            type="text"
+            value={
+              displayedSubjects.map((s) => s.name).join(', ') + subjectsCaveat
+            }
+            readOnly
+            disabled
+            title="Subjects with a residency episode covering the selected date"
+          />
         </div>
       </div>
     </section>
@@ -210,7 +258,6 @@ MetadataSection.propTypes = {
     startTime: PropTypes.string.isRequired,
     endTime: PropTypes.string.isRequired,
     aviary: PropTypes.string.isRequired,
-    patient: PropTypes.string.isRequired,
     mode: PropTypes.oneOf(['live', 'vod']).isRequired,
   }).isRequired,
   fieldErrors: PropTypes.objectOf(PropTypes.string).isRequired,
