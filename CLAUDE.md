@@ -162,7 +162,7 @@ src/
 ### Conditional Fields
 
 - Fields appear/disappear based on behavior flags
-- Behavior object has: `requiresLocation`, `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`
+- Behavior object has: `requiresLocation`, `requiresObject`, `requiresObjectInteraction`, `requiresAnimal`, `requiresAnimalInteraction`, `requiresDescription` (only the flags a behavior needs are set)
 - Use helper functions: `requiresLocation(behaviorValue)`, `requiresObject(behaviorValue)`, etc.
 - When behavior changes, clear ALL conditional fields automatically
 

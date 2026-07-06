@@ -118,31 +118,40 @@ The form outputs structured JSON data:
   },
   "observations": {
     "15:00": {
-      "behavior": "perching",
+      "behavior": "resting_alert",
       "location": "12",
       "notes": "",
       "object": "",
       "objectOther": "",
+      "objectInteractionType": "",
+      "objectInteractionTypeOther": "",
       "animal": "",
       "animalOther": "",
-      "interactionType": "",
-      "interactionTypeOther": ""
+      "animalInteractionType": "",
+      "animalInteractionTypeOther": "",
+      "description": ""
     },
     "15:05": {
       "behavior": "interacting_object",
-      "location": "",
+      "location": "12",
       "notes": "Playing with newspaper",
       "object": "newspaper",
       "objectOther": "",
+      "objectInteractionType": "biting",
+      "objectInteractionTypeOther": "",
       "animal": "",
       "animalOther": "",
-      "interactionType": "",
-      "interactionTypeOther": ""
+      "animalInteractionType": "",
+      "animalInteractionTypeOther": "",
+      "description": ""
     }
   },
   "submittedAt": "2025-11-20T15:32:00.000Z"
 }
 ```
+
+> The per-slot field list is defined canonically by `createEmptyObservation()` in
+> `src/services/formStateManager.js` — the example above is illustrative.
 
 ## 🛠️ For Developers
 
