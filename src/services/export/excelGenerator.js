@@ -9,43 +9,6 @@ import ExcelJS from 'exceljs';
 import { generateTimeSlots } from '../../utils/timeUtils';
 
 /**
- * Maps behavior values from the form to display labels for Excel rows
- * Includes both current and legacy behavior values for backward compatibility
- */
-const BEHAVIOR_ROW_MAPPING = {
-  // New consolidated behaviors
-  eating: 'Eating (Note Location)',
-  walking: 'Locomotion - Walking (Note Location)',
-
-  // Legacy values (backward compatibility)
-  eating_food_platform: 'Eating - On Food Platform',
-  eating_elsewhere: 'Eating - Elsewhere (Note Location)',
-  walking_ground: 'Locomotion - Walking on Ground',
-  walking_perch: 'Locomotion - Walking on Perch (Note Location)',
-  aggression: 'Aggression or Defensive Posturing',
-
-  // Unchanged behaviors
-  flying: 'Locomotion - Flying',
-  jumping: 'Locomotion - Jumping',
-  repetitive_locomotion: 'Repetitive Locomotion (Note Location)',
-  drinking: 'Drinking',
-  bathing: 'Bathing',
-  preening: 'Preening/Grooming (Note Location)',
-  repetitive_preening: 'Repetitive Preening/Feather Damage (Note Location)',
-  nesting: 'Nesting',
-  vocalizing: 'Vocalizing (Note Location)',
-  resting_alert: 'Resting on Perch/Ground - Alert (Note Location)',
-  resting_not_alert: 'Resting on Perch/Ground - Not Alert (Note Location)',
-  resting_unknown: 'Resting on Perch/Ground - Status Unknown (Note Location)',
-  interacting_object:
-    'Interacting with Inanimate Object (Note Location, Object & Interaction)',
-  interacting_animal:
-    'Interacting with Other Animal (Note Location, Animal & Interaction)',
-  not_visible: 'Not Visible',
-  other: 'Other',
-};
-
-/**
  * Formats observation details for a cell
  * @param {Object} observation - Observation data
  * @returns {string} Formatted cell content with newline-separated details
@@ -109,9 +72,11 @@ const formatCellContent = (observation) => {
  * @param {Object} formData - Form submission data
  * @param {Object} formData.metadata - Form metadata
  * @param {Object} formData.observations - Observations keyed by time
+ * @param {Array<{value: string, label: string}>} behaviorRows - Config-derived
+ *   behavior rows (useConfig().excelBehaviorRows), in Excel row order
  * @returns {Promise<ExcelJS.Workbook>} Excel workbook instance
  */
-export const generateExcelWorkbook = async (formData) => {
+export const generateExcelWorkbook = async (formData, behaviorRows) => {
   const { metadata, observations } = formData;
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Ethogram Data');
@@ -174,29 +139,29 @@ export const generateExcelWorkbook = async (formData) => {
   });
 
   // Rows 5+: Behavior labels and observation marks
-  const behaviorRows = Object.keys(BEHAVIOR_ROW_MAPPING);
-  behaviorRows.forEach((behaviorValue, index) => {
-    const rowIndex = 5 + index;
-    const behaviorLabel = BEHAVIOR_ROW_MAPPING[behaviorValue];
+  behaviorRows.forEach(
+    ({ value: behaviorValue, label: behaviorLabel }, index) => {
+      const rowIndex = 5 + index;
 
-    // Column A: Behavior label with text wrapping
-    const labelCell = worksheet.getCell(rowIndex, 1);
-    labelCell.value = behaviorLabel;
-    labelCell.alignment = { wrapText: true, vertical: 'top' };
+      // Column A: Behavior label with text wrapping
+      const labelCell = worksheet.getCell(rowIndex, 1);
+      labelCell.value = behaviorLabel;
+      labelCell.alignment = { wrapText: true, vertical: 'top' };
 
-    // Check each time slot for this behavior
-    timeSlots.forEach((time, timeIndex) => {
-      const observation = observations[time];
-      if (observation && observation.behavior === behaviorValue) {
-        const columnIndex = timeIndex + 2; // Column B is index 2
-        const cellContent = formatCellContent(observation);
-        const cell = worksheet.getCell(rowIndex, columnIndex);
-        cell.value = cellContent;
-        // Enable text wrapping for cells with newline-separated content
-        cell.alignment = { wrapText: true, vertical: 'top' };
-      }
-    });
-  });
+      // Check each time slot for this behavior
+      timeSlots.forEach((time, timeIndex) => {
+        const observation = observations[time];
+        if (observation && observation.behavior === behaviorValue) {
+          const columnIndex = timeIndex + 2; // Column B is index 2
+          const cellContent = formatCellContent(observation);
+          const cell = worksheet.getCell(rowIndex, columnIndex);
+          cell.value = cellContent;
+          // Enable text wrapping for cells with newline-separated content
+          cell.alignment = { wrapText: true, vertical: 'top' };
+        }
+      });
+    }
+  );
 
   // Add comments section after all behaviors
   const commentsRowIndex = 5 + behaviorRows.length + 2;
@@ -216,14 +181,16 @@ export const generateExcelWorkbook = async (formData) => {
 /**
  * Generates and downloads an Excel file
  * @param {Object} formData - Form submission data
+ * @param {Array<{value: string, label: string}>} behaviorRows - Config-derived rows
  * @param {string} filename - Desired filename (without extension)
  * @returns {Promise<void>}
  */
 export const downloadExcelFile = async (
   formData,
+  behaviorRows,
   filename = 'ethogram-data'
 ) => {
-  const workbook = await generateExcelWorkbook(formData);
+  const workbook = await generateExcelWorkbook(formData, behaviorRows);
 
   // Generate Excel file as buffer
   const buffer = await workbook.xlsx.writeBuffer();

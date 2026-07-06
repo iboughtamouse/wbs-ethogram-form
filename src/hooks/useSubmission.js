@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { useConfig } from '../contexts/ConfigContext';
 import { clearDraft } from '../utils/localStorageUtils';
 import {
   submitObservation,
@@ -33,6 +34,10 @@ import { SUBMISSION_STATES, SHARE_SUCCESS_TIMEOUT_MS } from '../constants/ui';
  * @returns {Object} Submission state and handlers
  */
 export function useSubmission(getOutputData, resetForm, clearAllErrors) {
+  // Config-derived Excel rows for the offline/local generation path. At worst
+  // this is the bundled snapshot's derivation — never a network dependency.
+  const { excelBehaviorRows } = useConfig();
+
   // Modal and submission state
   const [showModal, setShowModal] = useState(false);
   const [submissionState, setSubmissionState] = useState(
@@ -212,7 +217,7 @@ export function useSubmission(getOutputData, resetForm, clearAllErrors) {
       } else {
         // Generate locally (fallback/offline mode)
         const formData = getOutputData();
-        await downloadLocally(formData, true); // true = mark as offline
+        await downloadLocally(formData, true, excelBehaviorRows); // true = mark as offline
       }
     } catch (error) {
       console.error('Download failed:', error);

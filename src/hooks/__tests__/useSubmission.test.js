@@ -496,7 +496,13 @@ describe('useSubmission', () => {
       expect(downloadService.downloadFromBackend).not.toHaveBeenCalled();
       expect(downloadService.downloadLocally).toHaveBeenCalledWith(
         sampleFormData,
-        true // offline flag is true when no observationId
+        true, // offline flag is true when no observationId
+        expect.arrayContaining([
+          expect.objectContaining({
+            value: 'eating',
+            label: 'Eating (Note Location)',
+          }),
+        ]) // config-derived Excel rows ride along for offline generation
       );
     });
 

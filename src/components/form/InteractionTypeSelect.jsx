@@ -24,7 +24,11 @@ const InteractionTypeSelect = ({
           className={error ? 'error' : ''}
         >
           {options.map((interaction) => (
-            <option key={interaction.value} value={interaction.value}>
+            <option
+              key={interaction.value}
+              value={interaction.value}
+              disabled={interaction.disabled}
+            >
               {interaction.label}
             </option>
           ))}
@@ -59,6 +63,7 @@ InteractionTypeSelect.propTypes = {
     PropTypes.shape({
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
+      disabled: PropTypes.bool,
     })
   ).isRequired,
   value: PropTypes.string.isRequired,

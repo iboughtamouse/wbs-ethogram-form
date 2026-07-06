@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { INANIMATE_OBJECTS } from '../../constants';
+import { useConfig } from '../../contexts/ConfigContext';
+import { withCurrentValue } from '../../utils/selectOptions';
 import { MAX_OTHER_TEXT_LENGTH } from '../../constants/ui';
 
 const ObjectSelect = ({
@@ -11,6 +12,11 @@ const ObjectSelect = ({
   error,
   otherError,
 }) => {
+  const { INANIMATE_OBJECTS, lookupVocabLabel } = useConfig();
+  const options = withCurrentValue(INANIMATE_OBJECTS, value, (v) =>
+    lookupVocabLabel('object', v)
+  );
+
   return (
     <>
       <div className="form-group">
@@ -22,8 +28,8 @@ const ObjectSelect = ({
           onChange={onChange}
           className={error ? 'error' : ''}
         >
-          {INANIMATE_OBJECTS.map((obj) => (
-            <option key={obj.value} value={obj.value}>
+          {options.map((obj) => (
+            <option key={obj.value} value={obj.value} disabled={obj.disabled}>
               {obj.label}
             </option>
           ))}
