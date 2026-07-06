@@ -72,13 +72,11 @@ export const adaptConfig = (doc) => {
   const allBehaviors = doc.behaviors.map(toBehavior);
   const behaviorByValue = new Map(allBehaviors.map((b) => [b.value, b]));
 
-  // Menu data: placeholder + active (non-retired, enabled) behaviors
-  const BEHAVIORS = [
-    { value: '', label: 'Select a behavior...', requiresLocation: false },
-    ...doc.behaviors
-      .filter((b) => !b.retired && enabled.behaviors.has(b.value))
-      .map(toBehavior),
-  ];
+  // Menu data: active (non-retired, enabled) behaviors. The '' placeholder
+  // is presentation and lives in BehaviorSelect, not here.
+  const BEHAVIORS = doc.behaviors
+    .filter((b) => !b.retired && enabled.behaviors.has(b.value))
+    .map(toBehavior);
 
   const BEHAVIOR_GROUP_ORDER = [...doc.behaviorGroups]
     .sort((a, b) => a.sortOrder - b.sortOrder)

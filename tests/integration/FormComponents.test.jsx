@@ -10,7 +10,10 @@ import {
   DescriptionField,
   NotesField,
 } from '../../src/components/form';
-import { ANIMAL_INTERACTION_TYPES } from '../../src/constants';
+import { adaptConfig } from '../../src/services/configAdapter';
+import { bundledConfig } from '../../src/services/configService';
+
+const { ANIMAL_INTERACTION_TYPES } = adaptConfig(bundledConfig);
 
 describe('Form Components', () => {
   describe('BehaviorSelect', () => {

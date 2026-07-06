@@ -72,16 +72,17 @@ Never propose changes to code you haven't read. Read the actual implementation, 
 ### 2. Follow Existing Patterns
 
 - **State**: Lives in App.jsx, flows down via props
+- **Domain config**: Vocabularies/aviary data come from `useConfig()` (ConfigContext), never hardcoded
 - **Callbacks**: Flow up from child components
 - **Validation**: Dropdowns validate onChange, text fields validate onBlur + debounced (200ms)
-- **Behaviors**: Use helper functions from `constants/behaviors.js`, never direct BEHAVIORS lookups
-- **Pure functions**: Services should be pure and testable
+- **Behaviors**: Use the `requires*` helper functions from `useConfig()`, never direct BEHAVIORS lookups
+- **Pure functions**: Services should be pure and testable (config is passed in, never imported)
 
 ### 3. Use Helper Functions
 
 ```javascript
-// ✅ GOOD
-import { requiresLocation } from '../constants';
+// ✅ GOOD (components/hooks)
+const { requiresLocation } = useConfig();
 if (requiresLocation(observation.behavior)) { ... }
 
 // ❌ BAD
@@ -134,11 +135,18 @@ src/
 │   ├── timeUtils.js
 │   ├── localStorageUtils.js
 │   └── validators/                 # Pure validation functions
-├── constants/                      # Domain data (single source of truth)
-│   ├── behaviors.js                # BEHAVIORS array + helper functions
-│   ├── locations.js                # VALID_PERCHES, TIME_SLOTS
-│   └── interactions.js             # Objects, animals, interaction types
+├── config/
+│   └── defaultConfig.json          # Bundled config snapshot (generated, never hand-edited)
+├── contexts/
+│   └── ConfigContext.jsx           # ConfigProvider + useConfig()
+├── constants/
+│   └── ui.js                       # Presentation constants (steps, caps, storage keys)
 └── tests/                          # Integration & E2E tests
+
+**Domain data (behaviors, vocab, perches, aviary) is config-as-data**: the
+canonical model lives in the backend DB (`ethogram-api` migrations), served by
+`GET /api/config`, adapted by `services/configAdapter.js`, exposed via
+`useConfig()`. The bundled snapshot is the offline fallback.
 ```
 
 ---
@@ -147,7 +155,8 @@ src/
 
 ### State Management
 
-- All state lives in `App.jsx`
+- All form state lives in `App.jsx`; domain config comes from `ConfigContext`
+  (bundled snapshot at first paint, upgraded from `GET /api/config` at mount)
 - Metadata: Observer info, date, time range, mode
 - Observations: Keyed by time strings (`"15:00"`, `"15:05"`, etc.)
 - Flat observation structure (one field per observation property)
@@ -180,20 +189,22 @@ All components use PropTypes for type safety. Be specific with shapes, not vague
 
 ## Quick Wins
 
-### Adding a New Behavior
+### Adding a New Behavior / Object / Animal / Interaction Type
 
-1. Update `src/constants/behaviors.js` with new behavior object
-2. Run tests: `npm test`
-3. That's it! Helper functions and validation automatically work.
+Domain vocabulary lives in the database (config-as-data), not in this repo:
 
-### Adding Object/Animal/Interaction Type
+1. Add the catalog row + aviary enablement in `ethogram-api` (SQL until the
+   Phase 3 admin dashboard exists), then `npm run config:publish` there
+2. Regenerate the bundled snapshot here:
+   `npm run config:export > ../wbs-ethogram-form/src/config/defaultConfig.json`
+3. Run tests in both repos. Menus, helpers, validation, and both Excel
+   generators pick the change up from config automatically.
 
-1. Update appropriate array in `src/constants/interactions.js`
-2. That's it! UI dropdowns automatically include it.
+See the design doc: `ethogram-notes/01-ACTIVE/config-as-data-phase1-design.md`
 
 ### Debugging Validation
 
-1. Check if field is conditional (behavior flags in `constants/behaviors.js`)
+1. Check if field is conditional (behavior `requires*` flags in the config document)
 2. Verify error key format: `${time}_${field}` for observations
 3. Check validation is called (onValidate prop)
 4. Check debouncing for text fields (200ms delay)
@@ -251,11 +262,12 @@ All components use PropTypes for type safety. Be specific with shapes, not vague
 
 ### Cross-Repository Coordination
 
-**Behavior changes** (items 5-9 in study feedback):
+**Behavior/vocabulary changes** (config-as-data):
 
-1. Update `src/constants/behaviors.js` (frontend)
-2. Update `src/services/excel.ts` BEHAVIOR_ROW_MAPPING (backend)
-3. Coordinate deployment (both must go live together)
+1. Edit the catalog in the `ethogram-api` database + `config:publish`
+2. Regenerate this repo's bundled snapshot via `config:export`
+3. No lockstep deploy needed — the form fetches the published config and
+   both Excel generators derive their rows from it
 
 **Data shape changes** (Phase 4 multi-subject):
 
