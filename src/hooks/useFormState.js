@@ -16,8 +16,12 @@ import {
 } from '../services/formStateManager';
 
 export const useFormState = () => {
-  // Aviary + subject identity comes from config (single-aviary in Phase 1);
-  // captured in the initial state, applied at mount like the rest of config
+  // Aviary + subject identity comes from config (single-aviary in Phase 1).
+  // Deliberately mount-frozen: captured in the initial state and re-read only
+  // by resetForm/restoreDraft, even if a fetched config upgrades the bundle
+  // post-mount. Safe under the append-only/no-rename invariant (a renamed
+  // aviary would resolve to aviary_id NULL server-side via exact-name match —
+  // renames are forbidden by the publish rules for exactly this reason).
   const { aviaryName, patientName } = useConfig();
   const today = getTodayWBS();
 

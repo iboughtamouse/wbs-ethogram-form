@@ -103,6 +103,36 @@ describe('ConfigContext', () => {
     expect(screen.getByTestId('aviary')).toHaveTextContent("Sayyida's Cove");
   });
 
+  it('recovers from a poisoned cached config by evicting it and using the snapshot', () => {
+    // Shape-valid but adaptation-breaking doc at a NEWER version: without the
+    // guarded initializer this throws during render on every load until the
+    // cache is cleared by hand. getInitialConfig/evictCachedConfig are the
+    // real implementations (the module mock only replaces fetchLatestConfig),
+    // so this exercises the genuine localStorage path.
+    localStorage.setItem(
+      'wbs-ethogram-config',
+      JSON.stringify({
+        ...bundledConfig,
+        version: bundledConfig.version + 1,
+        behaviors: [null],
+      })
+    );
+    fetchLatestConfig.mockResolvedValue(null);
+
+    render(
+      <ConfigProvider>
+        <ShowConfig />
+      </ConfigProvider>
+    );
+
+    expect(screen.getByTestId('version')).toHaveTextContent(
+      String(bundledConfig.version)
+    );
+    expect(screen.getByTestId('aviary')).toHaveTextContent("Sayyida's Cove");
+    // The poisoned entry is gone, so the next load boots clean
+    expect(localStorage.getItem('wbs-ethogram-config')).toBeNull();
+  });
+
   it('keeps the snapshot when the fetch fails (offline)', async () => {
     fetchLatestConfig.mockResolvedValue(null);
 

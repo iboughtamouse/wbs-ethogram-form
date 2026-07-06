@@ -2,14 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import OutputPreview from '../OutputPreview';
 
-// Mock the Excel generator module
-jest.mock('../../services/export/excelGenerator', () => ({
-  downloadExcelFile: jest.fn(),
-}));
-
-// Import the mocked module
-import { downloadExcelFile } from '../../services/export/excelGenerator';
-
 describe('OutputPreview', () => {
   const mockData = {
     metadata: {
