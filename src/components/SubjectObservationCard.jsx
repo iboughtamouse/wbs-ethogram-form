@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
+import { GENERIC_JUVENILE_ID, GENERIC_JUVENILE_LABEL } from '../constants/ui';
 import {
   withCurrentValue,
   withCurrentGroupedValue,
@@ -72,7 +73,9 @@ const SubjectObservationCard = ({
     return null;
   }
 
-  const { subjectId } = observation;
+  const { cardId, subjectId } = observation;
+  const subjectLabel =
+    subjectId === GENERIC_JUVENILE_ID ? GENERIC_JUVENILE_LABEL : subjectId;
 
   // Use helper functions to check behavior requirements
   const showLocation = requiresLocation(observation.behavior);
@@ -97,59 +100,59 @@ const SubjectObservationCard = ({
 
   // Select/dropdown handlers - validate immediately on change
   const handleBehaviorChange = (value) => {
-    onChange(time, subjectId, 'behavior', value);
-    onValidate(time, subjectId, 'behavior', value);
+    onChange(time, cardId, 'behavior', value);
+    onValidate(time, cardId, 'behavior', value);
   };
 
   const handleLocationChange = (selectedOption) => {
     const newValue = selectedOption ? selectedOption.value : '';
-    onChange(time, subjectId, 'location', newValue);
-    onValidate(time, subjectId, 'location', newValue);
+    onChange(time, cardId, 'location', newValue);
+    onValidate(time, cardId, 'location', newValue);
   };
 
   const handleObjectChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'object', newValue);
-    onValidate(time, subjectId, 'object', newValue);
+    onChange(time, cardId, 'object', newValue);
+    onValidate(time, cardId, 'object', newValue);
   };
 
   const handleAnimalChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'animal', newValue);
-    onValidate(time, subjectId, 'animal', newValue);
+    onChange(time, cardId, 'animal', newValue);
+    onValidate(time, cardId, 'animal', newValue);
   };
 
   const handleObjectInteractionTypeChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'objectInteractionType', newValue);
-    onValidate(time, subjectId, 'objectInteractionType', newValue);
+    onChange(time, cardId, 'objectInteractionType', newValue);
+    onValidate(time, cardId, 'objectInteractionType', newValue);
   };
 
   const handleAnimalInteractionTypeChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'animalInteractionType', newValue);
-    onValidate(time, subjectId, 'animalInteractionType', newValue);
+    onChange(time, cardId, 'animalInteractionType', newValue);
+    onValidate(time, cardId, 'animalInteractionType', newValue);
   };
 
   // Text field handlers - validate with debounce on change
   const handleObjectOtherChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'objectOther', newValue);
-    debouncedValidateRef.current(time, subjectId, 'objectOther', newValue);
+    onChange(time, cardId, 'objectOther', newValue);
+    debouncedValidateRef.current(time, cardId, 'objectOther', newValue);
   };
 
   const handleAnimalOtherChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'animalOther', newValue);
-    debouncedValidateRef.current(time, subjectId, 'animalOther', newValue);
+    onChange(time, cardId, 'animalOther', newValue);
+    debouncedValidateRef.current(time, cardId, 'animalOther', newValue);
   };
 
   const handleObjectInteractionTypeOtherChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'objectInteractionTypeOther', newValue);
+    onChange(time, cardId, 'objectInteractionTypeOther', newValue);
     debouncedValidateRef.current(
       time,
-      subjectId,
+      cardId,
       'objectInteractionTypeOther',
       newValue
     );
@@ -157,10 +160,10 @@ const SubjectObservationCard = ({
 
   const handleAnimalInteractionTypeOtherChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'animalInteractionTypeOther', newValue);
+    onChange(time, cardId, 'animalInteractionTypeOther', newValue);
     debouncedValidateRef.current(
       time,
-      subjectId,
+      cardId,
       'animalInteractionTypeOther',
       newValue
     );
@@ -168,8 +171,8 @@ const SubjectObservationCard = ({
 
   const handleDescriptionChange = (e) => {
     const newValue = e.target.value;
-    onChange(time, subjectId, 'description', newValue);
-    debouncedValidateRef.current(time, subjectId, 'description', newValue);
+    onChange(time, cardId, 'description', newValue);
+    debouncedValidateRef.current(time, cardId, 'description', newValue);
   };
 
   // Prevent Enter key from submitting form, but trigger validation
@@ -177,7 +180,7 @@ const SubjectObservationCard = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       // Trigger validation with current value
-      onValidate(time, subjectId, field, e.target.value);
+      onValidate(time, cardId, field, e.target.value);
     }
   };
 
@@ -194,9 +197,9 @@ const SubjectObservationCard = ({
     .find((option) => option.value === observation.location);
 
   return (
-    <div className="subject-card" data-subject={subjectId}>
+    <div className="subject-card" data-subject={subjectId} data-card={cardId}>
       <div className="subject-card-header">
-        <span className="subject-card-name">{subjectId}</span>
+        <span className="subject-card-name">{subjectLabel}</span>
         {!isPresent && (
           <span
             className="subject-card-flag"
@@ -208,9 +211,9 @@ const SubjectObservationCard = ({
         {canRemove && (
           <button
             type="button"
-            onClick={() => onRemove(time, subjectId)}
+            onClick={() => onRemove(time, cardId)}
             className="subject-remove-button"
-            title={`Remove ${subjectId}'s observation from this time slot`}
+            title={`Remove this ${subjectLabel} observation from the time slot`}
           >
             Remove
           </button>
@@ -297,7 +300,7 @@ const SubjectObservationCard = ({
 
       <NotesField
         value={observation.notes}
-        onChange={(e) => onChange(time, subjectId, 'notes', e.target.value)}
+        onChange={(e) => onChange(time, cardId, 'notes', e.target.value)}
         onKeyDown={handleKeyDown('notes')}
       />
     </div>
@@ -307,6 +310,7 @@ const SubjectObservationCard = ({
 SubjectObservationCard.propTypes = {
   time: PropTypes.string.isRequired,
   observation: PropTypes.shape({
+    cardId: PropTypes.string.isRequired,
     subjectType: PropTypes.string.isRequired,
     subjectId: PropTypes.string.isRequired,
     behavior: PropTypes.string.isRequired,

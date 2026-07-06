@@ -1,8 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useFormValidation } from '../useFormValidation';
+import { GENERIC_JUVENILE_ID } from '../../constants/ui';
 
-// Builds one subject observation card with all fields present
+// Builds one subject observation card with all fields present. Cards carry
+// a slot-local cardId and all error keys are `${time}_${cardId}_${field}`
+// (NOT subjectId — generic "Juvenile" cards may duplicate a subjectId
+// within a slot). Any unique string works as a fixture cardId.
 const makeCard = (overrides = {}) => ({
+  cardId: 'card-1',
   subjectType: 'foster_parent',
   subjectId: 'Sayyida',
   behavior: '',
@@ -152,13 +157,13 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'behavior',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -172,14 +177,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'behavior',
           observations
         );
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_behavior']
+        result.current.fieldErrors['09:00_card-1_behavior']
       ).toBeUndefined();
     });
 
@@ -192,13 +197,13 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_location']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_location']).toBe(
         'Location is required for this behavior'
       );
     });
@@ -212,14 +217,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_location']
+        result.current.fieldErrors['09:00_card-1_location']
       ).toBeUndefined();
     });
 
@@ -232,14 +237,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_location']
+        result.current.fieldErrors['09:00_card-1_location']
       ).toBeUndefined();
     });
 
@@ -252,14 +257,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_location']
+        result.current.fieldErrors['09:00_card-1_location']
       ).toBeUndefined();
     });
 
@@ -272,13 +277,13 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_location']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_location']).toBe(
         'Invalid perch number "99"'
       );
     });
@@ -292,23 +297,24 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'location',
           observations
         );
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_location']
+        result.current.fieldErrors['09:00_card-1_location']
       ).toBeUndefined();
     });
 
-    it('should track same-named field errors per subject in one slot', () => {
+    it('should track same-named field errors per card in one slot', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': [
-          makeCard({ subjectId: 'Sayyida', behavior: '' }),
+          makeCard({ cardId: 'card-a', subjectId: 'Sayyida', behavior: '' }),
           makeCard({
+            cardId: 'card-b',
             subjectType: 'resident',
             subjectId: 'Peanut',
             behavior: '',
@@ -316,23 +322,23 @@ describe('useFormValidation', () => {
         ],
       };
 
-      // Both subjects' behavior fields are invalid
+      // Both cards' behavior fields are invalid
       act(() => {
         result.current.validateObservationSlot('09:00', observations);
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-a_behavior']).toBe(
         'Please select a behavior'
       );
-      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-b_behavior']).toBe(
         'Please select a behavior'
       );
 
-      // Fixing one subject's field must NOT clear the other's error
+      // Fixing one card's field must NOT clear the other's error
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-a',
           'behavior',
           observations,
           'eating'
@@ -340,9 +346,101 @@ describe('useFormValidation', () => {
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_behavior']
+        result.current.fieldErrors['09:00_card-a_behavior']
       ).toBeUndefined();
-      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-b_behavior']).toBe(
+        'Please select a behavior'
+      );
+    });
+  });
+
+  describe('generic juvenile cards (duplicate subjectId)', () => {
+    // P2-D8: generic "Juvenile" cards share subjectId but carry unique
+    // cardIds — errors must key by cardId so the cards stay independent.
+    const makeGenericSlot = () => ({
+      '09:00': [
+        makeCard({
+          cardId: 'card-juv-a',
+          subjectType: 'juvenile',
+          subjectId: GENERIC_JUVENILE_ID,
+          behavior: '',
+        }),
+        makeCard({
+          cardId: 'card-juv-b',
+          subjectType: 'juvenile',
+          subjectId: GENERIC_JUVENILE_ID,
+          behavior: '',
+        }),
+      ],
+    });
+
+    it('keys errors independently for two generic cards sharing a subjectId', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = makeGenericSlot();
+
+      act(() => {
+        result.current.validateSingleObservationField(
+          '09:00',
+          'card-juv-a',
+          'behavior',
+          observations
+        );
+      });
+      act(() => {
+        result.current.validateSingleObservationField(
+          '09:00',
+          'card-juv-b',
+          'behavior',
+          observations
+        );
+      });
+
+      expect(result.current.fieldErrors['09:00_card-juv-a_behavior']).toBe(
+        'Please select a behavior'
+      );
+      expect(result.current.fieldErrors['09:00_card-juv-b_behavior']).toBe(
+        'Please select a behavior'
+      );
+    });
+
+    it("clearing one generic card's errors leaves the other card's intact", () => {
+      const { result } = renderHook(() => useFormValidation());
+      const observations = makeGenericSlot();
+
+      act(() => {
+        result.current.validateSingleObservationField(
+          '09:00',
+          'card-juv-a',
+          'behavior',
+          observations
+        );
+      });
+      act(() => {
+        result.current.validateSingleObservationField(
+          '09:00',
+          'card-juv-b',
+          'behavior',
+          observations
+        );
+      });
+
+      expect(
+        result.current.fieldErrors['09:00_card-juv-a_behavior']
+      ).toBeDefined();
+      expect(
+        result.current.fieldErrors['09:00_card-juv-b_behavior']
+      ).toBeDefined();
+
+      // Remove the first generic card's errors — same subjectId must not
+      // drag the sibling card's errors along
+      act(() => {
+        result.current.clearObservationErrors('09:00', 'card-juv-a');
+      });
+
+      expect(
+        result.current.fieldErrors['09:00_card-juv-a_behavior']
+      ).toBeUndefined();
+      expect(result.current.fieldErrors['09:00_card-juv-b_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -358,14 +456,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'description',
           observations,
           ''
         );
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_description']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -379,7 +477,7 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'description',
           observations,
           ''
@@ -387,7 +485,7 @@ describe('useFormValidation', () => {
       });
 
       expect(
-        result.current.fieldErrors['09:00_Sayyida_description']
+        result.current.fieldErrors['09:00_card-1_description']
       ).toBeUndefined();
     });
 
@@ -400,14 +498,14 @@ describe('useFormValidation', () => {
       act(() => {
         result.current.validateSingleObservationField(
           '09:00',
-          'Sayyida',
+          'card-1',
           'description',
           observations,
           '   '
         );
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_description']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -433,9 +531,7 @@ describe('useFormValidation', () => {
 
       expect(isValid).toBe(false);
       expect(result.current.fieldErrors.observerName).toBeDefined();
-      expect(
-        result.current.fieldErrors['09:00_Sayyida_behavior']
-      ).toBeDefined();
+      expect(result.current.fieldErrors['09:00_card-1_behavior']).toBeDefined();
     });
 
     it('should return true when form is completely valid', () => {
@@ -496,8 +592,13 @@ describe('useFormValidation', () => {
       };
       const observations = {
         '09:00': [
-          makeCard({ subjectId: 'Sayyida', behavior: 'eating' }),
           makeCard({
+            cardId: 'card-a',
+            subjectId: 'Sayyida',
+            behavior: 'eating',
+          }),
+          makeCard({
+            cardId: 'card-b',
             subjectType: 'resident',
             subjectId: 'Peanut',
             behavior: '',
@@ -512,16 +613,46 @@ describe('useFormValidation', () => {
 
       expect(isValid).toBe(false);
       expect(
-        result.current.fieldErrors['09:00_Sayyida_behavior']
+        result.current.fieldErrors['09:00_card-a_behavior']
       ).toBeUndefined();
-      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-b_behavior']).toBe(
         'Please select a behavior'
       );
     });
   });
 
+  describe('slot card cap', () => {
+    it('flags a slot holding more than 20 cards (backend max)', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const slot = Array.from({ length: 21 }, (_, i) =>
+        makeCard({ cardId: `card-${i}`, behavior: 'preening' })
+      );
+
+      const metadata = {
+        observerName: 'Valid Observer',
+        date: '2026-06-15',
+        startTime: '09:00',
+        endTime: '09:30',
+        aviary: 'sayyidas-cove',
+        mode: 'live',
+      };
+
+      let isValid;
+      act(() => {
+        isValid = result.current.validateForm(metadata, {
+          '09:00': slot,
+        });
+      });
+
+      expect(isValid).toBe(false);
+      expect(result.current.fieldErrors['09:00__slot']).toContain(
+        'At most 20 subjects'
+      );
+    });
+  });
+
   describe('clearObservationErrors', () => {
-    it("should clear all of one card's errors but keep other subjects' and metadata errors", () => {
+    it("should clear all of one card's errors but keep other cards' and metadata errors", () => {
       const { result } = renderHook(() => useFormValidation());
       const metadata = {
         observerName: '',
@@ -532,8 +663,13 @@ describe('useFormValidation', () => {
       const observations = {
         '09:00': [
           // Sayyida's card produces two errors (animal + interaction type)
-          makeCard({ subjectId: 'Sayyida', behavior: 'interacting_animal' }),
           makeCard({
+            cardId: 'card-a',
+            subjectId: 'Sayyida',
+            behavior: 'interacting_animal',
+          }),
+          makeCard({
+            cardId: 'card-b',
             subjectType: 'resident',
             subjectId: 'Peanut',
             behavior: '',
@@ -545,26 +681,26 @@ describe('useFormValidation', () => {
         result.current.validateForm(metadata, observations);
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_animal']).toBeDefined();
+      expect(result.current.fieldErrors['09:00_card-a_animal']).toBeDefined();
       expect(
-        result.current.fieldErrors['09:00_Sayyida_animalInteractionType']
+        result.current.fieldErrors['09:00_card-a_animalInteractionType']
       ).toBeDefined();
-      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBeDefined();
+      expect(result.current.fieldErrors['09:00_card-b_behavior']).toBeDefined();
       expect(result.current.fieldErrors.observerName).toBeDefined();
 
-      // Remove Sayyida's card errors for the slot
+      // Remove the first card's errors for the slot
       act(() => {
-        result.current.clearObservationErrors('09:00', 'Sayyida');
+        result.current.clearObservationErrors('09:00', 'card-a');
       });
 
-      // Every Sayyida key for the slot is gone
-      const sayyidaKeys = Object.keys(result.current.fieldErrors).filter(
-        (key) => key.startsWith('09:00_Sayyida_')
+      // Every key for the removed card is gone
+      const removedCardKeys = Object.keys(result.current.fieldErrors).filter(
+        (key) => key.startsWith('09:00_card-a_')
       );
-      expect(sayyidaKeys).toHaveLength(0);
+      expect(removedCardKeys).toHaveLength(0);
 
-      // Other subject's error and metadata error are untouched
-      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+      // Other card's error and metadata error are untouched
+      expect(result.current.fieldErrors['09:00_card-b_behavior']).toBe(
         'Please select a behavior'
       );
       expect(result.current.fieldErrors.observerName).toBe(
@@ -640,7 +776,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_behavior']).toBe(
+      expect(validation.errors['09:00_card-1_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -660,7 +796,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_location']).toBeDefined();
+      expect(validation.errors['09:00_card-1_location']).toBeDefined();
     });
 
     it('should return valid when all required fields are filled', () => {
@@ -696,7 +832,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_object']).toBe(
+      expect(validation.errors['09:00_card-1_object']).toBe(
         'Object is required'
       );
     });
@@ -718,7 +854,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_objectOther']).toBe(
+      expect(validation.errors['09:00_card-1_objectOther']).toBe(
         'Please specify the object'
       );
     });
@@ -738,7 +874,7 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_description']).toBe(
+      expect(validation.errors['09:00_card-1_description']).toBe(
         'Description is required for this behavior'
       );
     });
@@ -758,20 +894,26 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_animal']).toBe(
+      expect(validation.errors['09:00_card-1_animal']).toBe(
         'Animal is required'
       );
-      expect(validation.errors['09:00_Sayyida_animalInteractionType']).toBe(
+      expect(validation.errors['09:00_card-1_animalInteractionType']).toBe(
         'Animal interaction type is required'
       );
     });
 
-    it('should validate every card in the slot and key errors by subject', () => {
+    it('should validate every card in the slot and key errors by cardId', () => {
       const { result } = renderHook(() => useFormValidation());
       const observations = {
         '09:00': [
-          makeCard({ subjectId: 'Sayyida', behavior: 'walking', location: '' }),
           makeCard({
+            cardId: 'card-a',
+            subjectId: 'Sayyida',
+            behavior: 'walking',
+            location: '',
+          }),
+          makeCard({
+            cardId: 'card-b',
             subjectType: 'resident',
             subjectId: 'Peanut',
             behavior: '',
@@ -788,10 +930,10 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors['09:00_Sayyida_location']).toBe(
+      expect(validation.errors['09:00_card-a_location']).toBe(
         'Location is required for this behavior'
       );
-      expect(validation.errors['09:00_Peanut_behavior']).toBe(
+      expect(validation.errors['09:00_card-b_behavior']).toBe(
         'Please select a behavior'
       );
     });
@@ -806,7 +948,7 @@ describe('useFormValidation', () => {
         result.current.validateObservationSlot('09:00', observations);
       });
 
-      expect(result.current.fieldErrors['09:00_Sayyida_behavior']).toBe(
+      expect(result.current.fieldErrors['09:00_card-1_behavior']).toBe(
         'Please select a behavior'
       );
     });

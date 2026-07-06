@@ -105,23 +105,18 @@ export const useFormState = () => {
     [selectAviary]
   );
 
-  const handleObservationChange = useCallback(
-    (time, subjectId, field, value) => {
-      setObservations((prev) =>
-        updateObservationField(prev, time, subjectId, field, value)
-      );
-    },
-    []
-  );
-
-  const handleAddSubject = useCallback((time, subject) => {
+  const handleObservationChange = useCallback((time, cardId, field, value) => {
     setObservations((prev) =>
-      addSubjectObservation(prev, time, subject.type, subject.name)
+      updateObservationField(prev, time, cardId, field, value)
     );
   }, []);
 
-  const handleRemoveSubject = useCallback((time, subjectId) => {
-    setObservations((prev) => removeSubjectObservation(prev, time, subjectId));
+  const handleAddSubject = useCallback((time, subject) => {
+    setObservations((prev) => addSubjectObservation(prev, time, subject));
+  }, []);
+
+  const handleRemoveSubject = useCallback((time, cardId) => {
+    setObservations((prev) => removeSubjectObservation(prev, time, cardId));
   }, []);
 
   const handleCopyToNext = useCallback(

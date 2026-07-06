@@ -163,7 +163,7 @@ export const useFormValidation = () => {
    * Helper: Validate all fields for one subject's observation card
    * @param {string} time - The time slot
    * @param {Object} observation - One subject's observation card
-   * @returns {Object} - Errors keyed `${time}_${subjectId}_${field}`
+   * @returns {Object} - Errors keyed `${time}_${cardId}_${field}`
    */
   const validateObservation = (time, observation) => {
     const errors = {};
@@ -176,7 +176,7 @@ export const useFormValidation = () => {
         observation
       );
       if (error) {
-        errors[observationErrorKey(time, observation.subjectId, field)] = error;
+        errors[observationErrorKey(time, observation.cardId, field)] = error;
       }
     });
 
@@ -193,6 +193,12 @@ export const useFormValidation = () => {
         errors[slotErrorKey(time)] =
           'Record at least one subject for this time slot';
         return;
+      }
+      if (slot.length > 20) {
+        // Mirror of the backend's per-slot cap (array max(20)). The add
+        // button stops at 20, but copy-to-next can merge past it
+        errors[slotErrorKey(time)] =
+          'At most 20 subjects can be recorded per time slot — remove some cards';
       }
       slot.forEach((observation) => {
         Object.assign(errors, validateObservation(time, observation));
@@ -234,13 +240,13 @@ export const useFormValidation = () => {
 
   const validateSingleObservationField = (
     time,
-    subjectId,
+    cardId,
     field,
     observations,
     currentValue = null
   ) => {
     const observation = (observations[time] ?? []).find(
-      (card) => card.subjectId === subjectId
+      (card) => card.cardId === cardId
     );
     if (!observation) return;
 
@@ -248,7 +254,7 @@ export const useFormValidation = () => {
     const value = currentValue !== null ? currentValue : observation[field];
     const error = validateObservationField(field, value, observation);
 
-    const errorKey = observationErrorKey(time, subjectId, field);
+    const errorKey = observationErrorKey(time, cardId, field);
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
       if (error) {
@@ -264,11 +270,11 @@ export const useFormValidation = () => {
    * Clear every error belonging to one subject's card in one slot —
    * used when the card is removed so re-adding the subject starts clean.
    */
-  const clearObservationErrors = (time, subjectId) => {
+  const clearObservationErrors = (time, cardId) => {
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
       OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
-        delete newErrors[observationErrorKey(time, subjectId, field)];
+        delete newErrors[observationErrorKey(time, cardId, field)];
       });
       return newErrors;
     });
