@@ -213,7 +213,8 @@ const WBS_TIMEZONE = 'America/Chicago'; // For documentation purposes
 requiresLocation(behaviorValue); // → boolean
 requiresObject(behaviorValue); // → boolean
 requiresAnimal(behaviorValue); // → boolean
-requiresInteraction(behaviorValue); // → boolean
+requiresObjectInteraction(behaviorValue); // → boolean
+requiresAnimalInteraction(behaviorValue); // → boolean
 requiresDescription(behaviorValue); // → boolean
 getBehaviorByValue(value); // → behavior object or undefined
 
@@ -301,59 +302,15 @@ beforeEach(() => {
 
 ## 📊 Data Structure
 
-### Observation Object Schema
+The observation/domain model is **not** restated here — it drifts. Read the canonical sources:
 
-Each time slot has this structure:
+- **Per-slot observation shape:** `createEmptyObservation()` in `src/services/formStateManager.js` (includes the split `objectInteractionType` / `animalInteractionType` (+ `*Other`) fields).
+- **Behaviors + `requires*` flags:** `src/constants/behaviors.js`.
+- **Objects, animal types, and object/animal interaction types:** `src/constants/interactions.js` (`INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `OBJECT_INTERACTION_TYPES`, `ANIMAL_INTERACTION_TYPES`).
+- **Valid locations/perches:** `src/constants/locations.js`.
+- **Backend wire contract:** the Zod `observationSchema` in `ethogram-api/src/routes/observations.ts`.
 
-```javascript
-{
-  behavior: 'string',              // Required - from BEHAVIORS constant
-  location: 'string',              // Required if behavior.requiresLocation
-  notes: 'string',                 // Optional
-  object: 'string',                // Required if behavior.requiresObject
-  objectOther: 'string',           // Required if object === 'other'
-  animal: 'string',                // Required if behavior.requiresAnimal
-  animalOther: 'string',           // Required if animal === 'other'
-  interactionType: 'string',       // Required if behavior.requiresInteraction
-  interactionTypeOther: 'string'   // Required if interactionType === 'other'
-}
-```
-
-### Constants Structure
-
-```javascript
-// From constants.js
-BEHAVIORS = [
-  {
-    value: 'perching',
-    label: 'Perching',
-    requiresLocation: true,
-    requiresObject: false,
-    requiresAnimal: false,
-    requiresInteraction: false
-  },
-  // ...
-]
-
-VALID_PERCHES = [1, 2, ..., 31, 'BB1', 'BB2', 'F1', 'F2', 'G', 'W']
-// Note: Numbers 1-31 are integers, not strings
-// 'Ground' is handled separately in validation (not in this array)
-
-INANIMATE_OBJECTS = [
-  { value: 'newspaper', label: 'Newspaper' },
-  // ...
-]
-
-ANIMAL_TYPES = [
-  { value: 'aviary_adult', label: 'Adult aviary occupant' },
-  // ...
-]
-
-INTERACTION_TYPES = [
-  { value: 'watching', label: 'Watching' },
-  // ...
-]
-```
+Conditional fields are driven by helper functions (`requiresLocation`, `requiresObject`, `requiresAnimal`, `requiresObjectInteraction`, `requiresAnimalInteraction`, `requiresDescription`) exported from `constants/behaviors.js` — use those, never a hardcoded behavior lookup.
 
 ## 🔧 Configuration
 
@@ -520,10 +477,8 @@ useEffect(() => {
        value: 'new_behavior',
        label: 'New Behavior',
        requiresLocation: true,
-       requiresObject: false,
-       requiresAnimal: false,
-       requiresInteraction: false,
-       requiresDescription: false,
+       // Add only the flags a behavior needs (omitted = false): requiresObject +
+       // requiresObjectInteraction, requiresAnimal + requiresAnimalInteraction, requiresDescription
      },
    ];
    ```
@@ -596,8 +551,8 @@ useEffect(() => {
 **Architecture:**
 
 - Flat observation structure with conditional fields (see `docs/interaction-subfields-design.md`)
-- BEHAVIORS includes feature flags: `requiresObject`, `requiresAnimal`, `requiresInteraction`, `requiresDescription`
-- Constants expanded: `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `INTERACTION_TYPES`
+- BEHAVIORS includes feature flags: `requiresObject`, `requiresObjectInteraction`, `requiresAnimal`, `requiresAnimalInteraction`, `requiresDescription`
+- Constants: `INANIMATE_OBJECTS`, `ANIMAL_TYPES`, `OBJECT_INTERACTION_TYPES`, `ANIMAL_INTERACTION_TYPES`
 - Validation timing: onChange for dropdowns, debounced for text inputs
 - Conditional field clearing when behavior changes (prevents orphaned data)
 - Component composition pattern with form field components
