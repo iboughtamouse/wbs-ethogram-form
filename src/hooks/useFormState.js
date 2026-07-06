@@ -3,6 +3,9 @@
  *
  * Encapsulates form state management and time slot generation.
  * Provides handlers for metadata and observation changes.
+ * Since Phase 2, each time slot holds an array of per-subject observation
+ * cards; metadata.aviary carries the aviary SLUG (display names are resolved
+ * from config wherever the aviary is rendered).
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -13,16 +16,16 @@ import { copyObservationToNext } from '../utils/observationUtils';
 import {
   generateObservationsForSlots,
   updateObservationField,
+  addSubjectObservation,
+  removeSubjectObservation,
 } from '../services/formStateManager';
 
 export const useFormState = () => {
-  // Aviary + subject identity comes from config (single-aviary in Phase 1).
-  // Deliberately mount-frozen: captured in the initial state and re-read only
-  // by resetForm/restoreDraft, even if a fetched config upgrades the bundle
-  // post-mount. Safe under the append-only/no-rename invariant (a renamed
-  // aviary would resolve to aviary_id NULL server-side via exact-name match —
-  // renames are forbidden by the publish rules for exactly this reason).
-  const { aviaryName, patientName } = useConfig();
+  // Aviary identity comes from config. The slug is deliberately mount-frozen
+  // in the initial state and re-read only by resetForm/restoreDraft, even if
+  // a fetched config upgrades the bundle post-mount — safe because slugs are
+  // stable keys (append-only, never renamed by the publish rules).
+  const { aviarySlug, getSubjectsPresentOn, selectAviary } = useConfig();
   const today = getTodayWBS();
 
   const [metadata, setMetadata] = useState({
@@ -30,13 +33,22 @@ export const useFormState = () => {
     date: today,
     startTime: '',
     endTime: '',
-    aviary: aviaryName,
-    patient: patientName,
+    aviary: aviarySlug,
     mode: 'live',
   });
 
   const [timeSlots, setTimeSlots] = useState([]);
   const [observations, setObservations] = useState({});
+
+  // New slots start with one card for the default subject (P2-D2): the
+  // foster parent present on the observation date, else the first subject
+  // present, else no card (an aviary with no residents that day).
+  const defaultSubjectFor = (date) => {
+    const present = getSubjectsPresentOn(date);
+    const subject =
+      present.find((s) => s.type === 'foster_parent') ?? present[0];
+    return subject ? { type: subject.type, name: subject.name } : null;
+  };
 
   // Generate time slots when start/end time changes
   useEffect(() => {
@@ -54,7 +66,8 @@ export const useFormState = () => {
         // Initialize observations for new slots (preserving existing data)
         const newObservations = generateObservationsForSlots(
           slots,
-          observations
+          observations,
+          defaultSubjectFor(metadata.date)
         );
         setObservations(newObservations);
       }
@@ -65,20 +78,44 @@ export const useFormState = () => {
       setTimeSlots([]);
       setObservations({});
     }
-    // Note: `observations` is intentionally excluded from dependencies.
-    // We only want to regenerate time slots when start/end times change,
-    // not when observation data changes. The generateObservationsForSlots
-    // function accesses the current observations via closure, which is
-    // the correct behavior for preserving existing data during slot regeneration.
+    // Note: `observations` (and the date/subject context) are intentionally
+    // excluded from dependencies. We only want to regenerate time slots when
+    // start/end times change, not when observation data changes. The values
+    // are read via closure, which is the correct behavior for preserving
+    // existing data during slot regeneration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metadata.startTime, metadata.endTime]);
 
-  const handleMetadataChange = useCallback((field, value) => {
-    setMetadata((prev) => ({ ...prev, [field]: value }));
+  const handleMetadataChange = useCallback(
+    (field, value) => {
+      setMetadata((prev) => ({ ...prev, [field]: value }));
+
+      // Picking an aviary re-derives the vocabulary bundle from config.
+      // Existing cards keep their values — the keep-listed rule renders them.
+      if (field === 'aviary') {
+        selectAviary(value);
+      }
+    },
+    [selectAviary]
+  );
+
+  const handleObservationChange = useCallback(
+    (time, subjectId, field, value) => {
+      setObservations((prev) =>
+        updateObservationField(prev, time, subjectId, field, value)
+      );
+    },
+    []
+  );
+
+  const handleAddSubject = useCallback((time, subject) => {
+    setObservations((prev) =>
+      addSubjectObservation(prev, time, subject.type, subject.name)
+    );
   }, []);
 
-  const handleObservationChange = useCallback((time, field, value) => {
-    setObservations((prev) => updateObservationField(prev, time, field, value));
+  const handleRemoveSubject = useCallback((time, subjectId) => {
+    setObservations((prev) => removeSubjectObservation(prev, time, subjectId));
   }, []);
 
   const handleCopyToNext = useCallback(
@@ -101,27 +138,34 @@ export const useFormState = () => {
       date: getTodayWBS(),
       startTime: '',
       endTime: '',
-      aviary: aviaryName,
-      patient: patientName,
+      aviary: aviarySlug,
       mode: 'live',
     });
     setTimeSlots([]);
     setObservations({});
-  }, [aviaryName, patientName]);
+  }, [aviarySlug]);
 
-  const restoreDraft = useCallback((draftMetadata, draftObservations) => {
-    // First, update metadata (will trigger time slot regeneration via useEffect)
-    setMetadata(draftMetadata);
+  const restoreDraft = useCallback(
+    (draftMetadata, draftObservations) => {
+      // First, update metadata (will trigger time slot regeneration via useEffect)
+      setMetadata(draftMetadata);
 
-    // Then schedule observation restoration after time slots have been generated.
-    // We use setTimeout(..., 0) to defer execution to the next event loop cycle,
-    // ensuring the useEffect that generates time slots and initializes observations
-    // completes before we restore the draft observations. This prevents a race condition
-    // where the useEffect could overwrite the restored draft data.
-    setTimeout(() => {
-      setObservations(draftObservations);
-    }, 0);
-  }, []);
+      // The draft's aviary drives the vocabulary bundle too
+      if (draftMetadata.aviary) {
+        selectAviary(draftMetadata.aviary);
+      }
+
+      // Then schedule observation restoration after time slots have been generated.
+      // We use setTimeout(..., 0) to defer execution to the next event loop cycle,
+      // ensuring the useEffect that generates time slots and initializes observations
+      // completes before we restore the draft observations. This prevents a race condition
+      // where the useEffect could overwrite the restored draft data.
+      setTimeout(() => {
+        setObservations(draftObservations);
+      }, 0);
+    },
+    [selectAviary]
+  );
 
   return {
     metadata,
@@ -129,6 +173,8 @@ export const useFormState = () => {
     observations,
     handleMetadataChange,
     handleObservationChange,
+    handleAddSubject,
+    handleRemoveSubject,
     handleCopyToNext,
     resetForm,
     restoreDraft,

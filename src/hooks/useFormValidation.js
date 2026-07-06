@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import { validateTimeRange } from '../utils/timeUtils';
 import { validateLocation, validateObserverName } from '../utils/validators';
+import { observationErrorKey } from '../utils/errorKeys';
 
 // Fields to validate in observations (all except 'notes' which is always optional)
 const OBSERVATION_FIELDS_TO_VALIDATE = [
@@ -64,9 +65,8 @@ export const useFormValidation = () => {
     return error;
   };
 
-  const validateObservationField = (time, field, value, observations) => {
+  const validateObservationField = (field, value, observation) => {
     let error = null;
-    const observation = observations[time];
     const behaviorValue = observation.behavior;
 
     if (field === 'behavior') {
@@ -160,25 +160,23 @@ export const useFormValidation = () => {
   };
 
   /**
-   * Helper: Validate all fields for an observation
+   * Helper: Validate all fields for one subject's observation card
    * @param {string} time - The time slot
-   * @param {Object} observation - The observation object
-   * @param {Object} observations - All observations (for context)
-   * @returns {Object} - Errors object with keys like `${time}_${field}`
+   * @param {Object} observation - One subject's observation card
+   * @returns {Object} - Errors keyed `${time}_${subjectId}_${field}`
    */
-  const validateObservation = (time, observation, observations) => {
+  const validateObservation = (time, observation) => {
     const errors = {};
 
     // Validate each field - validateObservationField returns null if field is not required
     OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
       const error = validateObservationField(
-        time,
         field,
         observation[field],
-        observations
+        observation
       );
       if (error) {
-        errors[`${time}_${field}`] = error;
+        errors[observationErrorKey(time, observation.subjectId, field)] = error;
       }
     });
 
@@ -188,9 +186,10 @@ export const useFormValidation = () => {
   const validateObservations = (observations) => {
     const errors = {};
 
-    Object.entries(observations).forEach(([time, obs]) => {
-      const obsErrors = validateObservation(time, obs, observations);
-      Object.assign(errors, obsErrors);
+    Object.entries(observations).forEach(([time, slot]) => {
+      slot.forEach((observation) => {
+        Object.assign(errors, validateObservation(time, observation));
+      });
     });
 
     return errors;
@@ -228,16 +227,21 @@ export const useFormValidation = () => {
 
   const validateSingleObservationField = (
     time,
+    subjectId,
     field,
     observations,
     currentValue = null
   ) => {
-    const observation = observations[time];
+    const observation = (observations[time] ?? []).find(
+      (card) => card.subjectId === subjectId
+    );
+    if (!observation) return;
+
     // Use provided currentValue if available, otherwise read from observation
     const value = currentValue !== null ? currentValue : observation[field];
-    const error = validateObservationField(time, field, value, observations);
+    const error = validateObservationField(field, value, observation);
 
-    const errorKey = `${time}_${field}`;
+    const errorKey = observationErrorKey(time, subjectId, field);
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
       if (error) {
@@ -262,21 +266,24 @@ export const useFormValidation = () => {
   };
 
   /**
-   * Validate all required fields for a single observation slot
-   * Used before copying to next slot to ensure valid data
+   * Validate all required fields for a single observation slot — every
+   * subject's card. Used before copying to next slot to ensure valid data.
    * @param {string} time - The time slot to validate
    * @param {Object} observations - All observations
    * @returns {Object} - { valid: boolean, errors: Object }
    */
   const validateObservationSlot = (time, observations) => {
-    const obs = observations[time];
+    const slot = observations[time];
 
-    if (!obs) {
+    if (!slot || slot.length === 0) {
       return { valid: false, errors: {} };
     }
 
-    // Use shared validation helper
-    const errors = validateObservation(time, obs, observations);
+    // Use shared validation helper across every card in the slot
+    const errors = {};
+    slot.forEach((observation) => {
+      Object.assign(errors, validateObservation(time, observation));
+    });
 
     // Update field errors state with any errors found
     if (Object.keys(errors).length > 0) {

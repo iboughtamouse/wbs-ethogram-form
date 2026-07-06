@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useConfig } from '../contexts/ConfigContext';
 
+/**
+ * Tabbed perch-diagram reference, driven by the aviary's config
+ * `perchDiagrams` list ({ url, label }) — one tab per labeled diagram, so
+ * any aviary's set renders without code changes (Phase 2 §1). Images load
+ * from the config URL as-is: it may be a same-origin bundled asset today or
+ * an R2 URL after the owner swap, so no derived .webp variants.
+ */
 const PerchDiagramModal = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState('ne');
+  const { perchDiagrams, aviaryName } = useConfig();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (!isOpen) return null;
 
@@ -18,14 +27,7 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const webpSrc =
-    activeTab === 'ne' ? '/images/perches-ne.webp' : '/images/perches-sw.webp';
-  const pngFallbackSrc =
-    activeTab === 'ne' ? '/images/perches-ne.png' : '/images/perches-sw.png';
-  const imageAlt =
-    activeTab === 'ne'
-      ? "Perches in NE Half of Sayyida's Cove"
-      : "Perches in SW Half of Sayyida's Cove";
+  const activeDiagram = perchDiagrams[activeIndex] ?? perchDiagrams[0] ?? null;
 
   return (
     <div
@@ -48,33 +50,34 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="perch-modal-tabs">
-          <button
-            type="button"
-            className={`perch-tab ${activeTab === 'ne' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ne')}
-          >
-            NE Half (Perches 1-18)
-          </button>
-          <button
-            type="button"
-            className={`perch-tab ${activeTab === 'sw' ? 'active' : ''}`}
-            onClick={() => setActiveTab('sw')}
-          >
-            SW Half (Perches 19-31, BB, F, W)
-          </button>
-        </div>
+        {perchDiagrams.length > 1 && (
+          <div className="perch-modal-tabs">
+            {perchDiagrams.map((diagram, index) => (
+              <button
+                key={diagram.label}
+                type="button"
+                className={`perch-tab ${index === activeIndex ? 'active' : ''}`}
+                onClick={() => setActiveIndex(index)}
+              >
+                {diagram.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="perch-modal-content">
           <div className="perch-diagram-container">
-            <picture>
-              <source srcSet={webpSrc} type="image/webp" />
+            {activeDiagram ? (
               <img
-                src={pngFallbackSrc}
-                alt={imageAlt}
+                src={activeDiagram.url}
+                alt={`Perches: ${activeDiagram.label} — ${aviaryName}`}
                 className="perch-diagram-image"
               />
-            </picture>
+            ) : (
+              <p className="perch-modal-hint">
+                No perch diagrams are configured for this aviary.
+              </p>
+            )}
           </div>
         </div>
 
