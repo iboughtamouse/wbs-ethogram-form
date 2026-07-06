@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import TimeSlotObservation from '../../src/components/TimeSlotObservation';
+import {
+  GENERIC_JUVENILE_ID,
+  GENERIC_JUVENILE_LABEL,
+} from '../../src/constants/ui';
 
 // Mock the form components
 jest.mock('../../src/components/form', () => ({
@@ -131,12 +135,20 @@ jest.mock('../../src/components/form', () => ({
 }));
 
 describe('TimeSlotObservation', () => {
-  // Sayyida is present in the bundled config from 2025-11-29 (no departure),
-  // so this date has exactly one present subject.
+  // Sayyida is present in the bundled config from 2025-12-15 (no departure)
+  // and the juveniles arrive 2026-06-01, so this date has exactly one
+  // present subject.
   const OBSERVATION_DATE = '2025-12-25';
 
-  // Helper to build a per-subject observation card
+  // A date on which Sayyida AND the juveniles (187(B), 216(O), 253(R))
+  // are all present — enables the generic juvenile button (P2-D8).
+  const JUVENILE_DATE = '2026-06-15';
+
+  // Helper to build a per-subject observation card. Cards are keyed by a
+  // slot-local cardId (NOT subjectId — generic juvenile cards may duplicate
+  // a subjectId within a slot); any unique string works in tests.
   const makeCard = (overrides = {}) => ({
+    cardId: 'card-sayyida',
     subjectType: 'foster_parent',
     subjectId: 'Sayyida',
     behavior: '',
@@ -221,7 +233,11 @@ describe('TimeSlotObservation', () => {
       renderTimeSlotObservation({
         observations: [
           makeCard(),
-          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+          makeCard({
+            cardId: 'card-chick',
+            subjectType: 'chick',
+            subjectId: 'Chick 1',
+          }),
         ],
       });
 
@@ -235,7 +251,11 @@ describe('TimeSlotObservation', () => {
       renderTimeSlotObservation({
         observations: [
           makeCard(),
-          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+          makeCard({
+            cardId: 'card-chick',
+            subjectType: 'chick',
+            subjectId: 'Chick 1',
+          }),
         ],
       });
 
@@ -253,7 +273,11 @@ describe('TimeSlotObservation', () => {
       renderTimeSlotObservation({
         observations: [
           makeCard(),
-          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+          makeCard({
+            cardId: 'card-chick',
+            subjectType: 'chick',
+            subjectId: 'Chick 1',
+          }),
         ],
       });
 
@@ -262,13 +286,17 @@ describe('TimeSlotObservation', () => {
 
       fireEvent.click(removeButtons[0]);
 
-      expect(mockOnRemoveSubject).toHaveBeenCalledWith('15:00', 'Sayyida');
+      expect(mockOnRemoveSubject).toHaveBeenCalledWith('15:00', 'card-sayyida');
     });
 
     test('shows "+ Add" button for a present subject without a card and calls onAddSubject', () => {
       renderTimeSlotObservation({
         observations: [
-          makeCard({ subjectType: 'chick', subjectId: 'Chick 1' }),
+          makeCard({
+            cardId: 'card-chick',
+            subjectType: 'chick',
+            subjectId: 'Chick 1',
+          }),
         ],
       });
 
@@ -285,6 +313,55 @@ describe('TimeSlotObservation', () => {
       renderTimeSlotObservation();
 
       expect(screen.queryByText(/\+ Add/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Generic Juvenile Cards (P2-D8)', () => {
+    test('renders the "+ Add Juvenile (unidentified)" button when juveniles are present on the date', () => {
+      renderTimeSlotObservation({ observationDate: JUVENILE_DATE });
+
+      expect(
+        screen.getByText(`+ Add ${GENERIC_JUVENILE_LABEL}`)
+      ).toBeInTheDocument();
+    });
+
+    test('does not render the generic juvenile button when no juveniles are present on the date', () => {
+      renderTimeSlotObservation({ observationDate: OBSERVATION_DATE });
+
+      expect(
+        screen.queryByText(`+ Add ${GENERIC_JUVENILE_LABEL}`)
+      ).not.toBeInTheDocument();
+    });
+
+    test('clicking the generic juvenile button calls onAddSubject with the repeatable generic subject', () => {
+      renderTimeSlotObservation({ observationDate: JUVENILE_DATE });
+
+      fireEvent.click(screen.getByText(`+ Add ${GENERIC_JUVENILE_LABEL}`));
+
+      expect(mockOnAddSubject).toHaveBeenCalledWith('15:00', {
+        type: 'juvenile',
+        name: GENERIC_JUVENILE_ID,
+        allowDuplicate: true,
+      });
+    });
+
+    test('a generic card renders the unidentified label header without the not-listed flag', () => {
+      renderTimeSlotObservation({
+        observationDate: JUVENILE_DATE,
+        observations: [
+          makeCard({
+            cardId: 'card-generic',
+            subjectType: 'juvenile',
+            subjectId: GENERIC_JUVENILE_ID,
+          }),
+        ],
+      });
+
+      // The card header shows the friendly label, not the raw generic id
+      expect(screen.getByText(GENERIC_JUVENILE_LABEL)).toBeInTheDocument();
+      expect(
+        screen.queryByText('not listed for this date')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -340,13 +417,13 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'behavior',
         'perching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'behavior',
         'perching'
       );
@@ -364,13 +441,13 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'location',
         '12'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'location',
         '12'
       );
@@ -379,7 +456,7 @@ describe('TimeSlotObservation', () => {
     test('displays location error when present', () => {
       renderTimeSlotObservation({
         observations: [makeCard({ behavior: 'preening' })],
-        fieldErrors: { '15:00_Sayyida_location': 'Location is required' },
+        fieldErrors: { '15:00_card-sayyida_location': 'Location is required' },
       });
 
       expect(screen.getByTestId('location-error')).toHaveTextContent(
@@ -399,13 +476,13 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'object',
         'newspaper'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'object',
         'newspaper'
       );
@@ -436,7 +513,7 @@ describe('TimeSlotObservation', () => {
       // onChange should be called immediately
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'objectOther',
         'custom object'
       );
@@ -451,7 +528,7 @@ describe('TimeSlotObservation', () => {
       await waitFor(() => {
         expect(mockOnValidate).toHaveBeenCalledWith(
           '15:00',
-          'Sayyida',
+          'card-sayyida',
           'objectOther',
           'custom object'
         );
@@ -470,13 +547,13 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'animal',
         'aviary_adult'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'animal',
         'aviary_adult'
       );
@@ -496,13 +573,13 @@ describe('TimeSlotObservation', () => {
 
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'animalInteractionType',
         'watching'
       );
       expect(mockOnValidate).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'animalInteractionType',
         'watching'
       );
@@ -546,7 +623,7 @@ describe('TimeSlotObservation', () => {
       // onChange should be called immediately
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'description',
         'Aggressive behavior'
       );
@@ -561,7 +638,7 @@ describe('TimeSlotObservation', () => {
       await waitFor(() => {
         expect(mockOnValidate).toHaveBeenCalledWith(
           '15:00',
-          'Sayyida',
+          'card-sayyida',
           'description',
           'Aggressive behavior'
         );
@@ -571,7 +648,9 @@ describe('TimeSlotObservation', () => {
     test('displays description error when present', () => {
       renderTimeSlotObservation({
         observations: [makeCard({ behavior: 'other' })],
-        fieldErrors: { '15:00_Sayyida_description': 'Description is required' },
+        fieldErrors: {
+          '15:00_card-sayyida_description': 'Description is required',
+        },
       });
 
       expect(screen.getByTestId('description-error')).toHaveTextContent(
@@ -590,7 +669,7 @@ describe('TimeSlotObservation', () => {
       // Notes field onChange passes the event object directly
       expect(mockOnChange).toHaveBeenCalledWith(
         '15:00',
-        'Sayyida',
+        'card-sayyida',
         'notes',
         'Some notes'
       );
@@ -609,7 +688,7 @@ describe('TimeSlotObservation', () => {
   });
 
   describe('Error Display', () => {
-    test('displays all error types when present via `${time}_${subjectId}_${field}` keys', () => {
+    test('displays all error types when present via `${time}_${cardId}_${field}` keys', () => {
       renderTimeSlotObservation({
         observations: [
           makeCard({
@@ -620,19 +699,19 @@ describe('TimeSlotObservation', () => {
           }),
         ],
         fieldErrors: {
-          '15:00_Sayyida_behavior': 'Behavior error',
-          '15:00_Sayyida_location': 'Location error',
-          '15:00_Sayyida_object': 'Object error',
-          '15:00_Sayyida_objectOther': 'Object other error',
-          '15:00_Sayyida_objectInteractionType':
+          '15:00_card-sayyida_behavior': 'Behavior error',
+          '15:00_card-sayyida_location': 'Location error',
+          '15:00_card-sayyida_object': 'Object error',
+          '15:00_card-sayyida_objectOther': 'Object other error',
+          '15:00_card-sayyida_objectInteractionType':
             'Object interaction type error',
-          '15:00_Sayyida_objectInteractionTypeOther':
+          '15:00_card-sayyida_objectInteractionTypeOther':
             'Object interaction type other error',
-          '15:00_Sayyida_animal': 'Animal error',
-          '15:00_Sayyida_animalOther': 'Animal other error',
-          '15:00_Sayyida_animalInteractionType':
+          '15:00_card-sayyida_animal': 'Animal error',
+          '15:00_card-sayyida_animalOther': 'Animal other error',
+          '15:00_card-sayyida_animalInteractionType':
             'Animal interaction type error',
-          '15:00_Sayyida_animalInteractionTypeOther':
+          '15:00_card-sayyida_animalInteractionTypeOther':
             'Animal interaction type other error',
         },
       });
@@ -654,10 +733,10 @@ describe('TimeSlotObservation', () => {
       ).toHaveTextContent('Animal interaction type other error');
     });
 
-    test("does not display another subject's error on this subject's card", () => {
+    test("does not display another card's error on this card", () => {
       renderTimeSlotObservation({
         observations: [makeCard({ behavior: 'preening' })],
-        fieldErrors: { '15:00_Chick 1_location': 'Location error' },
+        fieldErrors: { '15:00_card-chick_location': 'Location error' },
       });
 
       expect(screen.queryByTestId('location-error')).not.toBeInTheDocument();

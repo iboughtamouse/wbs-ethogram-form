@@ -3,16 +3,43 @@
  *
  * Pure functions for managing observation state and time slots.
  * Since Phase 2, every time slot holds an ARRAY of per-subject observations
- * ({ subjectType, subjectId, ...fields }) — one card per recorded subject.
+ * ({ cardId, subjectType, subjectId, ...fields }) — one card per recorded
+ * subject. Cards are keyed by a slot-local cardId, NOT subjectId: generic
+ * "Juvenile" cards (P2-D8) may legally duplicate a subjectId within a slot.
+ * The backend strips cardId from the payload (unknown keys are dropped).
  */
+
+/** Slot-local card key — unique enough to never collide within a session. */
+const newCardId = () =>
+  globalThis.crypto?.randomUUID
+    ? globalThis.crypto.randomUUID()
+    : `card-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+/**
+ * Ensures every card in every slot carries a cardId — drafts saved before
+ * cardIds existed (or hand-edited ones) are normalized on restore.
+ * @param {Object} observations - Observations keyed by time (arrays of cards)
+ * @returns {Object} Observations with a cardId on every card
+ */
+export const ensureCardIds = (observations) => {
+  const normalized = {};
+  Object.entries(observations).forEach(([time, slot]) => {
+    normalized[time] = slot.map((card) =>
+      card.cardId ? card : { ...card, cardId: newCardId() }
+    );
+  });
+  return normalized;
+};
 
 /**
  * Creates an empty observation card for one subject
  * @param {string} subjectType - 'foster_parent' | 'juvenile' | 'baby'
- * @param {string} subjectId - The subject's name (P2-D7: names are the ids)
+ * @param {string} subjectId - The subject's name (P2-D7: names are the ids),
+ *   or the generic GENERIC_JUVENILE_ID literal (P2-D8)
  * @returns {Object} Empty observation with default values
  */
 export const createEmptyObservation = (subjectType, subjectId) => ({
+  cardId: newCardId(),
   subjectType,
   subjectId,
   behavior: '',
@@ -60,7 +87,7 @@ export const generateObservationsForSlots = (
 };
 
 /**
- * Updates a single field on one subject's card with conditional logic
+ * Updates a single field on one card with conditional logic
  *
  * Handles:
  * - Clearing location when behavior is empty
@@ -69,7 +96,7 @@ export const generateObservationsForSlots = (
  *
  * @param {Object} observations - Current observations object
  * @param {string} time - Time slot key
- * @param {string} subjectId - Which subject's card to update
+ * @param {string} cardId - Which card to update
  * @param {string} field - Field name to update
  * @param {*} value - New value for the field
  * @returns {Object} Updated observations object (immutable)
@@ -77,14 +104,14 @@ export const generateObservationsForSlots = (
 export const updateObservationField = (
   observations,
   time,
-  subjectId,
+  cardId,
   field,
   value
 ) => {
   const slot = observations[time] ?? [];
 
   const updatedSlot = slot.map((observation) => {
-    if (observation.subjectId !== subjectId) return observation;
+    if (observation.cardId !== cardId) return observation;
 
     const updatedObservation = {
       ...observation,
@@ -138,45 +165,43 @@ export const updateObservationField = (
 };
 
 /**
- * Adds an empty card for another subject to a time slot. No-op if the
- * subject already has a card in that slot.
+ * Adds an empty card for another subject to a time slot. Named subjects are
+ * deduped (no-op if already recorded in the slot); generic cards (P2-D8) set
+ * allowDuplicate — several unidentified juveniles can share one slot.
  *
  * @param {Object} observations - Current observations object
  * @param {string} time - Time slot key
- * @param {string} subjectType - The subject's type
- * @param {string} subjectId - The subject's name
+ * @param {Object} subject - { type, name, allowDuplicate? }
  * @returns {Object} Updated observations object (immutable)
  */
-export const addSubjectObservation = (
-  observations,
-  time,
-  subjectType,
-  subjectId
-) => {
+export const addSubjectObservation = (observations, time, subject) => {
   const slot = observations[time] ?? [];
-  if (slot.some((observation) => observation.subjectId === subjectId)) {
+  if (
+    !subject.allowDuplicate &&
+    slot.some((observation) => observation.subjectId === subject.name)
+  ) {
     return observations;
   }
 
   return {
     ...observations,
-    [time]: [...slot, createEmptyObservation(subjectType, subjectId)],
+    [time]: [...slot, createEmptyObservation(subject.type, subject.name)],
   };
 };
 
 /**
- * Removes one subject's card from a time slot.
+ * Removes one card from a time slot.
  *
  * @param {Object} observations - Current observations object
  * @param {string} time - Time slot key
- * @param {string} subjectId - The subject's name
+ * @param {string} cardId - The card to remove
  * @returns {Object} Updated observations object (immutable)
  */
-export const removeSubjectObservation = (observations, time, subjectId) => {
+export const removeSubjectObservation = (observations, time, cardId) => {
   const slot = observations[time] ?? [];
 
   return {
     ...observations,
-    [time]: slot.filter((observation) => observation.subjectId !== subjectId),
+    [time]: slot.filter((observation) => observation.cardId !== cardId),
   };
 };

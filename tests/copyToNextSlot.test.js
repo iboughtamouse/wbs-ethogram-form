@@ -214,8 +214,9 @@ describe('copyObservationToNext', () => {
   });
 
   test('handles empty source observation', () => {
+    const emptySourceCard = makeCard();
     const observations = {
-      '15:00': [makeCard()],
+      '15:00': [emptySourceCard],
       '15:05': [makeCard()],
     };
     const timeSlots = ['15:00', '15:05'];
@@ -223,7 +224,8 @@ describe('copyObservationToNext', () => {
     const result = copyObservationToNext(observations, timeSlots, '15:00');
 
     expect(result.success).toBe(true);
-    expect(result.updatedObservations['15:05']).toEqual([makeCard()]);
+    // Copied cards keep their source cardIds (JSON clone)
+    expect(result.updatedObservations['15:05']).toEqual([emptySourceCard]);
   });
 
   test('preserves time slot keys - does not modify time strings', () => {

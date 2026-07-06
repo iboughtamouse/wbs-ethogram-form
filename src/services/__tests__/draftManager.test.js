@@ -261,7 +261,36 @@ describe('draftManager', () => {
       expect(migrateDraft(null, config)).toBeNull();
     });
 
-    it('should pass a v2 draft through untouched', () => {
+    it('should pass a v2 draft through with content unchanged', () => {
+      const draft = {
+        shapeVersion: 2,
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': [
+            {
+              cardId: 'card-1',
+              subjectType: 'foster_parent',
+              subjectId: 'Sayyida',
+              behavior: 'perching',
+              location: '',
+              notes: '',
+            },
+          ],
+        },
+        savedAt: '2025-01-15T09:05:00.000Z',
+      };
+
+      expect(migrateDraft(draft, config)).toEqual(draft);
+    });
+
+    it('should assign cardIds to v2 draft cards that lack them', () => {
       const draft = {
         shapeVersion: 2,
         metadata: {
@@ -281,12 +310,40 @@ describe('draftManager', () => {
               location: '',
               notes: '',
             },
+            {
+              subjectType: 'juvenile',
+              subjectId: '187',
+              behavior: 'flying',
+              location: '',
+              notes: '',
+            },
           ],
         },
         savedAt: '2025-01-15T09:05:00.000Z',
       };
 
-      expect(migrateDraft(draft, config)).toBe(draft);
+      const migrated = migrateDraft(draft, config);
+
+      expect(migrated.observations['09:00']).toEqual([
+        {
+          cardId: expect.any(String),
+          subjectType: 'foster_parent',
+          subjectId: 'Sayyida',
+          behavior: 'perching',
+          location: '',
+          notes: '',
+        },
+        {
+          cardId: expect.any(String),
+          subjectType: 'juvenile',
+          subjectId: '187',
+          behavior: 'flying',
+          location: '',
+          notes: '',
+        },
+      ]);
+      const [cardA, cardB] = migrated.observations['09:00'];
+      expect(cardA.cardId).not.toBe(cardB.cardId);
     });
 
     it('should migrate a v1 draft: flat observations become single-card arrays attributed to the draft patient, patient is dropped, and the aviary display name maps to its slug', () => {
@@ -330,6 +387,7 @@ describe('draftManager', () => {
       expect(migrated.observations).toEqual({
         '09:00': [
           {
+            cardId: expect.any(String),
             subjectType: 'foster_parent',
             subjectId: 'Ruby',
             behavior: 'perching',
@@ -339,6 +397,7 @@ describe('draftManager', () => {
         ],
         '09:05': [
           {
+            cardId: expect.any(String),
             subjectType: 'foster_parent',
             subjectId: 'Ruby',
             behavior: '',
@@ -347,6 +406,14 @@ describe('draftManager', () => {
           },
         ],
       });
+      // Every migrated card carries its own cardId
+      const allCards = Object.values(migrated.observations).flat();
+      const cardIds = allCards.map((card) => card.cardId);
+      cardIds.forEach((id) => {
+        expect(typeof id).toBe('string');
+        expect(id.length).toBeGreaterThan(0);
+      });
+      expect(new Set(cardIds).size).toBe(cardIds.length);
       expect(migrated.savedAt).toBe('2025-01-15T09:05:00.000Z');
     });
 
@@ -373,6 +440,7 @@ describe('draftManager', () => {
 
       expect(migrated.observations['09:00']).toEqual([
         {
+          cardId: expect.any(String),
           subjectType: 'foster_parent',
           subjectId: 'Sayyida',
           behavior: 'perching',
@@ -512,6 +580,7 @@ describe('draftManager', () => {
 
       expect(migrated.observations['09:00']).toEqual([
         {
+          cardId: expect.any(String),
           subjectType: 'foster_parent',
           subjectId: 'Unknown',
           behavior: 'perching',

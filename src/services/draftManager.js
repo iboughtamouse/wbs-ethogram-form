@@ -7,6 +7,7 @@
  */
 
 import { DRAFT_SHAPE_VERSION } from '../constants/ui';
+import { ensureCardIds } from './formStateManager';
 
 /**
  * Determines if the form has enough data to warrant autosaving
@@ -75,9 +76,12 @@ export const migrateDraft = (draft, config) => {
   if (draft.shapeVersion >= DRAFT_SHAPE_VERSION) {
     // A shape newer than this build understands is not restorable
     if (draft.shapeVersion > DRAFT_SHAPE_VERSION) return null;
-    // Current shape: every slot must already be a card array
+    // Current shape: every slot must already be a card array. Cards saved
+    // before cardIds existed are normalized here (P2-D8 re-keying).
     const slotsUsable = Object.values(draft.observations).every(Array.isArray);
-    return slotsUsable ? draft : null;
+    return slotsUsable
+      ? { ...draft, observations: ensureCardIds(draft.observations) }
+      : null;
   }
 
   const { patient, ...metadata } = draft.metadata;
@@ -111,6 +115,6 @@ export const migrateDraft = (draft, config) => {
     ...draft,
     shapeVersion: DRAFT_SHAPE_VERSION,
     metadata,
-    observations,
+    observations: ensureCardIds(observations),
   };
 };

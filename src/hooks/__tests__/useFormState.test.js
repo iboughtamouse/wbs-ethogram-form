@@ -64,6 +64,11 @@ const setupTimeSlots = async (result) => {
   });
 };
 
+// Helper: read a card's slot-local id (cards are keyed by cardId, not
+// subjectId, since generic juvenile cards may duplicate a subjectId)
+const cardIdAt = (result, time, index = 0) =>
+  result.current.observations[time][index].cardId;
+
 describe('useFormState', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -152,6 +157,7 @@ describe('useFormState', () => {
         // Each new slot holds exactly one card, for the foster parent
         expect(result.current.observations['09:00']).toHaveLength(1);
         expect(result.current.observations['09:00'][0]).toMatchObject({
+          cardId: expect.any(String),
           subjectType: 'foster_parent',
           subjectId: 'Sayyida',
           behavior: '',
@@ -164,8 +170,9 @@ describe('useFormState', () => {
     it('should fall back to current residents when the date predates every episode', async () => {
       const { result } = renderHook(() => useFormState());
 
-      // 2025-06-01 is before the bundled config's arrivedOn (2025-11-29),
-      // so no episode covers it — the current-residents fallback applies.
+      // 2025-06-01 is before the bundled config's earliest arrivedOn
+      // (2025-12-15), so no episode covers it — the current-residents
+      // fallback applies.
       act(() => {
         result.current.handleMetadataChange('date', '2025-06-01');
         result.current.handleMetadataChange('startTime', '09:00');
@@ -197,18 +204,19 @@ describe('useFormState', () => {
 
       // Set initial time range
       await setupTimeSlots(result);
+      const cardId = cardIdAt(result, '09:00');
 
       // Add observation data
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'behavior',
           'perching'
         );
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'location',
           '1'
         );
@@ -263,11 +271,12 @@ describe('useFormState', () => {
       const { result } = renderHook(() => useFormState());
 
       await setupTimeSlots(result);
+      const cardId = cardIdAt(result, '09:00');
 
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'behavior',
           'perching'
         );
@@ -281,24 +290,25 @@ describe('useFormState', () => {
       const { result } = renderHook(() => useFormState());
 
       await setupTimeSlots(result);
+      const cardId = cardIdAt(result, '09:00');
 
       // Set interaction fields
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'behavior',
           'interaction-inanimate'
         );
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'object',
           'toy'
         );
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'description',
           'Playing with toy'
         );
@@ -317,7 +327,7 @@ describe('useFormState', () => {
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'behavior',
           'perching'
         );
@@ -346,6 +356,7 @@ describe('useFormState', () => {
 
       expect(result.current.observations['09:00']).toHaveLength(2);
       expect(result.current.observations['09:00'][1]).toMatchObject({
+        cardId: expect.any(String),
         subjectType: 'juvenile',
         subjectId: 'Pip',
         behavior: '',
@@ -353,11 +364,12 @@ describe('useFormState', () => {
       // Other slots are untouched
       expect(result.current.observations['09:05']).toHaveLength(1);
 
-      // The new card is editable independently
+      // The new card is editable independently (by its cardId)
+      const pipCardId = cardIdAt(result, '09:00', 1);
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Pip',
+          pipCardId,
           'behavior',
           'flying'
         );
@@ -368,11 +380,74 @@ describe('useFormState', () => {
 
       // Remove it again — back to just the foster parent's card
       act(() => {
-        result.current.handleRemoveSubject('09:00', 'Pip');
+        result.current.handleRemoveSubject('09:00', pipCardId);
       });
 
       expect(result.current.observations['09:00']).toHaveLength(1);
       expect(result.current.observations['09:00'][0].subjectId).toBe('Sayyida');
+    });
+
+    it('should not duplicate a named subject already in the slot', async () => {
+      const { result } = renderHook(() => useFormState());
+
+      await setupTimeSlots(result);
+
+      act(() => {
+        result.current.handleAddSubject('09:00', {
+          type: 'juvenile',
+          name: 'Pip',
+        });
+        result.current.handleAddSubject('09:00', {
+          type: 'juvenile',
+          name: 'Pip',
+        });
+      });
+
+      // Named subjects dedupe by subjectId — still Sayyida + one Pip
+      expect(result.current.observations['09:00']).toHaveLength(2);
+    });
+
+    it('should add two cards when the generic juvenile is added twice', async () => {
+      const { result } = renderHook(() => useFormState());
+
+      await setupTimeSlots(result);
+
+      // Generic "Juvenile" cards set allowDuplicate — several unidentified
+      // juveniles may legally share one slot (P2-D8)
+      const genericJuvenile = {
+        type: 'juvenile',
+        name: 'Juvenile',
+        allowDuplicate: true,
+      };
+      act(() => {
+        result.current.handleAddSubject('09:00', genericJuvenile);
+        result.current.handleAddSubject('09:00', genericJuvenile);
+      });
+
+      const slot = result.current.observations['09:00'];
+      expect(slot).toHaveLength(3); // Sayyida + two generic juvenile cards
+      expect(slot[1]).toMatchObject({
+        subjectType: 'juvenile',
+        subjectId: 'Juvenile',
+      });
+      expect(slot[2]).toMatchObject({
+        subjectType: 'juvenile',
+        subjectId: 'Juvenile',
+      });
+      // Same subjectId, distinct cardIds — cards stay independently editable
+      expect(slot[1].cardId).not.toBe(slot[2].cardId);
+
+      act(() => {
+        result.current.handleObservationChange(
+          '09:00',
+          slot[1].cardId,
+          'behavior',
+          'flying'
+        );
+      });
+
+      expect(result.current.observations['09:00'][1].behavior).toBe('flying');
+      expect(result.current.observations['09:00'][2].behavior).toBe('');
     });
   });
 
@@ -390,18 +465,19 @@ describe('useFormState', () => {
       });
 
       await setupTimeSlots(result);
+      const cardId = cardIdAt(result, '09:00');
 
       // Add an observation via the normal handler
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'behavior',
           'perching'
         );
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardId,
           'location',
           '1'
         );
@@ -447,7 +523,7 @@ describe('useFormState', () => {
       act(() => {
         result.current.handleObservationChange(
           '09:00',
-          'Sayyida',
+          cardIdAt(result, '09:00'),
           'behavior',
           'perching'
         );

@@ -163,7 +163,7 @@ export const useFormValidation = () => {
    * Helper: Validate all fields for one subject's observation card
    * @param {string} time - The time slot
    * @param {Object} observation - One subject's observation card
-   * @returns {Object} - Errors keyed `${time}_${subjectId}_${field}`
+   * @returns {Object} - Errors keyed `${time}_${cardId}_${field}`
    */
   const validateObservation = (time, observation) => {
     const errors = {};
@@ -176,7 +176,7 @@ export const useFormValidation = () => {
         observation
       );
       if (error) {
-        errors[observationErrorKey(time, observation.subjectId, field)] = error;
+        errors[observationErrorKey(time, observation.cardId, field)] = error;
       }
     });
 
@@ -234,13 +234,13 @@ export const useFormValidation = () => {
 
   const validateSingleObservationField = (
     time,
-    subjectId,
+    cardId,
     field,
     observations,
     currentValue = null
   ) => {
     const observation = (observations[time] ?? []).find(
-      (card) => card.subjectId === subjectId
+      (card) => card.cardId === cardId
     );
     if (!observation) return;
 
@@ -248,7 +248,7 @@ export const useFormValidation = () => {
     const value = currentValue !== null ? currentValue : observation[field];
     const error = validateObservationField(field, value, observation);
 
-    const errorKey = observationErrorKey(time, subjectId, field);
+    const errorKey = observationErrorKey(time, cardId, field);
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
       if (error) {
@@ -264,11 +264,11 @@ export const useFormValidation = () => {
    * Clear every error belonging to one subject's card in one slot —
    * used when the card is removed so re-adding the subject starts clean.
    */
-  const clearObservationErrors = (time, subjectId) => {
+  const clearObservationErrors = (time, cardId) => {
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
       OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
-        delete newErrors[observationErrorKey(time, subjectId, field)];
+        delete newErrors[observationErrorKey(time, cardId, field)];
       });
       return newErrors;
     });
