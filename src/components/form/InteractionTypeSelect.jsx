@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { MAX_OTHER_TEXT_LENGTH } from '../../constants/ui';
 
 const InteractionTypeSelect = ({
   label,
@@ -41,6 +42,7 @@ const InteractionTypeSelect = ({
             value={otherValue}
             onChange={onOtherChange}
             onKeyDown={onKeyDown}
+            maxLength={MAX_OTHER_TEXT_LENGTH}
             placeholder="Enter interaction type..."
             className={otherError ? 'error' : ''}
           />

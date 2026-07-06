@@ -3,6 +3,8 @@
 
 export {
   BEHAVIORS,
+  BEHAVIOR_GROUP_ORDER,
+  getGroupedBehaviors,
   getBehaviorByValue,
   requiresLocation,
   requiresObject,

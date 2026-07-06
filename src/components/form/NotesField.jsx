@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { MAX_NOTES_LENGTH } from '../../constants/ui';
 
 const NotesField = ({ value, onChange, onKeyDown }) => {
   return (
@@ -9,6 +10,7 @@ const NotesField = ({ value, onChange, onKeyDown }) => {
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        maxLength={MAX_NOTES_LENGTH}
         placeholder="Any additional observations..."
       />
     </div>

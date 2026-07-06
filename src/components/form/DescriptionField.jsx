@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { MAX_DESCRIPTION_LENGTH } from '../../constants/ui';
 
 const DescriptionField = ({ value, onChange, onKeyDown, error }) => {
   return (
@@ -11,6 +12,7 @@ const DescriptionField = ({ value, onChange, onKeyDown, error }) => {
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        maxLength={MAX_DESCRIPTION_LENGTH}
         placeholder="Describe the behavior..."
         className={error ? 'error' : ''}
       />

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { ANIMAL_TYPES } from '../../constants';
+import { MAX_OTHER_TEXT_LENGTH } from '../../constants/ui';
 
 const AnimalSelect = ({
   value,
@@ -40,6 +41,7 @@ const AnimalSelect = ({
             value={otherValue}
             onChange={onOtherChange}
             onKeyDown={onKeyDown}
+            maxLength={MAX_OTHER_TEXT_LENGTH}
             placeholder="Enter animal type..."
             className={otherError ? 'error' : ''}
           />
