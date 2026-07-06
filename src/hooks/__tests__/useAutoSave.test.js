@@ -61,7 +61,14 @@ describe('useAutoSave', () => {
     it('should show draft notice when draft exists', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: { observerName: 'John' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });
@@ -167,7 +174,14 @@ describe('useAutoSave', () => {
       const mockOnRestore = jest.fn();
       const currentDraft = {
         shapeVersion: 2,
-        metadata: { observerName: 'John', aviary: 'sayyidas-cove' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {
           '09:00': [
             {
@@ -205,8 +219,12 @@ describe('useAutoSave', () => {
       loadDraft.mockReturnValue({
         metadata: {
           observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
+          mode: 'live',
         },
         observations: { '09:00': { behavior: 'perching', location: '1' } },
         savedAt: '2025-01-15T10:00:00.000Z',
@@ -222,7 +240,14 @@ describe('useAutoSave', () => {
 
       expect(mockOnRestore).toHaveBeenCalledWith({
         shapeVersion: 2,
-        metadata: { observerName: 'John', aviary: 'sayyidas-cove' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {
           '09:00': [
             {
@@ -241,7 +266,14 @@ describe('useAutoSave', () => {
     it('should handle missing onRestore callback gracefully', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: { observerName: 'John' },
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });
@@ -261,7 +293,14 @@ describe('useAutoSave', () => {
     it('should clear draft and hide notice', () => {
       hasDraft.mockReturnValue(true);
       loadDraft.mockReturnValue({
-        metadata: {},
+        metadata: {
+          observerName: 'John',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:30',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
       });

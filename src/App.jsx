@@ -42,6 +42,7 @@ function App() {
     validateSingleMetadataField,
     validateSingleObservationField,
     validateObservationSlot,
+    clearObservationErrors,
     clearFieldError,
     clearAllErrors,
   } = useFormValidation();
@@ -71,6 +72,7 @@ function App() {
     onMetadataChange,
     onObservationChange,
     onObservationValidate,
+    onRemoveSubject,
     onCopyToNext,
     onReset,
   } = useFormHandlers({
@@ -79,11 +81,13 @@ function App() {
     fieldErrors,
     handleMetadataChange,
     handleObservationChange,
+    handleRemoveSubject,
     handleCopyToNext,
     resetForm,
     validateSingleMetadataField,
     validateSingleObservationField,
     validateObservationSlot,
+    clearObservationErrors,
     clearFieldError,
     clearAllErrors,
     setShowOutput,
@@ -190,7 +194,7 @@ function App() {
                       onChange={onObservationChange}
                       onValidate={onObservationValidate}
                       onAddSubject={handleAddSubject}
-                      onRemoveSubject={handleRemoveSubject}
+                      onRemoveSubject={onRemoveSubject}
                       onCopyToNext={onCopyToNext}
                       isLastSlot={index === timeSlots.length - 1}
                     />

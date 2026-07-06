@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import { validateTimeRange } from '../utils/timeUtils';
 import { validateLocation, validateObserverName } from '../utils/validators';
-import { observationErrorKey } from '../utils/errorKeys';
+import { observationErrorKey, slotErrorKey } from '../utils/errorKeys';
 
 // Fields to validate in observations (all except 'notes' which is always optional)
 const OBSERVATION_FIELDS_TO_VALIDATE = [
@@ -187,6 +187,13 @@ export const useFormValidation = () => {
     const errors = {};
 
     Object.entries(observations).forEach(([time, slot]) => {
+      if (slot.length === 0) {
+        // The backend rejects empty slots (array min(1)) — surface a
+        // client-side error instead of a generic server 400
+        errors[slotErrorKey(time)] =
+          'Record at least one subject for this time slot';
+        return;
+      }
       slot.forEach((observation) => {
         Object.assign(errors, validateObservation(time, observation));
       });
@@ -253,6 +260,20 @@ export const useFormValidation = () => {
     });
   };
 
+  /**
+   * Clear every error belonging to one subject's card in one slot —
+   * used when the card is removed so re-adding the subject starts clean.
+   */
+  const clearObservationErrors = (time, subjectId) => {
+    setFieldErrors((prev) => {
+      const newErrors = { ...prev };
+      OBSERVATION_FIELDS_TO_VALIDATE.forEach((field) => {
+        delete newErrors[observationErrorKey(time, subjectId, field)];
+      });
+      return newErrors;
+    });
+  };
+
   const clearFieldError = (field) => {
     setFieldErrors((prev) => {
       const newErrors = { ...prev };
@@ -276,7 +297,11 @@ export const useFormValidation = () => {
     const slot = observations[time];
 
     if (!slot || slot.length === 0) {
-      return { valid: false, errors: {} };
+      const errors = {
+        [slotErrorKey(time)]: 'Record at least one subject for this time slot',
+      };
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+      return { valid: false, errors };
     }
 
     // Use shared validation helper across every card in the slot
@@ -302,6 +327,7 @@ export const useFormValidation = () => {
     validateSingleMetadataField,
     validateSingleObservationField,
     validateObservationSlot,
+    clearObservationErrors,
     clearFieldError,
     clearAllErrors,
   };

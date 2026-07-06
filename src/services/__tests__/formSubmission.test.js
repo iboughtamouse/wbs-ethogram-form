@@ -7,36 +7,63 @@ describe('formSubmission', () => {
       date: '2025-01-15',
       startTime: '09:00',
       endTime: '10:00',
-      aviary: "Sayyida's Cove",
-      patient: 'Sayyida',
+      aviary: 'sayyidas-cove',
       mode: 'live',
     };
 
     const observations = {
-      '09:00': {
-        behavior: 'perching',
-        location: '1',
-        notes: 'Resting quietly',
-        description: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
-      '09:05': {
-        behavior: 'preening',
-        location: '2',
-        notes: '',
-        description: '',
-        object: '',
-        objectOther: '',
-        animal: '',
-        animalOther: '',
-        interactionType: '',
-        interactionTypeOther: '',
-      },
+      '09:00': [
+        {
+          subjectType: 'foster-parent',
+          subjectId: 'Sayyida',
+          behavior: 'perching',
+          location: '1',
+          notes: 'Resting quietly',
+          description: '',
+          object: '',
+          objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animal: '',
+          animalOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
+        },
+        {
+          subjectType: 'patient',
+          subjectId: 'Patient 25-482',
+          behavior: 'vocalizing',
+          location: '',
+          notes: '',
+          description: '',
+          object: '',
+          objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animal: '',
+          animalOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
+        },
+      ],
+      '09:05': [
+        {
+          subjectType: 'foster-parent',
+          subjectId: 'Sayyida',
+          behavior: 'preening',
+          location: '2',
+          notes: '',
+          description: '',
+          object: '',
+          objectOther: '',
+          objectInteractionType: '',
+          objectInteractionTypeOther: '',
+          animal: '',
+          animalOther: '',
+          animalInteractionType: '',
+          animalInteractionTypeOther: '',
+        },
+      ],
     };
 
     it('should include metadata, observations, and submittedAt timestamp', () => {
@@ -75,6 +102,30 @@ describe('formSubmission', () => {
       expect(vodResult.metadata).not.toHaveProperty('observerTimezone');
     });
 
+    it('should pass array-native observation slots through untouched', () => {
+      const result = prepareOutputData(metadata, observations);
+
+      // Same reference - no transformation or cloning of slots
+      expect(result.observations).toBe(observations);
+
+      expect(Array.isArray(result.observations['09:00'])).toBe(true);
+      expect(Array.isArray(result.observations['09:05'])).toBe(true);
+      expect(result.observations['09:00']).toHaveLength(2);
+      expect(result.observations['09:05']).toHaveLength(1);
+    });
+
+    it('should preserve per-subject card identity fields', () => {
+      const result = prepareOutputData(metadata, observations);
+
+      const [fosterCard, patientCard] = result.observations['09:00'];
+      expect(fosterCard.subjectType).toBe('foster-parent');
+      expect(fosterCard.subjectId).toBe('Sayyida');
+      expect(fosterCard.behavior).toBe('perching');
+      expect(patientCard.subjectType).toBe('patient');
+      expect(patientCard.subjectId).toBe('Patient 25-482');
+      expect(patientCard.behavior).toBe('vocalizing');
+    });
+
     it('should preserve observation timestamps unchanged', () => {
       const result = prepareOutputData(metadata, observations);
 
@@ -111,9 +162,22 @@ describe('formSubmission', () => {
 
       expect(result.metadata.observerName).toBe('John Doe');
       expect(result.metadata.date).toBe('2025-01-15');
-      expect(result.metadata.aviary).toBe("Sayyida's Cove");
-      expect(result.metadata.patient).toBe('Sayyida');
+      expect(result.metadata.aviary).toBe('sayyidas-cove');
       expect(result.metadata.mode).toBe('live');
+    });
+
+    it('should not add a patient key to metadata', () => {
+      const result = prepareOutputData(metadata, observations);
+
+      expect(result.metadata).not.toHaveProperty('patient');
+      expect(Object.keys(result.metadata).sort()).toEqual([
+        'aviary',
+        'date',
+        'endTime',
+        'mode',
+        'observerName',
+        'startTime',
+      ]);
     });
 
     it('should generate valid ISO timestamp for submittedAt', () => {

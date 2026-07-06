@@ -23,10 +23,12 @@ const formatCellContent = (observation) => {
     parts.push(`Loc: ${observation.location}`);
   }
 
+  // Backend parity: a missing/empty *Other text falls back to the literal
+  // 'other' (never 'undefined' or a blank) — same as excel.ts resolveOtherField
   if (observation.object) {
     const objectValue =
       observation.object === 'other'
-        ? observation.objectOther
+        ? observation.objectOther || 'other'
         : observation.object;
     parts.push(`Object: ${objectValue}`);
   }
@@ -34,7 +36,7 @@ const formatCellContent = (observation) => {
   if (observation.animal) {
     const animalValue =
       observation.animal === 'other'
-        ? observation.animalOther
+        ? observation.animalOther || 'other'
         : observation.animal;
     parts.push(`Animal: ${animalValue}`);
   }
@@ -43,7 +45,7 @@ const formatCellContent = (observation) => {
   if (observation.objectInteractionType) {
     const interactionValue =
       observation.objectInteractionType === 'other'
-        ? observation.objectInteractionTypeOther
+        ? observation.objectInteractionTypeOther || 'other'
         : observation.objectInteractionType;
     parts.push(`Object Interaction: ${interactionValue}`);
   }
@@ -53,7 +55,7 @@ const formatCellContent = (observation) => {
   if (animalInteractionType) {
     const interactionValue =
       animalInteractionType === 'other'
-        ? observation.animalInteractionTypeOther
+        ? observation.animalInteractionTypeOther || 'other'
         : animalInteractionType;
     parts.push(`Animal Interaction: ${interactionValue}`);
   }
@@ -159,7 +161,7 @@ const addSubjectWorksheet = (workbook, params) => {
   worksheet.getColumn('A').width = 35.0; // Behavior labels column - increased ~35% from 25.75 to reduce wrapping
   worksheet.getColumn('B').width = 8.0; // Time column headers - increased from 4.88 for readability
   // Columns C onwards (time slots) - set width 13.0
-  for (let col = 3; col <= timeSlots.length + 2; col++) {
+  for (let col = 3; col <= timeSlots.length + 1; col++) {
     worksheet.getColumn(col).width = 13.0;
   }
   worksheet.getColumn('J').width = 15.0; // "Time Window:" and "Observer:" labels - wide enough for labels

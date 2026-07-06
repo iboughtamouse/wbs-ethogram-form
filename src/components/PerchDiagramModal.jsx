@@ -27,7 +27,10 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const activeDiagram = perchDiagrams[activeIndex] ?? perchDiagrams[0] ?? null;
+  // Clamp a stale index (diagram list can shrink on config/aviary change)
+  // so the highlighted tab always matches the displayed diagram
+  const safeIndex = activeIndex < perchDiagrams.length ? activeIndex : 0;
+  const activeDiagram = perchDiagrams[safeIndex] ?? null;
 
   return (
     <div
@@ -42,6 +45,7 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
         <div className="perch-modal-header">
           <h2 id="perch-modal-title">Perch Reference</h2>
           <button
+            type="button"
             className="perch-modal-close"
             onClick={onClose}
             aria-label="Close perch diagram"
@@ -56,7 +60,7 @@ const PerchDiagramModal = ({ isOpen, onClose }) => {
               <button
                 key={diagram.label}
                 type="button"
-                className={`perch-tab ${index === activeIndex ? 'active' : ''}`}
+                className={`perch-tab ${index === safeIndex ? 'active' : ''}`}
                 onClick={() => setActiveIndex(index)}
               >
                 {diagram.label}

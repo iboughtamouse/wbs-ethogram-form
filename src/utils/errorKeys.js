@@ -8,3 +8,10 @@
  */
 export const observationErrorKey = (time, subjectId, field) =>
   `${time}_${subjectId}_${field}`;
+
+/**
+ * Slot-level error (no card to attach to), e.g. a time slot with zero
+ * recorded subjects — the backend rejects empty slots, so the client must
+ * block them with a visible message first.
+ */
+export const slotErrorKey = (time) => `${time}__slot`;

@@ -460,6 +460,32 @@ describe('useFormValidation', () => {
       expect(Object.keys(result.current.fieldErrors)).toHaveLength(0);
     });
 
+    it('should return false and set a slot-level error for an empty (no cards) slot', () => {
+      const { result } = renderHook(() => useFormValidation());
+      const metadata = {
+        observerName: 'testuser',
+        date: '2025-11-20',
+        startTime: '09:00',
+        endTime: '10:00',
+      };
+      const observations = {
+        '09:00': [makeCard({ behavior: 'eating' })],
+        '09:05': [],
+      };
+
+      let isValid;
+      act(() => {
+        isValid = result.current.validateForm(metadata, observations);
+      });
+
+      expect(isValid).toBe(false);
+      expect(result.current.fieldErrors['09:05__slot']).toBe(
+        'Record at least one subject for this time slot'
+      );
+      // The filled slot stays clean
+      expect(result.current.fieldErrors['09:00__slot']).toBeUndefined();
+    });
+
     it('should validate every subject card in a slot', () => {
       const { result } = renderHook(() => useFormValidation());
       const metadata = {
@@ -490,6 +516,59 @@ describe('useFormValidation', () => {
       ).toBeUndefined();
       expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
         'Please select a behavior'
+      );
+    });
+  });
+
+  describe('clearObservationErrors', () => {
+    it("should clear all of one card's errors but keep other subjects' and metadata errors", () => {
+      const { result } = renderHook(() => useFormValidation());
+      const metadata = {
+        observerName: '',
+        date: '2025-11-20',
+        startTime: '09:00',
+        endTime: '10:00',
+      };
+      const observations = {
+        '09:00': [
+          // Sayyida's card produces two errors (animal + interaction type)
+          makeCard({ subjectId: 'Sayyida', behavior: 'interacting_animal' }),
+          makeCard({
+            subjectType: 'resident',
+            subjectId: 'Peanut',
+            behavior: '',
+          }),
+        ],
+      };
+
+      act(() => {
+        result.current.validateForm(metadata, observations);
+      });
+
+      expect(result.current.fieldErrors['09:00_Sayyida_animal']).toBeDefined();
+      expect(
+        result.current.fieldErrors['09:00_Sayyida_animalInteractionType']
+      ).toBeDefined();
+      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBeDefined();
+      expect(result.current.fieldErrors.observerName).toBeDefined();
+
+      // Remove Sayyida's card errors for the slot
+      act(() => {
+        result.current.clearObservationErrors('09:00', 'Sayyida');
+      });
+
+      // Every Sayyida key for the slot is gone
+      const sayyidaKeys = Object.keys(result.current.fieldErrors).filter(
+        (key) => key.startsWith('09:00_Sayyida_')
+      );
+      expect(sayyidaKeys).toHaveLength(0);
+
+      // Other subject's error and metadata error are untouched
+      expect(result.current.fieldErrors['09:00_Peanut_behavior']).toBe(
+        'Please select a behavior'
+      );
+      expect(result.current.fieldErrors.observerName).toBe(
+        'Observer name is required'
       );
     });
   });
@@ -745,7 +824,11 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(Object.keys(validation.errors)).toHaveLength(0);
+      // Empty/missing slots now surface a slot-level error the UI can show
+      // (the backend rejects empty slots — a silent false would 400 later)
+      expect(validation.errors).toEqual({
+        '09:00__slot': 'Record at least one subject for this time slot',
+      });
     });
 
     it('should return invalid for an empty (no cards) slot', () => {
@@ -761,7 +844,11 @@ describe('useFormValidation', () => {
       });
 
       expect(validation.valid).toBe(false);
-      expect(Object.keys(validation.errors)).toHaveLength(0);
+      // Empty/missing slots now surface a slot-level error the UI can show
+      // (the backend rejects empty slots — a silent false would 400 later)
+      expect(validation.errors).toEqual({
+        '09:00__slot': 'Record at least one subject for this time slot',
+      });
     });
   });
 });

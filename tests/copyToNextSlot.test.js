@@ -105,6 +105,55 @@ describe('copyObservationToNext', () => {
     );
   });
 
+  test('keeps a target-only subject card when merging into the next slot', () => {
+    const babyCard = makeCard({
+      subjectType: 'patient',
+      subjectId: 'Baby',
+      behavior: 'vocalizing',
+      location: '7',
+      notes: 'Baby data already entered',
+    });
+    const staleSayyidaCard = makeCard({
+      behavior: 'flying',
+      location: '5',
+      notes: 'Old Sayyida data',
+    });
+    const observations = {
+      '15:00': [sampleCard],
+      '15:05': [staleSayyidaCard, babyCard],
+    };
+    const timeSlots = ['15:00', '15:05'];
+
+    const result = copyObservationToNext(observations, timeSlots, '15:00');
+
+    expect(result.success).toBe(true);
+    // Source cards first, then the untouched target-only subject's card
+    expect(result.updatedObservations['15:05']).toEqual([sampleCard, babyCard]);
+    expect(result.updatedObservations['15:05']).toHaveLength(2);
+  });
+
+  test('replaces same-subject target cards with the copy (no duplicates)', () => {
+    const staleSayyidaCard = makeCard({
+      behavior: 'flying',
+      location: '5',
+      notes: 'Stale Sayyida data',
+    });
+    const observations = {
+      '15:00': [sampleCard],
+      '15:05': [staleSayyidaCard],
+    };
+    const timeSlots = ['15:00', '15:05'];
+
+    const result = copyObservationToNext(observations, timeSlots, '15:00');
+
+    expect(result.success).toBe(true);
+    const sayyidaCards = result.updatedObservations['15:05'].filter(
+      (card) => card.subjectId === 'Sayyida'
+    );
+    expect(sayyidaCards).toHaveLength(1);
+    expect(sayyidaCards[0]).toEqual(sampleCard);
+  });
+
   test('returns failure when on last time slot', () => {
     const observations = {
       '15:00': [sampleCard],

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useConfig } from '../contexts/ConfigContext';
 import { formatTo12Hour } from '../utils/timeUtils';
-import { observationErrorKey } from '../utils/errorKeys';
+import { observationErrorKey, slotErrorKey } from '../utils/errorKeys';
 import SubjectObservationCard from './SubjectObservationCard';
 
 /**
@@ -27,9 +27,12 @@ const TimeSlotObservation = ({
   const presentSubjects = getSubjectsPresentOn(observationDate);
   const presentNames = new Set(presentSubjects.map((s) => s.name));
   const recordedNames = new Set(observations.map((o) => o.subjectId));
-  const addableSubjects = presentSubjects.filter(
-    (s) => !recordedNames.has(s.name)
-  );
+  // The backend caps a slot at 20 subject entries — stop offering more
+  const addableSubjects =
+    observations.length >= 20
+      ? []
+      : presentSubjects.filter((s) => !recordedNames.has(s.name));
+  const slotError = fieldErrors[slotErrorKey(time)];
 
   const errorFor = (subjectId, field) =>
     fieldErrors[observationErrorKey(time, subjectId, field)];
@@ -52,6 +55,8 @@ const TimeSlotObservation = ({
           </button>
         )}
       </div>
+
+      {slotError && <div className="field-error error">{slotError}</div>}
 
       {observations.map((observation) => (
         <SubjectObservationCard

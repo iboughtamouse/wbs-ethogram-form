@@ -489,6 +489,51 @@ describe('excelGenerator', () => {
       }
     });
 
+    it('should fall back to the literal "other" when objectOther is empty', async () => {
+      const dataWithEmptyObjectOther = {
+        metadata: {
+          observerName: 'Observer',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '09:10',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: {
+          '09:00': [
+            cardFor('Sayyida', {
+              behavior: 'interacting_object',
+              object: 'other',
+              objectOther: '',
+              objectInteractionType: 'playing',
+            }),
+          ],
+        },
+        submittedAt: '2025-01-15T09:15:00.000Z',
+      };
+
+      const workbook = await generateExcelWorkbook(
+        dataWithEmptyObjectOther,
+        EXCEL_ROWS
+      );
+      const worksheet = workbook.getWorksheet('Sayyida');
+
+      const objectRow = findBehaviorRow(
+        worksheet,
+        'Interacting with Inanimate'
+      );
+
+      expect(objectRow).not.toBeNull();
+      if (objectRow) {
+        const cell = worksheet.getCell(objectRow, 2); // Column B = 09:00
+        // Backend parity: empty objectOther renders the literal 'other',
+        // never 'undefined' or a blank line
+        expect(cell.value).toContain('Object: other');
+        expect(cell.value).not.toContain('Object: undefined');
+        expect(cell.value).not.toMatch(/Object:\s*(\n|$)/);
+      }
+    });
+
     // Multi-subject tests
     it('should produce one worksheet per subject in slot order, each with its own data', async () => {
       const twoSubjectData = {
@@ -596,6 +641,46 @@ describe('excelGenerator', () => {
           'Bird One',
           'Bird One 2',
         ]);
+      });
+
+      it('should dedupe sheet names case-insensitively', async () => {
+        const workbook = await generateExcelWorkbook(
+          formDataForSubjects(['Sayyida', 'sayyida']),
+          EXCEL_ROWS
+        );
+
+        // Excel treats sheet names as case-insensitively unique; the
+        // second subject keeps its own casing but gets the ' 2' suffix
+        expect(workbook.worksheets.map((ws) => ws.name)).toEqual([
+          'Sayyida',
+          'sayyida 2',
+        ]);
+
+        // Each sheet still carries its own subject header
+        expect(workbook.worksheets[0].getCell('B2').value).toBe(
+          'Subject(s): Sayyida'
+        );
+        expect(workbook.worksheets[1].getCell('B2').value).toBe(
+          'Subject(s): sayyida'
+        );
+      });
+
+      it('should strip an apostrophe re-exposed at the truncation boundary', async () => {
+        // 34 chars; the 28th char (slice boundary) is the apostrophe in
+        // "Sayyida's", so the raw truncation would end with an apostrophe
+        const longName = "Juvenile Barred Owl Sayyida's Baby";
+        const workbook = await generateExcelWorkbook(
+          formDataForSubjects([longName]),
+          EXCEL_ROWS
+        );
+
+        const worksheet = workbook.worksheets[0];
+        expect(worksheet.name).toBe('Juvenile Barred Owl Sayyida');
+        // Excel rejects sheet names with a boundary apostrophe
+        expect(worksheet.name.startsWith("'")).toBe(false);
+        expect(worksheet.name.endsWith("'")).toBe(false);
+        // B2 header keeps the full untouched subject name
+        expect(worksheet.getCell('B2').value).toBe(`Subject(s): ${longName}`);
       });
 
       it('should rename the reserved sheet name "History"', async () => {

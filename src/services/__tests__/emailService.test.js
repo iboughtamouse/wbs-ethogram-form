@@ -6,22 +6,38 @@ import {
 } from '../emailService';
 
 describe('emailService', () => {
+  // One per-subject card, matching createEmptyObservation's field set
+  const makeCard = (overrides = {}) => ({
+    subjectType: 'foster_parent',
+    subjectId: 'Sayyida',
+    behavior: 'resting_alert',
+    location: '5',
+    notes: 'Test notes',
+    description: '',
+    object: '',
+    objectOther: '',
+    objectInteractionType: '',
+    objectInteractionTypeOther: '',
+    animal: '',
+    animalOther: '',
+    animalInteractionType: '',
+    animalInteractionTypeOther: '',
+    ...overrides,
+  });
+
+  // v2 wire shape: metadata carries the aviary SLUG (no patient field),
+  // each time slot holds an ARRAY of per-subject cards
   const mockFormData = {
     metadata: {
       observerName: 'Test Observer',
       date: '2025-11-22',
       startTime: '15:00',
       endTime: '15:30',
-      aviary: "Sayyida's Cove",
-      patient: 'Sayyida',
+      aviary: 'sayyidas-cove',
       mode: 'live',
     },
     observations: {
-      '15:00': {
-        behavior: 'resting_alert',
-        location: '5',
-        notes: 'Test notes',
-      },
+      '15:00': [makeCard()],
     },
     submittedAt: '2025-11-22T21:00:00.000Z',
   };
@@ -82,6 +98,56 @@ describe('emailService', () => {
           }),
         }
       );
+    });
+
+    it('should POST the v2 wire shape (card arrays, no metadata.patient)', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            submissionId: 'uuid-123',
+            message: 'Success',
+            emailsSent: 1,
+          }),
+      });
+
+      await submitObservation(mockFormData, mockEmails);
+
+      const [, options] = global.fetch.mock.calls[0];
+      const body = JSON.parse(options.body);
+
+      expect(Object.keys(body)).toEqual(['observation', 'emails']);
+      expect(body.emails).toEqual(mockEmails);
+      expect(body.observation.submittedAt).toBe('2025-11-22T21:00:00.000Z');
+
+      // Metadata carries the aviary slug and has NO patient field
+      expect(body.observation.metadata).toEqual({
+        observerName: 'Test Observer',
+        date: '2025-11-22',
+        startTime: '15:00',
+        endTime: '15:30',
+        aviary: 'sayyidas-cove',
+        mode: 'live',
+      });
+      expect(body.observation.metadata).not.toHaveProperty('patient');
+
+      // Every slot is an ARRAY of per-subject cards
+      const slots = Object.values(body.observation.observations);
+      expect(slots.length).toBeGreaterThan(0);
+      slots.forEach((cards) => {
+        expect(Array.isArray(cards)).toBe(true);
+        cards.forEach((card) => {
+          expect(typeof card.subjectType).toBe('string');
+          expect(typeof card.subjectId).toBe('string');
+        });
+      });
+      expect(body.observation.observations['15:00'][0]).toMatchObject({
+        subjectType: 'foster_parent',
+        subjectId: 'Sayyida',
+        behavior: 'resting_alert',
+        location: '5',
+      });
     });
 
     it('should handle validation errors', async () => {
@@ -351,11 +417,7 @@ describe('emailService', () => {
             .fill(0)
             .map((_, i) => [
               `15:${String(i).padStart(2, '0')}`,
-              {
-                behavior: 'resting_alert',
-                location: '5',
-                notes: 'Test',
-              },
+              [makeCard({ notes: 'Test' })],
             ])
         ),
       };
@@ -384,11 +446,7 @@ describe('emailService', () => {
           observerName: "O'Brien & Co. <test@example.com>",
         },
         observations: {
-          '15:00': {
-            behavior: 'resting_alert',
-            location: '5',
-            notes: 'Special chars: <>&"\'',
-          },
+          '15:00': [makeCard({ notes: 'Special chars: <>&"\'' })],
         },
       };
 

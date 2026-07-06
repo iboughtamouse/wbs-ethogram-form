@@ -161,6 +161,37 @@ describe('useFormState', () => {
       });
     });
 
+    it('should fall back to current residents when the date predates every episode', async () => {
+      const { result } = renderHook(() => useFormState());
+
+      // 2025-06-01 is before the bundled config's arrivedOn (2025-11-29),
+      // so no episode covers it — the current-residents fallback applies.
+      act(() => {
+        result.current.handleMetadataChange('date', '2025-06-01');
+        result.current.handleMetadataChange('startTime', '09:00');
+        result.current.handleMetadataChange('endTime', '10:00');
+      });
+
+      await waitFor(() => {
+        expect(result.current.timeSlots).toEqual([
+          '09:00',
+          '09:05',
+          '09:10',
+          '09:15',
+        ]);
+      });
+
+      // Every new slot still gets exactly one Sayyida foster-parent card
+      result.current.timeSlots.forEach((time) => {
+        expect(result.current.observations[time]).toHaveLength(1);
+        expect(result.current.observations[time][0]).toMatchObject({
+          subjectType: 'foster_parent',
+          subjectId: 'Sayyida',
+          behavior: '',
+        });
+      });
+    });
+
     it('should preserve existing observation data when time range changes', async () => {
       const { result } = renderHook(() => useFormState());
 

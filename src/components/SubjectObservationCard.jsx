@@ -54,11 +54,16 @@ const SubjectObservationCard = ({
     requiresObjectInteraction,
   } = useConfig();
 
-  // Create debounced validator for text fields (200ms delay)
-  // MUST be called before any conditional returns (Rules of Hooks)
+  // Create debounced validator for text fields (200ms delay).
+  // MUST be called before any conditional returns (Rules of Hooks).
+  // The debounce wrapper is created once, but it must call the LATEST
+  // onValidate — a mount-time closure would validate against a stale
+  // observations snapshot (e.g. behavior still '') and suppress errors.
+  const onValidateRef = useRef(onValidate);
+  onValidateRef.current = onValidate;
   const debouncedValidateRef = useRef(
     debounce((slotTime, subjectId, field, value) => {
-      onValidate(slotTime, subjectId, field, value);
+      onValidateRef.current(slotTime, subjectId, field, value);
     }, 200)
   );
 

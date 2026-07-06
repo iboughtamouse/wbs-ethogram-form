@@ -33,12 +33,36 @@ export const shouldAutosave = (metadata, observations) => {
   return hasMetadataData || hasObservationData;
 };
 
+/** The metadata fields every restorable draft must carry as strings. */
+const REQUIRED_METADATA_FIELDS = [
+  'observerName',
+  'date',
+  'startTime',
+  'endTime',
+  'mode',
+];
+
+const hasUsableShape = (draft) => {
+  if (!draft || typeof draft !== 'object') return false;
+  const { metadata, observations } = draft;
+  if (!metadata || typeof metadata !== 'object') return false;
+  if (!observations || typeof observations !== 'object') return false;
+  if (Array.isArray(observations)) return false;
+  return REQUIRED_METADATA_FIELDS.every(
+    (field) => typeof metadata[field] === 'string'
+  );
+};
+
 /**
- * Migrate a loaded draft to the current shape. Pre-Phase-2 drafts (no
- * shapeVersion) hold flat per-slot observations, metadata.patient, and the
- * aviary display name; they migrate to single-card arrays attributed to the
- * draft's own patient (the faithful record of who was being observed — the
- * config foster parent is only a fallback), and the aviary maps to its slug.
+ * Migrate a loaded draft to the current shape, or return null for anything
+ * unusable (corrupt JSON shapes, unknown FUTURE shape versions) — a null is
+ * treated as "no draft", which beats crashing the restore path.
+ *
+ * Pre-Phase-2 drafts (no shapeVersion) hold flat per-slot observations,
+ * metadata.patient, and the aviary display name; they migrate to single-card
+ * arrays attributed to the draft's own patient (the faithful record of who
+ * was being observed — the config foster parent is only a fallback), and
+ * the aviary maps to its slug.
  *
  * @param {Object|null} draft - Parsed draft from localStorage
  * @param {Object} config - The useConfig() bundle (fosterParentName,
@@ -46,18 +70,35 @@ export const shouldAutosave = (metadata, observations) => {
  * @returns {Object|null} A current-shape draft, or null
  */
 export const migrateDraft = (draft, config) => {
-  if (!draft) return null;
-  if (draft.shapeVersion >= DRAFT_SHAPE_VERSION) return draft;
+  if (!hasUsableShape(draft)) return null;
 
-  const { patient, ...metadata } = draft.metadata ?? {};
-  const subjectId = patient || config.fosterParentName;
+  if (draft.shapeVersion >= DRAFT_SHAPE_VERSION) {
+    // A shape newer than this build understands is not restorable
+    if (draft.shapeVersion > DRAFT_SHAPE_VERSION) return null;
+    // Current shape: every slot must already be a card array
+    const slotsUsable = Object.values(draft.observations).every(Array.isArray);
+    return slotsUsable ? draft : null;
+  }
+
+  const { patient, ...metadata } = draft.metadata;
+  // 'Unknown' is the last-resort subject label the whole system uses; the
+  // backend requires a non-empty subjectId
+  const subjectId = patient || config.fosterParentName || 'Unknown';
 
   const observations = {};
-  Object.entries(draft.observations ?? {}).forEach(([time, obs]) => {
-    observations[time] = Array.isArray(obs)
-      ? obs
-      : [{ ...obs, subjectType: 'foster_parent', subjectId }];
-  });
+  for (const [time, obs] of Object.entries(draft.observations)) {
+    if (Array.isArray(obs)) {
+      observations[time] = obs;
+    } else if (obs && typeof obs === 'object') {
+      observations[time] = [
+        { ...obs, subjectType: 'foster_parent', subjectId },
+      ];
+    } else {
+      // A slot that is neither a card array nor a flat observation is a
+      // corrupt draft — refuse it whole rather than restore partial data
+      return null;
+    }
+  }
 
   // v1 drafts stored the aviary display name; map it to the slug, falling
   // back to the active aviary for names the config no longer lists

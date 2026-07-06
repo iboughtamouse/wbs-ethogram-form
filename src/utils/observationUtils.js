@@ -37,10 +37,17 @@ export const copyObservationToNext = (observations, timeSlots, currentTime) => {
   // Deep clone to avoid mutation
   const updatedObservations = JSON.parse(JSON.stringify(observations));
 
-  // Copy every subject's card from the current slot to the next
-  updatedObservations[nextTime] = (observations[currentTime] ?? []).map(
-    (observation) => ({ ...observation })
+  // Copy every subject's card from the current slot to the next. Cards for
+  // subjects recorded ONLY in the target slot are kept — copying must never
+  // silently destroy another subject's already-entered data.
+  const sourceCards = (observations[currentTime] ?? []).map((observation) => ({
+    ...observation,
+  }));
+  const copiedSubjects = new Set(sourceCards.map((card) => card.subjectId));
+  const targetOnlyCards = (observations[nextTime] ?? []).filter(
+    (card) => !copiedSubjects.has(card.subjectId)
   );
+  updatedObservations[nextTime] = [...sourceCards, ...targetOnlyCards];
 
   return {
     success: true,

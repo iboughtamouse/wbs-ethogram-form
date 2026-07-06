@@ -382,6 +382,145 @@ describe('draftManager', () => {
       ]);
     });
 
+    it('should return null when metadata is missing date', () => {
+      const draft = {
+        metadata: {
+          observerName: 'Jane',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: {},
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it('should return null when observations is null', () => {
+      const draft = {
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: null,
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it('should return null when observations is an array', () => {
+      const draft = {
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: [{ behavior: 'perching', location: '', notes: '' }],
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it('should return null for a draft with a future shapeVersion', () => {
+      const draft = {
+        shapeVersion: 3,
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: {},
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it('should return null for a v2 draft whose slot value is a flat object instead of an array', () => {
+      const draft = {
+        shapeVersion: 2,
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: 'sayyidas-cove',
+          mode: 'live',
+        },
+        observations: {
+          '09:00': {
+            subjectType: 'foster_parent',
+            subjectId: 'Sayyida',
+            behavior: 'perching',
+            location: '',
+            notes: '',
+          },
+        },
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it('should return null for a v1 draft with a slot value that is a string', () => {
+      const draft = {
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: {
+          '09:00': 'perching',
+        },
+      };
+
+      expect(migrateDraft(draft, config)).toBeNull();
+    });
+
+    it("should fall back to 'Unknown' when the v1 draft has no patient and config.fosterParentName is empty", () => {
+      const draft = {
+        metadata: {
+          observerName: 'Jane',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          aviary: "Sayyida's Cove",
+          mode: 'live',
+        },
+        observations: {
+          '09:00': {
+            behavior: 'perching',
+            location: '',
+            notes: '',
+          },
+        },
+      };
+
+      const migrated = migrateDraft(draft, { ...config, fosterParentName: '' });
+
+      expect(migrated.observations['09:00']).toEqual([
+        {
+          subjectType: 'foster_parent',
+          subjectId: 'Unknown',
+          behavior: 'perching',
+          location: '',
+          notes: '',
+        },
+      ]);
+    });
+
     it('should fall back to config.aviarySlug when the v1 aviary name is not in aviaryOptions', () => {
       const draft = {
         metadata: {

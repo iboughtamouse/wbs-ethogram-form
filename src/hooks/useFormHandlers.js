@@ -34,11 +34,13 @@ export function useFormHandlers({
   fieldErrors,
   handleMetadataChange,
   handleObservationChange,
+  handleRemoveSubject,
   handleCopyToNext,
   resetForm,
   validateSingleMetadataField,
   validateSingleObservationField,
   validateObservationSlot,
+  clearObservationErrors,
   clearFieldError,
   clearAllErrors,
   setShowOutput,
@@ -97,6 +99,16 @@ export function useFormHandlers({
   };
 
   /**
+   * Handle subject-card removal
+   * Clears the card's validation errors first, so re-adding the same
+   * subject never resurrects phantom errors on a pristine card
+   */
+  const onRemoveSubject = (time, subjectId) => {
+    clearObservationErrors(time, subjectId);
+    handleRemoveSubject(time, subjectId);
+  };
+
+  /**
    * Handle copy-to-next with validation
    * Validates source observation before copying
    * Scrolls to first error if validation fails
@@ -134,6 +146,7 @@ export function useFormHandlers({
     onMetadataChange,
     onObservationChange,
     onObservationValidate,
+    onRemoveSubject,
     onCopyToNext,
     onReset,
   };
