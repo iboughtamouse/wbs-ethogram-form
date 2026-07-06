@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { ANIMAL_TYPES } from '../../constants';
+import { useConfig } from '../../contexts/ConfigContext';
+import { withCurrentValue } from '../../utils/selectOptions';
 import { MAX_OTHER_TEXT_LENGTH } from '../../constants/ui';
 
 const AnimalSelect = ({
@@ -11,6 +12,11 @@ const AnimalSelect = ({
   error,
   otherError,
 }) => {
+  const { ANIMAL_TYPES, lookupVocabLabel } = useConfig();
+  const options = withCurrentValue(ANIMAL_TYPES, value, (v) =>
+    lookupVocabLabel('animal', v)
+  );
+
   return (
     <>
       <div className="form-group">
@@ -22,8 +28,12 @@ const AnimalSelect = ({
           onChange={onChange}
           className={error ? 'error' : ''}
         >
-          {ANIMAL_TYPES.map((animal) => (
-            <option key={animal.value} value={animal.value}>
+          {options.map((animal) => (
+            <option
+              key={animal.value}
+              value={animal.value}
+              disabled={animal.disabled}
+            >
               {animal.label}
             </option>
           ))}

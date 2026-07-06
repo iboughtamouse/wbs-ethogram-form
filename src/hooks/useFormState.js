@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useConfig } from '../contexts/ConfigContext';
 import { generateTimeSlots, validateTimeRange } from '../utils/timeUtils';
 import { getTodayWBS } from '../utils/dateUtils';
 import { copyObservationToNext } from '../utils/observationUtils';
@@ -15,6 +16,13 @@ import {
 } from '../services/formStateManager';
 
 export const useFormState = () => {
+  // Aviary + subject identity comes from config (single-aviary in Phase 1).
+  // Deliberately mount-frozen: captured in the initial state and re-read only
+  // by resetForm/restoreDraft, even if a fetched config upgrades the bundle
+  // post-mount. Safe under the append-only/no-rename invariant (a renamed
+  // aviary would resolve to aviary_id NULL server-side via exact-name match —
+  // renames are forbidden by the publish rules for exactly this reason).
+  const { aviaryName, patientName } = useConfig();
   const today = getTodayWBS();
 
   const [metadata, setMetadata] = useState({
@@ -22,8 +30,8 @@ export const useFormState = () => {
     date: today,
     startTime: '',
     endTime: '',
-    aviary: "Sayyida's Cove",
-    patient: 'Sayyida',
+    aviary: aviaryName,
+    patient: patientName,
     mode: 'live',
   });
 
@@ -93,13 +101,13 @@ export const useFormState = () => {
       date: getTodayWBS(),
       startTime: '',
       endTime: '',
-      aviary: "Sayyida's Cove",
-      patient: 'Sayyida',
+      aviary: aviaryName,
+      patient: patientName,
       mode: 'live',
     });
     setTimeSlots([]);
     setObservations({});
-  }, []);
+  }, [aviaryName, patientName]);
 
   const restoreDraft = useCallback((draftMetadata, draftObservations) => {
     // First, update metadata (will trigger time slot regeneration via useEffect)

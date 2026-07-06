@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  requiresLocation,
-  requiresObject,
-  requiresAnimal,
-  requiresObjectInteraction,
-  requiresAnimalInteraction,
-  requiresDescription,
-} from '../constants';
+import { useConfig } from '../contexts/ConfigContext';
 import { validateTimeRange } from '../utils/timeUtils';
 import { validateLocation, validateObserverName } from '../utils/validators';
 
@@ -26,6 +19,15 @@ const OBSERVATION_FIELDS_TO_VALIDATE = [
 ];
 
 export const useFormValidation = () => {
+  const {
+    requiresLocation,
+    requiresObject,
+    requiresAnimal,
+    requiresObjectInteraction,
+    requiresAnimalInteraction,
+    requiresDescription,
+    VALID_PERCHES,
+  } = useConfig();
   const [fieldErrors, setFieldErrors] = useState({});
 
   const validateMetadataField = (field, value, metadata) => {
@@ -73,7 +75,7 @@ export const useFormValidation = () => {
       }
     } else if (field === 'location') {
       if (requiresLocation(behaviorValue)) {
-        const validation = validateLocation(value);
+        const validation = validateLocation(value, VALID_PERCHES);
         if (!validation.valid) {
           error = validation.error;
         }

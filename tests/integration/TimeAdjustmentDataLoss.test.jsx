@@ -9,7 +9,10 @@ import {
 import '@testing-library/jest-dom';
 import App from '../../src/App';
 import * as localStorageUtils from '../../src/utils/localStorageUtils';
-import { requiresLocation } from '../../src/constants/behaviors';
+import { adaptConfig } from '../../src/services/configAdapter';
+import { bundledConfig } from '../../src/services/configService';
+
+const { requiresLocation } = adaptConfig(bundledConfig);
 
 // Mock localStorage utilities
 jest.mock('../../src/utils/localStorageUtils');
