@@ -3,17 +3,18 @@
  * Prevents data loss from accidental page refresh/close during observation sessions
  */
 
-import { DRAFT_LOCALSTORAGE_KEY } from '../constants/ui';
+import { DRAFT_LOCALSTORAGE_KEY, DRAFT_SHAPE_VERSION } from '../constants/ui';
 
 /**
  * Save current form state to localStorage
- * @param {Object} metadata - The metadata object (observerName, date, startTime, endTime, aviary, patient, mode)
- * @param {Object} observations - The observations object keyed by time strings
+ * @param {Object} metadata - The metadata object (observerName, date, startTime, endTime, aviary slug, mode)
+ * @param {Object} observations - Observations keyed by time strings, each an array of per-subject cards
  * @returns {boolean} - True if save succeeded, false otherwise
  */
 export function saveDraft(metadata, observations) {
   try {
     const draft = {
+      shapeVersion: DRAFT_SHAPE_VERSION,
       metadata,
       observations,
       savedAt: new Date().toISOString(),

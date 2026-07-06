@@ -1,6 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PerchDiagramModal from '../PerchDiagramModal';
+import { bundledConfig } from '../../services/configService';
+import { adaptConfig } from '../../services/configAdapter';
+
+// The modal is driven by useConfig().perchDiagrams; without a provider it
+// falls back to the adapted bundled config, so derive fixtures from it.
+const { perchDiagrams } = adaptConfig(bundledConfig);
 
 describe('PerchDiagramModal', () => {
   const mockOnClose = jest.fn();
@@ -135,7 +141,7 @@ describe('PerchDiagramModal', () => {
       expect(img).toHaveAttribute('src', '/images/perches-ne.png');
       expect(img).toHaveAttribute(
         'alt',
-        "Perches in NE Half of Sayyida's Cove"
+        "Perches: NE Half (Perches 1-18) — Sayyida's Cove"
       );
     });
 
@@ -154,26 +160,51 @@ describe('PerchDiagramModal', () => {
       expect(img).toHaveAttribute('src', '/images/perches-sw.png');
       expect(img).toHaveAttribute(
         'alt',
-        "Perches in SW Half of Sayyida's Cove"
+        "Perches: SW Half (Perches 19-31, BB, F, W) — Sayyida's Cove"
+      );
+    });
+
+    it('should render one tab per configured diagram and swap the image src on switch', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <PerchDiagramModal isOpen={true} onClose={mockOnClose} />
+      );
+
+      // Both config-driven tabs render with the config labels
+      expect(perchDiagrams).toHaveLength(2);
+      perchDiagrams.forEach(({ label }) => {
+        expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+      });
+
+      // First diagram shows by default; switching tabs swaps to the other URL
+      expect(container.querySelector('img')).toHaveAttribute(
+        'src',
+        perchDiagrams[0].url
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: perchDiagrams[1].label })
+      );
+      expect(container.querySelector('img')).toHaveAttribute(
+        'src',
+        perchDiagrams[1].url
       );
     });
   });
 
   describe('Image rendering', () => {
-    it('should render picture element with WebP source and PNG fallback', () => {
+    it('should render a plain img from the config URL (no WebP picture wrapper)', () => {
       const { container } = render(
         <PerchDiagramModal isOpen={true} onClose={mockOnClose} />
       );
 
-      const picture = container.querySelector('picture');
-      expect(picture).toBeInTheDocument();
+      // Config URLs are used as-is (may be bundled assets or R2 URLs), so
+      // there is no <picture>/<source> WebP variant — just one <img>.
+      expect(container.querySelector('picture')).toBeNull();
 
-      const source = picture.querySelector('source');
-      expect(source).toHaveAttribute('srcSet', '/images/perches-ne.webp');
-      expect(source).toHaveAttribute('type', 'image/webp');
-
-      const img = picture.querySelector('img');
-      expect(img).toHaveAttribute('src', '/images/perches-ne.png');
+      const images = container.querySelectorAll('img');
+      expect(images).toHaveLength(1);
+      expect(images[0]).toHaveAttribute('src', '/images/perches-ne.png');
     });
   });
 

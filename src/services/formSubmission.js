@@ -14,8 +14,8 @@
  * All observation modes use stream timestamps directly (top-left corner of video).
  * No timezone conversion is performed.
  *
- * @param {Object} metadata - Form metadata (observer, date, times, etc.)
- * @param {Object} observations - Observations keyed by time slot
+ * @param {Object} metadata - Form metadata (observer, date, times, aviary slug)
+ * @param {Object} observations - Observations keyed by time slot (arrays of per-subject cards)
  * @returns {Object} Output data with metadata, observations, and timestamp
  */
 export const prepareOutputData = (metadata, observations) => {

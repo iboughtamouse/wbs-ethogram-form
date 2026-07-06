@@ -41,24 +41,27 @@ OutputPreview.propTypes = {
       startTime: PropTypes.string.isRequired,
       endTime: PropTypes.string.isRequired,
       aviary: PropTypes.string.isRequired,
-      patient: PropTypes.string.isRequired,
       mode: PropTypes.string.isRequired,
     }).isRequired,
     observations: PropTypes.objectOf(
-      PropTypes.shape({
-        behavior: PropTypes.string.isRequired,
-        location: PropTypes.string.isRequired,
-        notes: PropTypes.string.isRequired,
-        object: PropTypes.string.isRequired,
-        objectOther: PropTypes.string.isRequired,
-        objectInteractionType: PropTypes.string,
-        objectInteractionTypeOther: PropTypes.string,
-        animal: PropTypes.string.isRequired,
-        animalOther: PropTypes.string.isRequired,
-        animalInteractionType: PropTypes.string,
-        animalInteractionTypeOther: PropTypes.string,
-        description: PropTypes.string.isRequired,
-      })
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          subjectType: PropTypes.string.isRequired,
+          subjectId: PropTypes.string.isRequired,
+          behavior: PropTypes.string.isRequired,
+          location: PropTypes.string.isRequired,
+          notes: PropTypes.string.isRequired,
+          object: PropTypes.string.isRequired,
+          objectOther: PropTypes.string.isRequired,
+          objectInteractionType: PropTypes.string,
+          objectInteractionTypeOther: PropTypes.string,
+          animal: PropTypes.string.isRequired,
+          animalOther: PropTypes.string.isRequired,
+          animalInteractionType: PropTypes.string,
+          animalInteractionTypeOther: PropTypes.string,
+          description: PropTypes.string.isRequired,
+        })
+      )
     ).isRequired,
     submittedAt: PropTypes.string.isRequired,
   }).isRequired,

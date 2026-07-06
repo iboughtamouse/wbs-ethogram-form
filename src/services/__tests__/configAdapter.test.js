@@ -66,23 +66,39 @@ describe('adaptConfig — bundled snapshot', () => {
     ]);
   });
 
-  it('binds aviary and patient identity from config', () => {
+  it('binds aviary and subject identity from config', () => {
     expect(bundle.aviaryName).toBe("Sayyida's Cove");
-    expect(bundle.patientName).toBe('Sayyida');
+    expect(bundle.aviarySlug).toBe('sayyidas-cove');
+    expect(bundle.aviaryOptions).toEqual([
+      { slug: 'sayyidas-cove', name: "Sayyida's Cove" },
+    ]);
+    expect(bundle.getAviaryDisplayName('sayyidas-cove')).toBe("Sayyida's Cove");
+    expect(bundle.fosterParentName).toBe('Sayyida');
+    expect(bundle.subjects).toEqual([
+      {
+        name: 'Sayyida',
+        type: 'foster_parent',
+        species: 'Barred Owl',
+        arrivedOn: '2025-11-29',
+        departedOn: null,
+      },
+    ]);
     expect(bundle.perchDiagrams).toHaveLength(2);
   });
 });
 
 describe('adaptConfig — behavior beyond the constants', () => {
-  it('derives 23 Excel rows (18 current + 5 legacy) in row order', () => {
+  it('derives the full 23-row Excel catalog with enablement flags in row order', () => {
     expect(bundle.excelBehaviorRows).toHaveLength(23);
     expect(bundle.excelBehaviorRows[0]).toEqual({
       value: 'eating',
       label: 'Eating (Note Location)',
+      enabled: true,
     });
     expect(bundle.excelBehaviorRows[22]).toEqual({
       value: 'other',
       label: 'Other',
+      enabled: true,
     });
   });
 
@@ -108,7 +124,7 @@ describe('adaptConfig — behavior beyond the constants', () => {
     expect(bundle.lookupVocabLabel('object', 'nonexistent')).toBeUndefined();
   });
 
-  it('keeps retired Excel rows even when dropped from enablement (offline drafts)', () => {
+  it('keeps the full Excel catalog when enablement shrinks, flagging disabled rows', () => {
     const doc = {
       ...bundledConfig,
       aviaries: [
@@ -123,10 +139,14 @@ describe('adaptConfig — behavior beyond the constants', () => {
       ],
     };
 
-    const rows = adaptConfig(doc).excelBehaviorRows.map((r) => r.value);
-    expect(rows).toContain('eating');
-    expect(rows).toContain('aggression'); // retired, not enabled - still a row
-    expect(rows).not.toContain('flying'); // active but disabled - no row
+    // Row filtering moved to the generator (enabled ∪ present-in-data); the
+    // adapter always emits the full catalog so offline drafts keep their rows
+    const rows = adaptConfig(doc).excelBehaviorRows;
+    expect(rows).toHaveLength(23);
+    const byValue = new Map(rows.map((r) => [r.value, r]));
+    expect(byValue.get('eating').enabled).toBe(true);
+    expect(byValue.get('aggression').enabled).toBe(false); // retired, not enabled
+    expect(byValue.get('flying').enabled).toBe(false); // active but disabled
   });
 
   it('keeps retired perches valid for validation but out of menus', () => {
@@ -162,14 +182,163 @@ describe('adaptConfig — behavior beyond the constants', () => {
     ).toEqual(['1']);
   });
 
-  it('tolerates an aviary without a vocabulary block (empty menus, no crash)', () => {
+  it('rejects an aviary without a vocabulary block (FU-2: throw, do not degrade)', () => {
+    // Pre-FU-2 this adapted to empty menus; a throw lets the provider's
+    // recovery keep a working bundle instead of rendering a husk
     const doc = {
       ...bundledConfig,
       aviaries: [{ ...bundledConfig.aviaries[0], vocabulary: undefined }],
     };
 
+    expect(() => adaptConfig(doc)).toThrow('no usable aviary');
+  });
+});
+
+describe('adaptConfig — aviary selection', () => {
+  const northAnnex = {
+    ...bundledConfig.aviaries[0],
+    slug: 'north-annex',
+    name: 'North Annex',
+    isActive: true,
+    subjects: [
+      {
+        name: 'Piper',
+        type: 'foster_parent',
+        species: 'Great Horned Owl',
+        arrivedOn: '2025-10-01',
+        departedOn: null,
+      },
+    ],
+  };
+  const oldMews = {
+    ...northAnnex,
+    slug: 'old-mews',
+    name: 'Old Mews',
+    isActive: false,
+  };
+  const doc = {
+    ...bundledConfig,
+    aviaries: [bundledConfig.aviaries[0], northAnnex, oldMews],
+  };
+
+  it('defaults to the first active aviary when no slug is given', () => {
     const adapted = adaptConfig(doc);
-    expect(adapted.BEHAVIORS).toHaveLength(0);
-    expect(adapted.INANIMATE_OBJECTS).toHaveLength(1);
+    expect(adapted.aviarySlug).toBe('sayyidas-cove');
+    expect(adapted.aviaryName).toBe("Sayyida's Cove");
+    expect(adapted.fosterParentName).toBe('Sayyida');
+  });
+
+  it('selects the requested active aviary by slug', () => {
+    const adapted = adaptConfig(doc, 'north-annex');
+    expect(adapted.aviarySlug).toBe('north-annex');
+    expect(adapted.aviaryName).toBe('North Annex');
+    expect(adapted.fosterParentName).toBe('Piper');
+    expect(adapted.subjects.map((s) => s.name)).toEqual(['Piper']);
+  });
+
+  it('falls back to the first active aviary for unknown or inactive slugs', () => {
+    expect(adaptConfig(doc, 'nonexistent').aviarySlug).toBe('sayyidas-cove');
+    expect(adaptConfig(doc, 'old-mews').aviarySlug).toBe('sayyidas-cove');
+  });
+
+  it('lists only active aviaries in aviaryOptions', () => {
+    expect(adaptConfig(doc).aviaryOptions).toEqual([
+      { slug: 'sayyidas-cove', name: "Sayyida's Cove" },
+      { slug: 'north-annex', name: 'North Annex' },
+    ]);
+  });
+
+  it('resolves display names across the full aviary list, echoing unknown slugs', () => {
+    const adapted = adaptConfig(doc);
+    expect(adapted.getAviaryDisplayName('old-mews')).toBe('Old Mews'); // inactive still resolves
+    expect(adapted.getAviaryDisplayName('never-existed')).toBe('never-existed');
+  });
+});
+
+describe('adaptConfig — getSubjectsPresentOn', () => {
+  const doc = {
+    ...bundledConfig,
+    aviaries: [
+      {
+        ...bundledConfig.aviaries[0],
+        subjects: [
+          {
+            name: 'Sayyida',
+            type: 'foster_parent',
+            species: 'Barred Owl',
+            arrivedOn: '2025-11-29',
+            departedOn: null,
+          },
+          {
+            name: 'Piper',
+            type: 'patient',
+            species: 'Great Horned Owl',
+            arrivedOn: '2025-12-01',
+            departedOn: '2026-01-15',
+          },
+          // Second overlapping episode for Piper — exercises name dedupe
+          {
+            name: 'Piper',
+            type: 'patient',
+            species: 'Great Horned Owl',
+            arrivedOn: '2026-01-10',
+            departedOn: null,
+          },
+        ],
+      },
+    ],
+  };
+  const presentNames = (date) =>
+    adaptConfig(doc)
+      .getSubjectsPresentOn(date)
+      .map((s) => s.name);
+
+  it('includes a subject on its arrival date but not the day before', () => {
+    expect(presentNames('2025-11-28')).toEqual([]);
+    expect(presentNames('2025-11-29')).toEqual(['Sayyida']);
+    expect(presentNames('2025-12-01')).toEqual(['Sayyida', 'Piper']);
+  });
+
+  it('treats departedOn as exclusive (present the day before, gone on the day)', () => {
+    // Only the first Piper episode matters here: query dates precede episode two
+    expect(presentNames('2026-01-09')).toContain('Piper');
+    const bounded = {
+      ...doc,
+      aviaries: [
+        {
+          ...doc.aviaries[0],
+          subjects: doc.aviaries[0].subjects.slice(0, 2),
+        },
+      ],
+    };
+    const bothEnds = (date) =>
+      adaptConfig(bounded)
+        .getSubjectsPresentOn(date)
+        .map((s) => s.name);
+    expect(bothEnds('2026-01-14')).toEqual(['Sayyida', 'Piper']);
+    expect(bothEnds('2026-01-15')).toEqual(['Sayyida']);
+  });
+
+  it('dedupes a subject with overlapping episodes by name', () => {
+    // 2026-01-12 falls inside both Piper episodes
+    expect(presentNames('2026-01-12')).toEqual(['Sayyida', 'Piper']);
+  });
+});
+
+describe('adaptConfig — unusable documents throw (FU-2)', () => {
+  // A throw (rather than silent degradation to empty menus) is what lets
+  // the provider's recovery keep the last good bundle / bundled snapshot.
+  it('throws for a document with no aviaries', () => {
+    expect(() => adaptConfig({ ...bundledConfig, aviaries: [] })).toThrow(
+      'no usable aviary'
+    );
+  });
+
+  it('throws for an aviary without a vocabulary', () => {
+    const doc = {
+      ...bundledConfig,
+      aviaries: [{ ...bundledConfig.aviaries[0], vocabulary: null }],
+    };
+    expect(() => adaptConfig(doc)).toThrow('no usable aviary');
   });
 });

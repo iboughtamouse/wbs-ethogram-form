@@ -17,6 +17,12 @@ export const OFFLINE_FILE_PREFIX = 'offline';
 // LocalStorage key for drafts
 export const DRAFT_LOCALSTORAGE_KEY = 'wbs-ethogram-draft';
 
+// Draft payload shape version. Absent = pre-Phase-2 (flat observations,
+// metadata.patient, aviary as display name); 2 = array-native observations,
+// no patient, aviary as slug. Bump when the persisted shape changes and add
+// a migration step in draftManager.migrateDraft.
+export const DRAFT_SHAPE_VERSION = 2;
+
 // LocalStorage key for the last-good fetched config document
 export const CONFIG_LOCALSTORAGE_KEY = 'wbs-ethogram-config';
 
