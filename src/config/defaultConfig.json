@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "publishedAt": "2026-07-06T16:06:36.449Z",
+  "version": 3,
+  "publishedAt": "2026-07-07T12:58:38.777Z",
   "animals": [
     {
       "label": "Adult Aviary Occupant",
@@ -476,11 +476,11 @@
       },
       "perchDiagrams": [
         {
-          "url": "/images/perches-ne.png",
+          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp",
           "label": "NE Half (Perches 1-18)"
         },
         {
-          "url": "/images/perches-sw.png",
+          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-sw-half-v1.webp",
           "label": "SW Half (Perches 19-31, BB, F, W)"
         }
       ]
