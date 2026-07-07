@@ -138,7 +138,10 @@ describe('PerchDiagramModal', () => {
       );
 
       const img = container.querySelector('img');
-      expect(img).toHaveAttribute('src', '/images/perches-ne.png');
+      expect(img).toHaveAttribute(
+        'src',
+        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp'
+      );
       expect(img).toHaveAttribute(
         'alt',
         "Perches: NE Half (Perches 1-18) — Sayyida's Cove"
@@ -157,7 +160,10 @@ describe('PerchDiagramModal', () => {
       await user.click(swTab);
 
       const img = container.querySelector('img');
-      expect(img).toHaveAttribute('src', '/images/perches-sw.png');
+      expect(img).toHaveAttribute(
+        'src',
+        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-sw-half-v1.webp'
+      );
       expect(img).toHaveAttribute(
         'alt',
         "Perches: SW Half (Perches 19-31, BB, F, W) — Sayyida's Cove"
@@ -204,7 +210,10 @@ describe('PerchDiagramModal', () => {
 
       const images = container.querySelectorAll('img');
       expect(images).toHaveLength(1);
-      expect(images[0]).toHaveAttribute('src', '/images/perches-ne.png');
+      expect(images[0]).toHaveAttribute(
+        'src',
+        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp'
+      );
     });
   });
 
