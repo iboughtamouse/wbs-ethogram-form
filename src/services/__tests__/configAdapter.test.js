@@ -37,32 +37,36 @@ describe('adaptConfig — bundled snapshot', () => {
     expect(bundle.ANIMAL_INTERACTION_TYPES).toHaveLength(12);
   });
 
-  it('exposes 38 perch values including Ground', () => {
-    expect(bundle.VALID_PERCHES).toHaveLength(38);
-    expect(bundle.VALID_PERCHES).toContain('Ground');
-    expect(bundle.VALID_PERCHES).toContain('31');
+  it('exposes 55 perch values (50 active + 5 retired) including the retired Ground', () => {
+    // VALID_PERCHES is the full set (retired included) for validating draft-held
+    // values; the 009 re-catalog is 50 active + 5 retired old-format specials.
+    expect(bundle.VALID_PERCHES).toHaveLength(55);
+    expect(bundle.VALID_PERCHES).toContain('Ground'); // retired old-format dup, still resolvable
+    expect(bundle.VALID_PERCHES).toContain('37'); // added by 009
     expect(bundle.VALID_PERCHES).toContain('W');
   });
 
   it('reproduces the inline perch dropdown structure', () => {
+    // Groups appear in perch sortOrder first-appearance order (009 re-catalog)
     expect(bundle.perchOptions.map((g) => g.label)).toEqual([
-      'Common Locations',
-      'Perches (1-31)',
-      'Baby Boxes',
+      'Perches',
+      'Ramps of Wonder',
+      'Tiny Hut',
+      'Footbridges',
       'Food Platforms',
-      'Other',
+      'Baby Boxes',
+      'Common Locations',
     ]);
-    expect(bundle.perchOptions[0].options).toEqual([
-      { value: 'Ground', label: 'Ground' },
-    ]);
-    expect(bundle.perchOptions[1].options).toHaveLength(31);
-    expect(bundle.perchOptions[1].options[0]).toEqual({
+    // 'Perches' holds 1-37 in sort order (options are not re-sorted by label)
+    expect(bundle.perchOptions[0].options).toHaveLength(37);
+    expect(bundle.perchOptions[0].options[0]).toEqual({
       value: '1',
-      label: 'Perch 1',
+      label: 'High SE Turfed Corner Perch',
     });
-    expect(bundle.perchOptions[4].options).toEqual([
-      { value: 'G', label: 'G - Ground' },
-      { value: 'W', label: 'W - Water Bowl' },
+    // Common Locations = water bowl + ground (active ground is value 'G', relabelled)
+    expect(bundle.perchOptions.at(-1).options).toEqual([
+      { value: 'W', label: 'Water Bowl' },
+      { value: 'G', label: 'Ground' },
     ]);
   });
 
@@ -104,7 +108,7 @@ describe('adaptConfig — bundled snapshot', () => {
         departedOn: null,
       },
     ]);
-    expect(bundle.perchDiagrams).toHaveLength(2);
+    expect(bundle.perchDiagrams).toHaveLength(3);
   });
 });
 
