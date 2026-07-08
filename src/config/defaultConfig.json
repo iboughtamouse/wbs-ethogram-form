@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "publishedAt": "2026-07-07T12:58:38.777Z",
+  "version": 4,
+  "publishedAt": "2026-07-08T16:50:12.569Z",
   "animals": [
     {
       "label": "Adult Aviary Occupant",
@@ -106,270 +106,389 @@
       "slug": "sayyidas-cove",
       "perches": [
         {
-          "group": "Common Locations",
-          "label": "Ground",
-          "value": "Ground",
+          "group": "Perches",
+          "label": "High SE Turfed Corner Perch",
+          "value": "1",
           "retired": false,
           "sortOrder": 1
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 1",
-          "value": "1",
+          "group": "Perches",
+          "label": "Highest SE Stick Ramp",
+          "value": "2",
           "retired": false,
           "sortOrder": 2
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 2",
-          "value": "2",
+          "group": "Perches",
+          "label": "Upper SE Turfed Wall Perch",
+          "value": "3",
           "retired": false,
           "sortOrder": 3
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 3",
-          "value": "3",
+          "group": "Perches",
+          "label": "Middle SE Stick Ramp",
+          "value": "4",
           "retired": false,
           "sortOrder": 4
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 4",
-          "value": "4",
+          "group": "Perches",
+          "label": "Lower SE Turfed Wall Perch",
+          "value": "5",
           "retired": false,
           "sortOrder": 5
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 5",
-          "value": "5",
+          "group": "Perches",
+          "label": "Lower SE Stick Ramp",
+          "value": "6",
           "retired": false,
           "sortOrder": 6
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 6",
-          "value": "6",
+          "group": "Perches",
+          "label": "Stick Ramp to Inside of Tiny Hut",
+          "value": "7",
           "retired": false,
           "sortOrder": 7
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 7",
-          "value": "7",
+          "group": "Perches",
+          "label": "Lower NE Rope Ramp",
+          "value": "8",
           "retired": false,
           "sortOrder": 8
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 8",
-          "value": "8",
+          "group": "Perches",
+          "label": "NE Stick Wall Perch",
+          "value": "9",
           "retired": false,
           "sortOrder": 9
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 9",
-          "value": "9",
+          "group": "Perches",
+          "label": "Upper NE Rope Ramp",
+          "value": "10",
           "retired": false,
           "sortOrder": 10
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 10",
-          "value": "10",
+          "group": "Perches",
+          "label": "High NE Turfed Corner Perch",
+          "value": "11",
           "retired": false,
           "sortOrder": 11
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 11",
-          "value": "11",
+          "group": "Perches",
+          "label": "Upper N Wall Stick Perch",
+          "value": "12",
           "retired": false,
           "sortOrder": 12
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 12",
-          "value": "12",
+          "group": "Perches",
+          "label": "Lower N Wall Stick Perch (Mostly obscured by post)",
+          "value": "13",
           "retired": false,
           "sortOrder": 13
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 13",
-          "value": "13",
+          "group": "Perches",
+          "label": "Middle Stick Perch on N Central Support Post",
+          "value": "14",
           "retired": false,
           "sortOrder": 14
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 14",
-          "value": "14",
+          "group": "Perches",
+          "label": "Long Turfed Perch Between N Central/W Support Posts",
+          "value": "15",
           "retired": false,
           "sortOrder": 15
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 15",
-          "value": "15",
+          "group": "Perches",
+          "label": "High Stick Perch on N Central Support Post",
+          "value": "16",
           "retired": false,
           "sortOrder": 16
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 16",
-          "value": "16",
+          "group": "Perches",
+          "label": "High Stick Perch on NW Support Post",
+          "value": "17",
           "retired": false,
           "sortOrder": 17
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 17",
-          "value": "17",
+          "group": "Perches",
+          "label": "Low Stick Perch on N Central Support Post",
+          "value": "18",
           "retired": false,
           "sortOrder": 18
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 18",
-          "value": "18",
+          "group": "Perches",
+          "label": "High Stick Perch on Central E Support Post",
+          "value": "19",
           "retired": false,
           "sortOrder": 19
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 19",
-          "value": "19",
+          "group": "Perches",
+          "label": "Middle Stick Perch on Central E Support Post",
+          "value": "20",
           "retired": false,
           "sortOrder": 20
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 20",
-          "value": "20",
+          "group": "Perches",
+          "label": "Long Turfed Perch Between E Support Posts",
+          "value": "21",
           "retired": false,
           "sortOrder": 21
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 21",
-          "value": "21",
+          "group": "Perches",
+          "label": "Middle Stick Perch on NW Support Post",
+          "value": "22",
           "retired": false,
           "sortOrder": 22
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 22",
-          "value": "22",
+          "group": "Perches",
+          "label": "Long Turf Perch in Front of Baby Boxes",
+          "value": "23",
           "retired": false,
           "sortOrder": 23
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 23",
-          "value": "23",
+          "group": "Perches",
+          "label": "Low Stick Perch on E Central Support Post",
+          "value": "24",
           "retired": false,
           "sortOrder": 24
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 24",
-          "value": "24",
+          "group": "Perches",
+          "label": "Low Stick Perch on Central S Support Post",
+          "value": "25",
           "retired": false,
           "sortOrder": 25
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 25",
-          "value": "25",
+          "group": "Perches",
+          "label": "W Turf Perch on Central S Support Post",
+          "value": "26",
           "retired": false,
           "sortOrder": 26
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 26",
-          "value": "26",
+          "group": "Perches",
+          "label": "E Turf Perch on SW Support Post",
+          "value": "27",
           "retired": false,
           "sortOrder": 27
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 27",
-          "value": "27",
+          "group": "Perches",
+          "label": "Low Stick Perch on SW Support Post",
+          "value": "28",
           "retired": false,
           "sortOrder": 28
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 28",
-          "value": "28",
+          "group": "Perches",
+          "label": "High Stick Perch on Central S Support Post",
+          "value": "29",
           "retired": false,
           "sortOrder": 29
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 29",
-          "value": "29",
+          "group": "Perches",
+          "label": "High Stick Perch on SW Support Post",
+          "value": "30",
           "retired": false,
           "sortOrder": 30
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 30",
-          "value": "30",
+          "group": "Perches",
+          "label": "Upper-Middle Stick Perch on Central S Support Post",
+          "value": "31",
           "retired": false,
           "sortOrder": 31
         },
         {
-          "group": "Perches (1-31)",
-          "label": "Perch 31",
-          "value": "31",
+          "group": "Perches",
+          "label": "Lower-Middle Stick Perch on Central S Support Post",
+          "value": "32",
           "retired": false,
           "sortOrder": 32
+        },
+        {
+          "group": "Perches",
+          "label": "Stick Ramp to Baby Boxes",
+          "value": "33",
+          "retired": false,
+          "sortOrder": 33
+        },
+        {
+          "group": "Perches",
+          "label": "E Turf Perch on Central S Support Post",
+          "value": "34",
+          "retired": false,
+          "sortOrder": 34
+        },
+        {
+          "group": "Perches",
+          "label": "W Turf Perch on SE Support Post",
+          "value": "35",
+          "retired": false,
+          "sortOrder": 35
+        },
+        {
+          "group": "Perches",
+          "label": "High Stick Perch on SE Support Post",
+          "value": "36",
+          "retired": false,
+          "sortOrder": 36
+        },
+        {
+          "group": "Perches",
+          "label": "S Wall Stick Perch",
+          "value": "37",
+          "retired": false,
+          "sortOrder": 37
+        },
+        {
+          "group": "Ramps of Wonder",
+          "label": "Upper Ramp of Wonder",
+          "value": "RoW-U",
+          "retired": false,
+          "sortOrder": 38
+        },
+        {
+          "group": "Ramps of Wonder",
+          "label": "Middle Ramp of Wonder",
+          "value": "RoW-M",
+          "retired": false,
+          "sortOrder": 39
+        },
+        {
+          "group": "Ramps of Wonder",
+          "label": "Lower Ramp of Wonder",
+          "value": "RoW-L",
+          "retired": false,
+          "sortOrder": 40
+        },
+        {
+          "group": "Tiny Hut",
+          "label": "Ramp to Top of Tiny Hut",
+          "value": "TH-R",
+          "retired": false,
+          "sortOrder": 41
+        },
+        {
+          "group": "Tiny Hut",
+          "label": "Perch on Top of Tiny Hut",
+          "value": "TH-T",
+          "retired": false,
+          "sortOrder": 42
+        },
+        {
+          "group": "Footbridges",
+          "label": "NE Footbridge",
+          "value": "FB-1",
+          "retired": false,
+          "sortOrder": 43
+        },
+        {
+          "group": "Footbridges",
+          "label": "SW Footbridge",
+          "value": "FB-2",
+          "retired": false,
+          "sortOrder": 44
+        },
+        {
+          "group": "Food Platforms",
+          "label": "N Food Platform",
+          "value": "F-1",
+          "retired": false,
+          "sortOrder": 45
+        },
+        {
+          "group": "Food Platforms",
+          "label": "S Food Platform",
+          "value": "F-2",
+          "retired": false,
+          "sortOrder": 46
+        },
+        {
+          "group": "Baby Boxes",
+          "label": "N Baby Box",
+          "value": "BB-1",
+          "retired": false,
+          "sortOrder": 47
+        },
+        {
+          "group": "Baby Boxes",
+          "label": "S Baby Box",
+          "value": "BB-2",
+          "retired": false,
+          "sortOrder": 48
+        },
+        {
+          "group": "Common Locations",
+          "label": "Water Bowl",
+          "value": "W",
+          "retired": false,
+          "sortOrder": 49
+        },
+        {
+          "group": "Common Locations",
+          "label": "Ground",
+          "value": "G",
+          "retired": false,
+          "sortOrder": 50
+        },
+        {
+          "group": "Common Locations",
+          "label": "Ground",
+          "value": "Ground",
+          "retired": true,
+          "sortOrder": 91
         },
         {
           "group": "Baby Boxes",
           "label": "BB1 - North Baby Box",
           "value": "BB1",
-          "retired": false,
-          "sortOrder": 33
+          "retired": true,
+          "sortOrder": 92
         },
         {
           "group": "Baby Boxes",
           "label": "BB2 - South Baby Box",
           "value": "BB2",
-          "retired": false,
-          "sortOrder": 34
+          "retired": true,
+          "sortOrder": 93
         },
         {
           "group": "Food Platforms",
           "label": "F1 - Food Platform 1",
           "value": "F1",
-          "retired": false,
-          "sortOrder": 35
+          "retired": true,
+          "sortOrder": 94
         },
         {
           "group": "Food Platforms",
           "label": "F2 - Food Platform 2",
           "value": "F2",
-          "retired": false,
-          "sortOrder": 36
-        },
-        {
-          "group": "Other",
-          "label": "G - Ground",
-          "value": "G",
-          "retired": false,
-          "sortOrder": 37
-        },
-        {
-          "group": "Other",
-          "label": "W - Water Bowl",
-          "value": "W",
-          "retired": false,
-          "sortOrder": 38
+          "retired": true,
+          "sortOrder": 95
         }
       ],
       "isActive": true,
@@ -476,12 +595,16 @@
       },
       "perchDiagrams": [
         {
-          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp",
-          "label": "NE Half (Perches 1-18)"
+          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-eastern-perimeter-v1.webp",
+          "label": "Eastern Perimeter"
         },
         {
-          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-sw-half-v1.webp",
-          "label": "SW Half (Perches 19-31, BB, F, W)"
+          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-nw-central-v1.webp",
+          "label": "North-Western & Central"
+        },
+        {
+          "url": "https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-sw-central-v1.webp",
+          "label": "South-Western & Central"
         }
       ]
     }
