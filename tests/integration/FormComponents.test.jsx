@@ -13,7 +13,7 @@ import {
 import { adaptConfig } from '../../src/services/configAdapter';
 import { bundledConfig } from '../../src/services/configService';
 
-const { ANIMAL_INTERACTION_TYPES } = adaptConfig(bundledConfig);
+const { ANIMAL_INTERACTION_TYPES, perchDiagrams } = adaptConfig(bundledConfig);
 
 describe('Form Components', () => {
   describe('BehaviorSelect', () => {
@@ -522,10 +522,10 @@ describe('Form Components', () => {
       const mapButton = screen.getByText(/Map/);
       fireEvent.click(mapButton);
 
-      // Modal should be rendered (checking for modal title and tabs)
+      // Modal should be rendered (checking for modal title and config-driven tabs)
       expect(screen.getByText('Perch Reference')).toBeInTheDocument();
-      expect(screen.getByText(/NE Half/)).toBeInTheDocument();
-      expect(screen.getByText(/SW Half/)).toBeInTheDocument();
+      expect(screen.getByText(perchDiagrams[0].label)).toBeInTheDocument();
+      expect(screen.getByText(perchDiagrams[1].label)).toBeInTheDocument();
     });
 
     test('closes modal when close button is clicked', () => {

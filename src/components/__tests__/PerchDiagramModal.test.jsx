@@ -92,81 +92,67 @@ describe('PerchDiagramModal', () => {
   });
 
   describe('Tab switching', () => {
-    it('should show NE Half tab by default', () => {
+    // Config-driven: labels/URLs come from the bundled config's perchDiagrams,
+    // so these survive a diagram re-catalog (e.g. the 009 three-view set)
+    // without hardcoded label assertions.
+    const [first, second] = perchDiagrams;
+
+    it('should show the first tab active by default', () => {
       render(<PerchDiagramModal isOpen={true} onClose={mockOnClose} />);
-      const neTab = screen.getByRole('button', {
-        name: /NE Half \(Perches 1-18\)/i,
-      });
-      expect(neTab).toHaveClass('active');
+      const firstTab = screen.getByRole('button', { name: first.label });
+      expect(firstTab).toHaveClass('active');
     });
 
-    it('should switch to SW Half tab when clicked', async () => {
+    it('should switch to the second tab when clicked', async () => {
       const user = userEvent.setup();
       render(<PerchDiagramModal isOpen={true} onClose={mockOnClose} />);
 
-      const swTab = screen.getByRole('button', {
-        name: /SW Half \(Perches 19-31, BB, F, W\)/i,
-      });
-      await user.click(swTab);
+      const secondTab = screen.getByRole('button', { name: second.label });
+      await user.click(secondTab);
 
-      expect(swTab).toHaveClass('active');
+      expect(secondTab).toHaveClass('active');
     });
 
-    it('should switch back to NE Half tab when clicked', async () => {
+    it('should switch back to the first tab when clicked', async () => {
       const user = userEvent.setup();
       render(<PerchDiagramModal isOpen={true} onClose={mockOnClose} />);
 
-      // Switch to SW
-      const swTab = screen.getByRole('button', {
-        name: /SW Half \(Perches 19-31, BB, F, W\)/i,
-      });
-      await user.click(swTab);
+      const secondTab = screen.getByRole('button', { name: second.label });
+      await user.click(secondTab);
 
-      // Switch back to NE
-      const neTab = screen.getByRole('button', {
-        name: /NE Half \(Perches 1-18\)/i,
-      });
-      await user.click(neTab);
+      const firstTab = screen.getByRole('button', { name: first.label });
+      await user.click(firstTab);
 
-      expect(neTab).toHaveClass('active');
-      expect(swTab).not.toHaveClass('active');
+      expect(firstTab).toHaveClass('active');
+      expect(secondTab).not.toHaveClass('active');
     });
 
-    it('should show correct image for NE Half tab', () => {
+    it('should show the correct image + alt for the first tab', () => {
       const { container } = render(
         <PerchDiagramModal isOpen={true} onClose={mockOnClose} />
       );
 
       const img = container.querySelector('img');
-      expect(img).toHaveAttribute(
-        'src',
-        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp'
-      );
+      expect(img).toHaveAttribute('src', first.url);
       expect(img).toHaveAttribute(
         'alt',
-        "Perches: NE Half (Perches 1-18) — Sayyida's Cove"
+        `Perches: ${first.label} — Sayyida's Cove`
       );
     });
 
-    it('should show correct image for SW Half tab', async () => {
+    it('should show the correct image + alt for the second tab', async () => {
       const user = userEvent.setup();
       const { container } = render(
         <PerchDiagramModal isOpen={true} onClose={mockOnClose} />
       );
 
-      const swTab = screen.getByRole('button', {
-        name: /SW Half \(Perches 19-31, BB, F, W\)/i,
-      });
-      await user.click(swTab);
+      await user.click(screen.getByRole('button', { name: second.label }));
 
       const img = container.querySelector('img');
-      expect(img).toHaveAttribute(
-        'src',
-        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-sw-half-v1.webp'
-      );
+      expect(img).toHaveAttribute('src', second.url);
       expect(img).toHaveAttribute(
         'alt',
-        "Perches: SW Half (Perches 19-31, BB, F, W) — Sayyida's Cove"
+        `Perches: ${second.label} — Sayyida's Cove`
       );
     });
 
@@ -176,25 +162,17 @@ describe('PerchDiagramModal', () => {
         <PerchDiagramModal isOpen={true} onClose={mockOnClose} />
       );
 
-      // Both config-driven tabs render with the config labels
-      expect(perchDiagrams).toHaveLength(2);
+      // The 009 re-catalog ships three diagram views; one tab renders per view
+      expect(perchDiagrams).toHaveLength(3);
       perchDiagrams.forEach(({ label }) => {
         expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
       });
 
       // First diagram shows by default; switching tabs swaps to the other URL
-      expect(container.querySelector('img')).toHaveAttribute(
-        'src',
-        perchDiagrams[0].url
-      );
+      expect(container.querySelector('img')).toHaveAttribute('src', first.url);
 
-      await user.click(
-        screen.getByRole('button', { name: perchDiagrams[1].label })
-      );
-      expect(container.querySelector('img')).toHaveAttribute(
-        'src',
-        perchDiagrams[1].url
-      );
+      await user.click(screen.getByRole('button', { name: second.label }));
+      expect(container.querySelector('img')).toHaveAttribute('src', second.url);
     });
   });
 
@@ -210,10 +188,7 @@ describe('PerchDiagramModal', () => {
 
       const images = container.querySelectorAll('img');
       expect(images).toHaveLength(1);
-      expect(images[0]).toHaveAttribute(
-        'src',
-        'https://pub-f2f3822bc5384a4a9b824b196e990a21.r2.dev/perch-diagram-sayyidas-cove-ne-half-v1.webp'
-      );
+      expect(images[0]).toHaveAttribute('src', perchDiagrams[0].url);
     });
   });
 
