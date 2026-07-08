@@ -65,7 +65,7 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
       ? validateTimeRange(metadata.startTime, metadata.endTime).error
       : null;
 
-  // Help text for time entry (same for both modes)
+  // Help text for time entry (video timestamp guidance).
   const timeRangeHelpText =
     'Enter times exactly as shown on the video timestamp (top-left corner).';
 
@@ -73,79 +73,11 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
     <section className="section">
       <h2 className="section-title">Observer Information</h2>
 
-      {/* Temporary migration notice - can be removed after Feb 2026 */}
-      {metadata.mode === 'live' && (
-        <div
-          className="notice-banner"
-          style={{
-            gridColumn: '1 / -1',
-            padding: '12px 16px',
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffc107',
-            borderRadius: '4px',
-            marginBottom: '16px',
-          }}
-        >
-          <strong>📢 Updated:</strong> For live streams, please use the
-          timestamp shown on the video (top-left corner), not your local time.
-          This ensures all observations align correctly regardless of stream
-          delay.
-        </div>
-      )}
-
-      {/* Observation Mode Selector */}
-      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-        <label>
-          What are you observing? <span className="required">*</span>
-        </label>
-        <div className="mode-selector">
-          <label
-            className={`mode-option ${metadata.mode === 'live' ? 'selected' : ''}`}
-          >
-            <input
-              type="radio"
-              name="mode"
-              value="live"
-              checked={metadata.mode === 'live'}
-              onChange={(e) => onChange('mode', e.target.value)}
-            />
-            <div className="mode-content">
-              <span className="mode-icon">🔴</span>
-              <div className="mode-text">
-                <strong>Live Stream</strong>
-                <p>Watching now - use video timestamps</p>
-              </div>
-            </div>
-          </label>
-          <label
-            className={`mode-option ${metadata.mode === 'vod' ? 'selected' : ''}`}
-          >
-            <input
-              type="radio"
-              name="mode"
-              value="vod"
-              checked={metadata.mode === 'vod'}
-              onChange={(e) => onChange('mode', e.target.value)}
-            />
-            <div className="mode-content">
-              <span className="mode-icon">📼</span>
-              <div className="mode-text">
-                <strong>Recorded Video (VOD)</strong>
-                <p>Past stream - use video timestamps</p>
-              </div>
-            </div>
-          </label>
-        </div>
-      </div>
-
       <div className="metadata-grid">
-        <div className="form-group">
+        <div className="form-group metadata-field-name">
           <label>
             Your Name <span className="required">*</span>
           </label>
-          <div className="label-help-text">
-            Discord, Twitch, or any name you prefer.
-          </div>
           <input
             type="text"
             value={metadata.observerName}
@@ -154,12 +86,15 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
             placeholder="Enter your name"
             className={fieldErrors.observerName ? 'error' : ''}
           />
+          <div className="label-help-text">
+            Discord, Twitch, or any name you prefer.
+          </div>
           {fieldErrors.observerName && (
             <div className="field-error">{fieldErrors.observerName}</div>
           )}
         </div>
 
-        <div className="form-group">
+        <div className="form-group metadata-field-date">
           <label>
             Date <span className="required">*</span>
           </label>
@@ -174,14 +109,10 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
           )}
         </div>
 
-        <div className="form-group">
+        <div className="form-group metadata-field-time">
           <label>
-            {metadata.mode === 'live'
-              ? 'Observation Time Range'
-              : 'VOD Time Range'}{' '}
-            <span className="required">*</span>
+            Observation Time Range <span className="required">*</span>
           </label>
-          <div className="label-help-text">{timeRangeHelpText}</div>
           <div className="time-range-inputs">
             <input
               type="time"
@@ -203,14 +134,15 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
               step={TIME_SLOT_STEP_SECONDS}
             />
           </div>
+          <div className="label-help-text">{timeRangeHelpText}</div>
           {timeRangeError && (
             <div className="field-error">{timeRangeError}</div>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="aviary">Aviary</label>
-          {aviaryOptions.length > 1 ? (
+        {aviaryOptions.length > 1 && (
+          <div className="form-group metadata-field-aviary">
+            <label htmlFor="aviary">Aviary</label>
             <select
               id="aviary"
               value={metadata.aviary}
@@ -222,29 +154,31 @@ const MetadataSection = ({ metadata, fieldErrors, onChange }) => {
                 </option>
               ))}
             </select>
-          ) : (
-            // Exactly one active aviary: auto-selected, read-only (today's UX)
-            <input
-              id="aviary"
-              type="text"
-              value={getAviaryDisplayName(metadata.aviary)}
-              readOnly
-              disabled
-            />
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        <div className="form-group">
-          <label>Subjects</label>
-          <input
-            type="text"
-            value={
-              displayedSubjects.map((s) => s.name).join(', ') + subjectsCaveat
-            }
-            readOnly
-            disabled
-            title="Subjects with a residency episode covering the selected date"
-          />
+      {/* Read-only recording context. These aren't editable, so they sit
+          below the fields the observer fills in, in a lighter treatment.
+          With multiple active aviaries the aviary becomes an editable select
+          above; with one it's shown here as read-only text. */}
+      <div className="metadata-context">
+        {aviaryOptions.length <= 1 && (
+          <div className="metadata-context-item">
+            <span className="metadata-context-label">Aviary</span>
+            <span className="metadata-context-value">
+              {getAviaryDisplayName(metadata.aviary)}
+            </span>
+          </div>
+        )}
+        <div
+          className="metadata-context-item"
+          title="Subjects with a residency episode covering the selected date"
+        >
+          <span className="metadata-context-label">Subjects</span>
+          <span className="metadata-context-value">
+            {displayedSubjects.map((s) => s.name).join(', ') + subjectsCaveat}
+          </span>
         </div>
       </div>
     </section>
@@ -258,7 +192,6 @@ MetadataSection.propTypes = {
     startTime: PropTypes.string.isRequired,
     endTime: PropTypes.string.isRequired,
     aviary: PropTypes.string.isRequired,
-    mode: PropTypes.oneOf(['live', 'vod']).isRequired,
   }).isRequired,
   fieldErrors: PropTypes.objectOf(PropTypes.string).isRequired,
   onChange: PropTypes.func.isRequired,

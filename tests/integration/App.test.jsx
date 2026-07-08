@@ -198,19 +198,6 @@ describe('App Integration Tests', () => {
 
       expect(dateInput).toHaveValue('2025-12-25');
     });
-
-    test('updates metadata state when mode changes', () => {
-      render(<App />);
-
-      const vodRadio = screen.getByRole('radio', { name: /Recorded Video/i });
-      fireEvent.click(vodRadio);
-
-      expect(vodRadio).toBeChecked();
-      // Both modes use video timestamps (no timezone conversion)
-      expect(
-        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
-      ).toBeInTheDocument();
-    });
   });
 
   describe('Observation State Management', () => {
