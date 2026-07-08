@@ -57,16 +57,17 @@ describe('adaptConfig — bundled snapshot', () => {
       'Baby Boxes',
       'Common Locations',
     ]);
-    // 'Perches' holds 1-37 in sort order (options are not re-sorted by label)
+    // 'Perches' holds 1-37 in sort order (options are not re-sorted by label).
+    // Number-forward labels (v5): the diagram number leads so it shows in the menu.
     expect(bundle.perchOptions[0].options).toHaveLength(37);
     expect(bundle.perchOptions[0].options[0]).toEqual({
       value: '1',
-      label: 'High SE Turfed Corner Perch',
+      label: 'Perch 1',
     });
-    // Common Locations = water bowl + ground (active ground is value 'G', relabelled)
+    // Common Locations = water bowl + ground, keys leading (active ground is value 'G')
     expect(bundle.perchOptions.at(-1).options).toEqual([
-      { value: 'W', label: 'Water Bowl' },
-      { value: 'G', label: 'Ground' },
+      { value: 'W', label: 'W — Water Bowl' },
+      { value: 'G', label: 'G — Ground' },
     ]);
   });
 
