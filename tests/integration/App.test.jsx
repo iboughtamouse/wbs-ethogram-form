@@ -540,10 +540,10 @@ describe('App Integration Tests', () => {
   });
 
   describe('Time Handling', () => {
-    test('both live and VOD modes preserve times unchanged', async () => {
+    test('preserves observation times unchanged (no timezone conversion)', async () => {
       render(<App />);
 
-      // Fill in metadata in live mode (default)
+      // Fill in metadata
       await fillMetadata('TestObserver');
 
       const container = screen

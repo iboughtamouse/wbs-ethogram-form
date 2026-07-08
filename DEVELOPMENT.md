@@ -119,7 +119,6 @@ const [metadata, setMetadata] = useState({
   endTime: '',
   aviary: "Sayyida's Cove",
   patient: 'Sayyida',
-  mode: 'live', // 'live' or 'vod'
 });
 
 // Observations state (object keyed by time strings)

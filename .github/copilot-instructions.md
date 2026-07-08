@@ -36,7 +36,7 @@ Keep edits local and minimal: prefer changing the single source of truth files l
 
 ### Data shapes and naming conventions (important)
 
-- `metadata` object keys: `observerName` (saved to localStorage for persistence), `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`, `mode` ('live' or 'vod').
+- `metadata` object keys: `observerName` (saved to localStorage for persistence), `date` (YYYY-MM-DD), `startTime`, `endTime`, `aviary`, `patient`.
 - `observations` is an object keyed by time strings with flat structure:
   ```
   {

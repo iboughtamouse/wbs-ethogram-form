@@ -370,7 +370,6 @@ const [metadata, setMetadata] = useState({
   endTime: '', // HH:MM (24-hour)
   aviary: "Sayyida's Cove", // Fixed
   patient: 'Sayyida', // Fixed
-  mode: 'live', // 'live' or 'vod'
 });
 
 // Observations state: an object keyed by "HH:MM" time strings. Each value is a flat
