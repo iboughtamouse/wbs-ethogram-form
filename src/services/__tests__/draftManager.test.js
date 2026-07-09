@@ -9,7 +9,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {};
 
@@ -23,7 +22,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {};
 
@@ -37,7 +35,6 @@ describe('draftManager', () => {
         startTime: '09:00',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {};
 
@@ -51,7 +48,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '10:00',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {};
 
@@ -65,7 +61,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {
         '09:00': [
@@ -89,7 +84,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {
         '09:00': [
@@ -113,7 +107,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {
         '09:00': [
@@ -137,7 +130,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {
         '09:00': [
@@ -188,7 +180,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {
         '09:00': [
@@ -221,14 +212,13 @@ describe('draftManager', () => {
       expect(shouldAutosave(metadata, observations)).toBe(true);
     });
 
-    it('should ignore default metadata fields (date, aviary, mode)', () => {
+    it('should ignore default metadata fields (date, aviary)', () => {
       const metadata = {
         observerName: '',
         date: '2025-01-15', // Default value, should be ignored
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove', // Default value, should be ignored
-        mode: 'live', // Default value, should be ignored
       };
       const observations = {};
 
@@ -242,7 +232,6 @@ describe('draftManager', () => {
         startTime: '',
         endTime: '',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
       const observations = {};
 
@@ -270,7 +259,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -299,7 +287,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: { '09:00': [null] },
         savedAt: '2026-06-15T10:00:00.000Z',
@@ -325,7 +312,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -381,7 +367,6 @@ describe('draftManager', () => {
           endTime: '10:00',
           aviary: "Sayyida's Cove",
           patient: 'Ruby',
-          mode: 'live',
         },
         observations: {
           '09:00': {
@@ -407,7 +392,6 @@ describe('draftManager', () => {
         startTime: '09:00',
         endTime: '10:00',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       });
       expect(migrated.metadata).not.toHaveProperty('patient');
       expect(migrated.observations).toEqual({
@@ -451,7 +435,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': {
@@ -483,7 +466,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {},
       };
@@ -499,7 +481,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: null,
       };
@@ -515,7 +496,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: [{ behavior: 'perching', location: '', notes: '' }],
       };
@@ -532,7 +512,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {},
       };
@@ -549,7 +528,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {
           '09:00': {
@@ -573,7 +551,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': 'perching',
@@ -591,7 +568,6 @@ describe('draftManager', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': {
@@ -625,7 +601,6 @@ describe('draftManager', () => {
           endTime: '10:00',
           aviary: 'Retired Aviary',
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {},
       };

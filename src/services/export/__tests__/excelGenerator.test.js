@@ -51,7 +51,6 @@ describe('excelGenerator', () => {
         startTime: '09:00',
         endTime: '09:15',
         aviary: "Sayyida's Cove",
-        mode: 'live',
       },
       observations: {
         '09:00': [
@@ -213,7 +212,6 @@ describe('excelGenerator', () => {
           startTime: '10:00',
           endTime: '10:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {},
         submittedAt: '2025-01-16T10:15:00.000Z',
@@ -231,21 +229,20 @@ describe('excelGenerator', () => {
       expect(worksheet.getCell('K2').value).toBe('Jane Doe');
     });
 
-    it('should handle VOD mode correctly', async () => {
-      const vodData = {
+    it('should show observation times as entered', async () => {
+      const timedData = {
         ...mockFormData,
         metadata: {
           ...mockFormData.metadata,
-          mode: 'vod',
           startTime: '14:30',
           endTime: '14:45',
         },
       };
 
-      const workbook = await generateExcelWorkbook(vodData, EXCEL_ROWS);
+      const workbook = await generateExcelWorkbook(timedData, EXCEL_ROWS);
       const worksheet = workbook.getWorksheet('Sayyida');
 
-      // VOD mode should show original times (not converted)
+      // Times should be shown exactly as entered (no conversion)
       expect(worksheet.getCell('K1').value).toBe('14:30 - 14:45');
     });
 
@@ -288,7 +285,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '10:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [cardFor('Sayyida', { behavior: 'flying' })],
@@ -315,7 +311,6 @@ describe('excelGenerator', () => {
           startTime: '23:55',
           endTime: '00:00',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '23:55': [
@@ -388,7 +383,6 @@ describe('excelGenerator', () => {
           startTime: '23:30',
           endTime: '00:30',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {},
         submittedAt: '2025-01-16T00:35:00.000Z',
@@ -413,7 +407,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -455,7 +448,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -497,7 +489,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -543,7 +534,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [cardFor('Sayyida', { behavior: 'eating' })],
@@ -594,7 +584,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:05',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': subjectIds.map((subjectId) =>
@@ -750,7 +739,6 @@ describe('excelGenerator', () => {
           startTime: '09:00',
           endTime: '09:10',
           aviary: "Sayyida's Cove",
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -872,7 +860,6 @@ describe('excelGenerator', () => {
         startTime: '09:00',
         endTime: '09:10',
         aviary: "Sayyida's Cove",
-        mode: 'live',
       },
       observations: {
         '09:00': [

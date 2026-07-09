@@ -31,7 +31,6 @@ describe('useSubmission', () => {
       endTime: '15:30',
       aviary: 'sayyidas-cove', // app state carries the slug, not the display name
       patient: 'Sayyida',
-      mode: 'live',
     },
     observations: {
       '15:00': { behavior: 'perching', location: '5', notes: '' },

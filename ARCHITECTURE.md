@@ -51,7 +51,6 @@ App.jsx - Root coordinator component
 ├── MetadataSection.jsx
 │   ├── Observer name input
 │   ├── Date picker
-│   ├── Mode selector (live/VOD)
 │   ├── Start time input
 │   └── End time input
 │

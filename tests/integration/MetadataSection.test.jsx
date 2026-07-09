@@ -10,7 +10,6 @@ describe('MetadataSection', () => {
     startTime: '',
     endTime: '',
     aviary: 'sayyidas-cove',
-    mode: 'live',
   };
 
   const defaultFieldErrors = {};

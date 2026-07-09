@@ -627,7 +627,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-11-21T10:00:00.000Z',
@@ -652,7 +651,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {
           '10:00': {
@@ -711,7 +709,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-11-21T10:00:00.000Z',

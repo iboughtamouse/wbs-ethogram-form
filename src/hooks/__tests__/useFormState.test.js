@@ -111,11 +111,11 @@ describe('useFormState', () => {
 
       act(() => {
         result.current.handleMetadataChange('observerName', 'John Doe');
-        result.current.handleMetadataChange('mode', 'vod');
+        result.current.handleMetadataChange('date', '2025-06-15');
       });
 
       expect(result.current.metadata.observerName).toBe('John Doe');
-      expect(result.current.metadata.mode).toBe('vod');
+      expect(result.current.metadata.date).toBe('2025-06-15');
     });
   });
 
@@ -556,7 +556,6 @@ describe('useFormState', () => {
         startTime: '14:00',
         endTime: '14:30',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
 
       const draftObservations = {
