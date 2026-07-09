@@ -170,9 +170,85 @@ select.error {
 }
 
 .metadata-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 15px;
+}
+
+/* Right-size each field to its content instead of even thirds: name and time
+   range grow to fill, date stays compact (it only holds MM/DD/YYYY + picker).
+   Help text sits below the inputs (see .label-help-text) so every input aligns
+   on the same row regardless of how much help text a field has. */
+.metadata-grid .form-group {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.metadata-field-name {
+  flex: 3 1 220px;
+}
+
+.metadata-field-date {
+  flex: 0 1 170px;
+}
+
+.metadata-field-time {
+  flex: 3 1 300px;
+}
+
+.metadata-field-aviary {
+  flex: 2 1 200px;
+}
+
+@media (max-width: 860px) {
+  .metadata-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metadata-grid .form-group {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
+
+/* Read-only recording context (aviary + subjects): informational, so it's
+   visually lighter than the editable fields above it. */
+.metadata-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.metadata-context-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.metadata-context-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.metadata-context-value {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .time-slots {
@@ -328,7 +404,7 @@ select.error {
 .label-help-text {
   font-size: 12px;
   color: var(--color-text-secondary);
-  margin-bottom: 5px;
+  margin-top: 5px;
   transition: color 0.3s ease;
 }
 

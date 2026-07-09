@@ -634,7 +634,6 @@ describe('useFormValidation', () => {
         startTime: '09:00',
         endTime: '09:30',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
 
       let isValid;

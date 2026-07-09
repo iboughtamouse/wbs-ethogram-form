@@ -41,7 +41,6 @@ OutputPreview.propTypes = {
       startTime: PropTypes.string.isRequired,
       endTime: PropTypes.string.isRequired,
       aviary: PropTypes.string.isRequired,
-      mode: PropTypes.string.isRequired,
     }).isRequired,
     observations: PropTypes.objectOf(
       PropTypes.arrayOf(

@@ -4,14 +4,14 @@
  * Handles output data preparation for form submission.
  * All times are stream timestamps (WBS time) - no conversion needed.
  *
- * As of December 2025, timezone conversion has been removed.
- * Both Live and VOD modes now use stream timestamps directly.
+ * As of December 2025, timezone conversion has been removed; times are stored
+ * exactly as entered (the video's on-screen timestamp).
  */
 
 /**
  * Prepares form data for output/submission
  *
- * All observation modes use stream timestamps directly (top-left corner of video).
+ * Times are stored exactly as entered (the video's top-left timestamp).
  * No timezone conversion is performed.
  *
  * @param {Object} metadata - Form metadata (observer, date, times, aviary slug)

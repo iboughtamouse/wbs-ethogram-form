@@ -53,7 +53,6 @@ describe('localStorageUtils', () => {
         endTime: '16:00',
         aviary: 'A1',
         patient: 'Sayyida',
-        mode: 'live',
       };
       const observations = {
         '15:00': { behavior: 'Perching', location: '5', notes: 'Test note' },
@@ -248,7 +247,6 @@ describe('localStorageUtils', () => {
         endTime: '16:00',
         aviary: 'A1',
         patient: 'Sayyida',
-        mode: 'live',
       };
       const observations = {
         '15:00': {

@@ -119,7 +119,6 @@ const [metadata, setMetadata] = useState({
   endTime: '',
   aviary: "Sayyida's Cove",
   patient: 'Sayyida',
-  mode: 'live', // 'live' or 'vod'
 });
 
 // Observations state (object keyed by time strings)
@@ -461,7 +460,6 @@ useEffect(() => {
 - `.form-group` - Individual form fields
 - `.field-error` - Validation error messages
 - `.error` - Input error state (red border)
-- `.mode-selector` - Radio button card layout
 
 ## 📝 Adding New Features
 

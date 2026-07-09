@@ -39,7 +39,6 @@ describe('useAutoSave', () => {
     startTime: '',
     endTime: '',
     aviary: 'sayyidas-cove',
-    mode: 'live',
   };
 
   const observations = {};
@@ -67,7 +66,6 @@ describe('useAutoSave', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
@@ -180,7 +178,6 @@ describe('useAutoSave', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -238,7 +235,6 @@ describe('useAutoSave', () => {
           endTime: '09:30',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: { '09:00': { behavior: 'perching', location: '1' } },
         savedAt: '2025-01-15T10:00:00.000Z',
@@ -260,7 +256,6 @@ describe('useAutoSave', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {
           '09:00': [
@@ -287,7 +282,6 @@ describe('useAutoSave', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',
@@ -314,7 +308,6 @@ describe('useAutoSave', () => {
           startTime: '09:00',
           endTime: '09:30',
           aviary: 'sayyidas-cove',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-01-15T10:00:00.000Z',

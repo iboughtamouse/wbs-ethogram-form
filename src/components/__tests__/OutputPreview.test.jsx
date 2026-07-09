@@ -11,7 +11,6 @@ describe('OutputPreview', () => {
       endTime: '15:30',
       aviary: "Sayyida's Cove",
       patient: 'Sayyida',
-      mode: 'live',
     },
     observations: {
       '15:00': {

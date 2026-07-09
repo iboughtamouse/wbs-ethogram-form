@@ -10,7 +10,6 @@ describe('MetadataSection', () => {
     startTime: '',
     endTime: '',
     aviary: 'sayyidas-cove',
-    mode: 'live',
   };
 
   const defaultFieldErrors = {};
@@ -36,13 +35,13 @@ describe('MetadataSection', () => {
       expect(
         screen.getByDisplayValue(defaultMetadata.date)
       ).toBeInTheDocument();
-      expect(screen.getByDisplayValue("Sayyida's Cove")).toBeInTheDocument();
+      expect(screen.getByText("Sayyida's Cove")).toBeInTheDocument();
       expect(
-        screen.getByDisplayValue('Sayyida, 187(B), 216(O), 253(R)')
+        screen.getByText('Sayyida, 187(B), 216(O), 253(R)')
       ).toBeInTheDocument();
     });
 
-    test('renders mode selector with both options', () => {
+    test('renders aviary and subjects as read-only context', () => {
       render(
         <MetadataSection
           metadata={defaultMetadata}
@@ -51,44 +50,17 @@ describe('MetadataSection', () => {
         />
       );
 
-      expect(screen.getByText('Live Stream')).toBeInTheDocument();
-      expect(screen.getByText('Recorded Video (VOD)')).toBeInTheDocument();
-    });
-
-    test('live mode is selected by default', () => {
-      render(
-        <MetadataSection
-          metadata={defaultMetadata}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      const liveRadio = screen.getByRole('radio', { name: /Live Stream/i });
-      const vodRadio = screen.getByRole('radio', { name: /Recorded Video/i });
-
-      expect(liveRadio).toBeChecked();
-      expect(vodRadio).not.toBeChecked();
-    });
-
-    test('renders aviary and subjects as read-only', () => {
-      render(
-        <MetadataSection
-          metadata={defaultMetadata}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      const aviaryInput = screen.getByDisplayValue("Sayyida's Cove");
-      const subjectsInput = screen.getByDisplayValue(
-        'Sayyida, 187(B), 216(O), 253(R)'
-      );
-
-      expect(aviaryInput).toHaveAttribute('readonly');
-      expect(aviaryInput).toBeDisabled();
-      expect(subjectsInput).toHaveAttribute('readonly');
-      expect(subjectsInput).toBeDisabled();
+      // Read-only context renders as plain text, not editable inputs.
+      expect(screen.getByText("Sayyida's Cove")).toBeInTheDocument();
+      expect(
+        screen.getByText('Sayyida, 187(B), 216(O), 253(R)')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByDisplayValue("Sayyida's Cove")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByDisplayValue('Sayyida, 187(B), 216(O), 253(R)')
+      ).not.toBeInTheDocument();
     });
 
     test('subjects display is driven by metadata.date', () => {
@@ -104,7 +76,7 @@ describe('MetadataSection', () => {
       );
 
       expect(
-        screen.getByDisplayValue(
+        screen.getByText(
           'Sayyida, 187(B), 216(O), 253(R) (not listed for this date)'
         )
       ).toBeInTheDocument();
@@ -118,7 +90,7 @@ describe('MetadataSection', () => {
       );
 
       // Between Sayyida's arrival and the juveniles': Sayyida only
-      expect(screen.getByDisplayValue('Sayyida')).toBeInTheDocument();
+      expect(screen.getByText('Sayyida')).toBeInTheDocument();
 
       rerender(
         <MetadataSection
@@ -130,11 +102,11 @@ describe('MetadataSection', () => {
 
       // From the juveniles' arrival: the whole family
       expect(
-        screen.getByDisplayValue('Sayyida, 187(B), 216(O), 253(R)')
+        screen.getByText('Sayyida, 187(B), 216(O), 253(R)')
       ).toBeInTheDocument();
     });
 
-    test('shows video timestamp help text for live mode', () => {
+    test('shows video timestamp help text', () => {
       render(
         <MetadataSection
           metadata={defaultMetadata}
@@ -146,53 +118,6 @@ describe('MetadataSection', () => {
       expect(
         screen.getByText(/Enter times exactly as shown on the video timestamp/i)
       ).toBeInTheDocument();
-    });
-
-    test('shows same help text for VOD mode', () => {
-      render(
-        <MetadataSection
-          metadata={{ ...defaultMetadata, mode: 'vod' }}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      // Both modes show identical help text (no timezone conversion)
-      expect(
-        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('Mode Selection', () => {
-    test('calls onChange when switching to VOD mode', () => {
-      render(
-        <MetadataSection
-          metadata={defaultMetadata}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      const vodRadio = screen.getByRole('radio', { name: /Recorded Video/i });
-      fireEvent.click(vodRadio);
-
-      expect(mockOnChange).toHaveBeenCalledWith('mode', 'vod');
-    });
-
-    test('calls onChange when switching to live mode', () => {
-      render(
-        <MetadataSection
-          metadata={{ ...defaultMetadata, mode: 'vod' }}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      const liveRadio = screen.getByRole('radio', { name: /Live Stream/i });
-      fireEvent.click(liveRadio);
-
-      expect(mockOnChange).toHaveBeenCalledWith('mode', 'live');
     });
   });
 
@@ -569,29 +494,17 @@ describe('MetadataSection', () => {
     });
   });
 
-  describe('Label Changes Based on Mode', () => {
-    test('shows "Observation Time Range" label in live mode', () => {
+  describe('Time Range Label', () => {
+    test('always shows "Observation Time Range" label', () => {
       render(
         <MetadataSection
-          metadata={{ ...defaultMetadata, mode: 'live' }}
+          metadata={defaultMetadata}
           fieldErrors={defaultFieldErrors}
           onChange={mockOnChange}
         />
       );
 
       expect(screen.getByText(/Observation Time Range/i)).toBeInTheDocument();
-    });
-
-    test('shows "VOD Time Range" label in vod mode', () => {
-      render(
-        <MetadataSection
-          metadata={{ ...defaultMetadata, mode: 'vod' }}
-          fieldErrors={defaultFieldErrors}
-          onChange={mockOnChange}
-        />
-      );
-
-      expect(screen.getByText(/VOD Time Range/i)).toBeInTheDocument();
     });
   });
 });
