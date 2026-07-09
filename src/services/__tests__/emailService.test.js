@@ -34,7 +34,6 @@ describe('emailService', () => {
       startTime: '15:00',
       endTime: '15:30',
       aviary: 'sayyidas-cove',
-      mode: 'live',
     },
     observations: {
       '15:00': [makeCard()],
@@ -128,7 +127,6 @@ describe('emailService', () => {
         startTime: '15:00',
         endTime: '15:30',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       });
       expect(body.observation.metadata).not.toHaveProperty('patient');
 

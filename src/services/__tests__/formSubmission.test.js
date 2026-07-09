@@ -8,7 +8,6 @@ describe('formSubmission', () => {
       startTime: '09:00',
       endTime: '10:00',
       aviary: 'sayyidas-cove',
-      mode: 'live',
     };
 
     const observations = {
@@ -77,29 +76,18 @@ describe('formSubmission', () => {
       ); // ISO format
     });
 
-    it('should preserve times unchanged for both live and vod modes', () => {
-      const liveResult = prepareOutputData(
-        { ...metadata, mode: 'live' },
-        observations
-      );
-      const vodResult = prepareOutputData(
-        { ...metadata, mode: 'vod' },
-        observations
-      );
+    it('should preserve times and observations unchanged (no timezone conversion)', () => {
+      const result = prepareOutputData(metadata, observations);
 
-      // Both modes work identically - no timezone conversion
-      expect(liveResult.metadata.startTime).toBe('09:00');
-      expect(liveResult.metadata.endTime).toBe('10:00');
-      expect(vodResult.metadata.startTime).toBe('09:00');
-      expect(vodResult.metadata.endTime).toBe('10:00');
+      // No timezone conversion
+      expect(result.metadata.startTime).toBe('09:00');
+      expect(result.metadata.endTime).toBe('10:00');
 
       // Observations preserved unchanged
-      expect(liveResult.observations).toEqual(observations);
-      expect(vodResult.observations).toEqual(observations);
+      expect(result.observations).toEqual(observations);
 
       // No observerTimezone field added
-      expect(liveResult.metadata).not.toHaveProperty('observerTimezone');
-      expect(vodResult.metadata).not.toHaveProperty('observerTimezone');
+      expect(result.metadata).not.toHaveProperty('observerTimezone');
     });
 
     it('should pass array-native observation slots through untouched', () => {
@@ -163,7 +151,6 @@ describe('formSubmission', () => {
       expect(result.metadata.observerName).toBe('John Doe');
       expect(result.metadata.date).toBe('2025-01-15');
       expect(result.metadata.aviary).toBe('sayyidas-cove');
-      expect(result.metadata.mode).toBe('live');
     });
 
     it('should not add a patient key to metadata', () => {
@@ -174,7 +161,6 @@ describe('formSubmission', () => {
         'aviary',
         'date',
         'endTime',
-        'mode',
         'observerName',
         'startTime',
       ]);

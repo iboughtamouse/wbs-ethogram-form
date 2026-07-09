@@ -198,19 +198,6 @@ describe('App Integration Tests', () => {
 
       expect(dateInput).toHaveValue('2025-12-25');
     });
-
-    test('updates metadata state when mode changes', () => {
-      render(<App />);
-
-      const vodRadio = screen.getByRole('radio', { name: /Recorded Video/i });
-      fireEvent.click(vodRadio);
-
-      expect(vodRadio).toBeChecked();
-      // Both modes use video timestamps (no timezone conversion)
-      expect(
-        screen.getByText(/Enter times exactly as shown on the video timestamp/i)
-      ).toBeInTheDocument();
-    });
   });
 
   describe('Observation State Management', () => {
@@ -553,10 +540,10 @@ describe('App Integration Tests', () => {
   });
 
   describe('Time Handling', () => {
-    test('both live and VOD modes preserve times unchanged', async () => {
+    test('preserves observation times unchanged (no timezone conversion)', async () => {
       render(<App />);
 
-      // Fill in metadata in live mode (default)
+      // Fill in metadata
       await fillMetadata('TestObserver');
 
       const container = screen
@@ -640,7 +627,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-11-21T10:00:00.000Z',
@@ -665,7 +651,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {
           '10:00': {
@@ -724,7 +709,6 @@ describe('App Integration Tests', () => {
           endTime: '10:10',
           aviary: "Sayyida's Cove",
           patient: 'Sayyida',
-          mode: 'live',
         },
         observations: {},
         savedAt: '2025-11-21T10:00:00.000Z',

@@ -23,7 +23,6 @@ describe('downloadService', () => {
       endTime: '15:30',
       aviary: "Sayyida's Cove",
       patient: 'Sayyida',
-      mode: 'live',
     },
     observations: {
       '15:00': { behavior: 'perching', location: '5', notes: '' },

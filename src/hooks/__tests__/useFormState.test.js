@@ -82,9 +82,9 @@ describe('useFormState', () => {
       startTime: '',
       endTime: '',
       aviary: 'sayyidas-cove', // Aviary is stored as the SLUG
-      mode: 'live',
     });
     expect(result.current.metadata).not.toHaveProperty('patient');
+    expect(result.current.metadata).not.toHaveProperty('mode');
     expect(result.current.metadata.date).toBeTruthy(); // Today's date
   });
 
@@ -111,11 +111,11 @@ describe('useFormState', () => {
 
       act(() => {
         result.current.handleMetadataChange('observerName', 'John Doe');
-        result.current.handleMetadataChange('mode', 'vod');
+        result.current.handleMetadataChange('date', '2025-06-15');
       });
 
       expect(result.current.metadata.observerName).toBe('John Doe');
-      expect(result.current.metadata.mode).toBe('vod');
+      expect(result.current.metadata.date).toBe('2025-06-15');
     });
   });
 
@@ -515,7 +515,6 @@ describe('useFormState', () => {
       // Set up some data
       act(() => {
         result.current.handleMetadataChange('observerName', 'John Doe');
-        result.current.handleMetadataChange('mode', 'vod');
       });
 
       await setupTimeSlots(result);
@@ -530,7 +529,6 @@ describe('useFormState', () => {
       });
 
       expect(result.current.metadata.observerName).toBe('John Doe');
-      expect(result.current.metadata.mode).toBe('vod');
       expect(result.current.observations['09:00'][0].behavior).toBe('perching');
 
       // Reset
@@ -539,7 +537,6 @@ describe('useFormState', () => {
       });
 
       expect(result.current.metadata.observerName).toBe('');
-      expect(result.current.metadata.mode).toBe('live'); // Back to default
       expect(result.current.metadata.startTime).toBe('');
       expect(result.current.metadata.endTime).toBe('');
       expect(result.current.metadata.aviary).toBe('sayyidas-cove');
@@ -559,7 +556,6 @@ describe('useFormState', () => {
         startTime: '14:00',
         endTime: '14:30',
         aviary: 'sayyidas-cove',
-        mode: 'live',
       };
 
       const draftObservations = {

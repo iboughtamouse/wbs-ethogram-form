@@ -17,11 +17,9 @@ A web-based data entry form for World Bird Sanctuary's ethogram observations. Th
 
 ### For Observers
 
-- **Live Stream & VOD Support**: Choose your observation mode
-  - 🔴 **Live Stream**: Watch the live Twitch stream and record observations in real-time
-  - 📼 **Recorded Video (VOD)**: Watch recorded videos and fill in any missing time slots
+- **Live streams & recorded video**: Record observations while watching the live Twitch stream or reviewing a recording (VOD).
 
-**Time Entry**: Always use the timestamp displayed in the top-left corner of the video, regardless of mode. The video shows WBS time (America/Chicago, Central Time).
+**Time Entry**: Always use the timestamp displayed in the top-left corner of the video. The video shows WBS time (America/Chicago, Central Time).
 
 - **Flexible Time Ranges**: Observe for any duration from 5 minutes to 1 hour
   - Select any start and end time

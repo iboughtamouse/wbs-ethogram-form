@@ -157,7 +157,7 @@ canonical model lives in the backend DB (`ethogram-api` migrations), served by
 
 - All form state lives in `App.jsx`; domain config comes from `ConfigContext`
   (bundled snapshot at first paint, upgraded from `GET /api/config` at mount)
-- Metadata: Observer info, date, time range, mode, aviary **slug** (display
+- Metadata: Observer info, date, time range, aviary **slug** (display
   names resolve from config wherever the aviary is rendered)
 - Observations: Keyed by time strings (`"15:00"`, `"15:05"`, etc.); each slot
   is an **array of per-subject cards** (`{ cardId, subjectType, subjectId, ...fields }`).

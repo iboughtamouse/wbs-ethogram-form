@@ -35,7 +35,6 @@ export const useFormState = () => {
     startTime: '',
     endTime: '',
     aviary: aviarySlug,
-    mode: 'live',
   });
 
   const [timeSlots, setTimeSlots] = useState([]);
@@ -140,7 +139,6 @@ export const useFormState = () => {
       startTime: '',
       endTime: '',
       aviary: aviarySlug,
-      mode: 'live',
     });
     setTimeSlots([]);
     setObservations({});

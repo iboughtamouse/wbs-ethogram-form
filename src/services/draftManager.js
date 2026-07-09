@@ -40,7 +40,6 @@ const REQUIRED_METADATA_FIELDS = [
   'date',
   'startTime',
   'endTime',
-  'mode',
 ];
 
 const hasUsableShape = (draft) => {

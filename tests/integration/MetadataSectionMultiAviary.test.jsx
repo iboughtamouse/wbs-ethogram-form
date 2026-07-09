@@ -39,7 +39,6 @@ const metadata = {
   startTime: '',
   endTime: '',
   aviary: 'sayyidas-cove',
-  mode: 'live',
 };
 
 describe('MetadataSection — multi-aviary picker', () => {

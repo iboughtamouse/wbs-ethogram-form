@@ -14,7 +14,6 @@ import { getApiBaseUrl } from '../utils/envConfig.js';
  * @property {string} startTime - Start time in HH:MM format
  * @property {string} endTime - End time in HH:MM format
  * @property {string} aviary - Aviary slug (the server resolves the display name)
- * @property {'live'|'vod'} mode - Observation mode (live or video-on-demand)
  */
 
 /**
