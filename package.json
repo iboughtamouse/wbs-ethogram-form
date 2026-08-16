@@ -44,7 +44,7 @@
     "babel-jest": "^30.2.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.26",
     "husky": "^9.0.0",
     "identity-obj-proxy": "^3.0.0",
